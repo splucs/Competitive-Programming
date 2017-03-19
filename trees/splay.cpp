@@ -10,42 +10,50 @@ struct node {
 class SplayTree {
 private:
 	node* root;
-	node* findmin(node* p) {
-		return p->left ? findmin(p->left) : p;
+	node* rotateright(node* p) {
+		node* q = p->left;
+		p->left = q->right;
+		q->right = p;
+		return q;
+	}
+	node* rotateleft(node* q) {
+		node* p = q->right;
+		q->right = p->left;
+		p->left = q;
+		return p;
 	}
 	node* removemin(node* p) {
 		if (p->left == 0) return p->right;
 		p->left = removemin(p->left);
 		return balance(p);
 	}
-	node* splay(node* p, int key)
-	{
+	node* splay(node* p, int key) {
 		if (p == NULL || p->key == key) return p;
 		if (p->key > key) {
 			if (!p->left) return p;
 			if (p->left->key > key)	{
 				p->left->left = splay(p->left->left, key);
-				p = rightRotate(p);
+				p = rotateright(p);
 			}
 			else if (p->left->key < key) {
 				p->left->right = splay(p->left->right, key);
 				if (p->left->right)
-					p->left = leftRotate(p->left);
+					p->left = rotateleft(p->left);
 			}
-			return (p->left == NULL) ? p : rightRotate(p);
+			return (p->left == NULL) ? p : rotateright(p);
 		}
 		else {
 			if (!p->right) return p;
 			if (p->right->key > key) {
 				p->right->left = splay(p->right->left, key);
 				if (p->right->left)
-					p->right = rightRotate(p->right);
+					p->right = rotateright(p->right);
 			}
 			else if (p->right->key < key) {
 				p->right->right = splay(p->right->right, key);
-				p = leftRotate(p);
+				p = rotateleft(p);
 			}
-			return (p->right == NULL) ? p : leftRotate(p);
+			return (p->right == NULL) ? p : rotateleft(p);
 		}
 	}
 	void del(node* p) {
@@ -64,11 +72,11 @@ public:
 		root = 0;
 	}
 	void insert(int key) {
-		if (!root) return new node(k);
-		node* p = splay(root, k);
-		if (p->key == k) return;
-		root = new node(k);
-		if (p->key > k) {
+		if (!root) return new node(key);
+		node* p = splay(root, key);
+		if (p->key == key) return;
+		root = new node(key);
+		if (p->key > key) {
 			root->right = p;
 			root->left = p->left;
 			p->left = NULL;
@@ -81,16 +89,14 @@ public:
 	}
 	void erase(int key) {
 		node* p = splay(root, key);
-		if (root != NULL && root->key != key) return;
+		if (p != NULL && p->key != key) return;
 		if (!p->right) {
 			root = p->left;
 			delete p;
 			return;
 		}
-		node* min = p->right;
-		while (min->left != NULL) min = min->left;
-		if (k < p->key) p->left = remove(p->left, k);
-		else if (k > p->key) p->right = remove(p->right, k);
+		node* minr = p->right;
+		while (minr->left != NULL) minr = minr->left;
 		else {
 			node* l = p->left;
 			node* r = p->right;
