@@ -11,14 +11,14 @@ int comp(int a, int b) {
 
 class SegmentTree {
 private:
-	vector<int> st, pos, lazy;
+	vector<int> st, lazy;
 	int size;
 #define parent(p) (p >> 1)
 #define left(p) (p << 1)
 #define right(p) ((p << 1) + 1)
 	void build(int p, int l, int r, int* A) {
 		if (l == r) {
-			st[p] = A[l]; pos[l] = p;
+			st[p] = A[l];
 		}
 		else {
 			build(left(p), l, (l + r) / 2, A);
@@ -28,7 +28,7 @@ private:
 	}
 	void push(int p, int l, int r) {
 		st[p] += (r - l + 1)*lazy[p];	//Caso RSQ
-										//st[p] += lazy[p]; 		//Caso RMQ
+		//st[p] += lazy[p]; 		    //Caso RMQ
 		if (l != r) {
 			lazy[right(p)] += lazy[p];
 			lazy[left(p)] += lazy[p];
@@ -58,11 +58,32 @@ private:
 public:
 	SegmentTree(int* begin, int* end) {
 		size = (int)(end - begin);
-		st.assign(4 * size, 0);
+		st.assign(4 * size, neutral);
 		lazy.assign(4 * size, 0);
-		pos.assign(size + 9, 0);
 		build(1, 0, size - 1, begin);
 	}
 	int query(int a, int b) { return query(1, 0, size - 1, a, b); }
 	void update(int a, int b, int k) { update(1, 0, size - 1, a, b, k); }
 };
+
+int vet[16];
+
+int main(){
+	int n, k;
+	scanf("%d", &n);
+	for(int i=0; i<n; i++) scanf("%d", &vet[i]);
+	char c;
+	int a, b;
+	SegmentTree st(vet, vet+n);
+	while(scanf(" %c", &c), c=='u' || c=='s' ){
+		if (c == 'u'){
+			scanf("%d %d %d", &a, &b, &k);
+			st.update(a, b, k);
+		}
+		else {
+			scanf("%d %d", &a, &b);
+			printf("soma(%d,%d)=%d\n", a, b, st.query(a, b));
+		}
+	}
+	return 0;
+}

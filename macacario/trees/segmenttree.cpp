@@ -4,8 +4,9 @@
 #define INF (1<<30)
 using namespace std;
 
+int neutral = 0;
 int comp(int a, int b) {
-	return min(a, b);
+	return a+b;
 }
 
 class SegmentTree {
@@ -27,18 +28,16 @@ private:
 		}
 	}
 	int find(int p, int l, int r, int a, int b) {
-		if (a > r || b < l) return INF;
+		if (a > r || b < l) return neutral;
 		if (l >= a && r <= b) return st[p];
 		int p1 = find(left(p), l, (l + r) / 2, a, b);
 		int p2 = find(right(p), (l + r) / 2 + 1, r, a, b);
-		if (p1 == INF) return p2;
-		if (p2 == INF) return p1;
 		return comp(p1, p2);
 	}
 public:
 	SegmentTree(int* begin, int* end) {
 		size = (int)(end - begin);
-		st.assign(4 * size, 0);
+		st.assign(4 * size, neutral);
 		pos.assign(size + 9, 0);
 		build(1, 0, size - 1, begin);
 	}
@@ -52,3 +51,25 @@ public:
 		}
 	}
 };
+
+int vet[16];
+
+int main(){
+	int n;
+	scanf("%d", &n);
+	for(int i=0; i<n; i++) scanf("%d", &vet[i]);
+	char c;
+	int a, b;
+	SegmentTree st(vet, vet+n);
+	while(scanf(" %c", &c), c=='u' || c=='s' ){
+		if (c == 'u'){
+			scanf("%d %d", &a, &b);
+			st.update(a, b);
+		}
+		else {
+			scanf("%d %d", &a, &b);
+			printf("soma(%d,%d)=%d\n", a, b, st.query(a, b));
+		}
+	}
+	return 0;
+}
