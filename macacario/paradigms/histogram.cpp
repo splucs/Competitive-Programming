@@ -1,43 +1,37 @@
-/*URI 1683*/
 #include <cstdio>
-#include <stack>
+#include <algorithm>
 #define MAXN 100009
-#define INF  (1LL<<60)
 using namespace std;
 
 typedef long long ll;
 
-ll histogram(ll * vet, int n) {
-	stack<ll> s;
-	ll ans = 0, tp, cur;
-	int i = 0;
-	while(i < n) {
-		if (s.empty() || vet[s.top()] <= vet[i]) s.push(i++);
-		else {
-			tp = s.top();
-			s.pop();
-			cur = vet[tp] * (s.empty() ? i : i - s.top() - 1);
-			if (ans < cur) ans = cur;
+ll histogram(ll * vet, int a, int b){
+	if (a>b) return 0;
+	if (a==b) return vet[a];
+	ll ans = 0, m;
+	for(int i=a; i<=b; i++){
+		m = min(m, vet[i]);
+	}
+	int l = a;
+	for(int i=a; i<=b; i++){
+		if (vet[i] == m){
+			ans = max(ans, histogram(vet, l, i-1));
+			l = i+1;
 		}
 	}
-	while (!s.empty()) {
-		tp = s.top();
-		s.pop();
-		cur = vet[tp] * (s.empty() ? i : i - s.top() - 1);
-		if (ans < cur) ans = cur;
-	}
-	return ans;
+	if (vet[b] > m) ans = max(ans, histogram(vet, l, b));
+	return max(m*(b-a+1), ans);
 }
 
 ll vet[MAXN];
 
-int main() {
+int main(){
 	int n;
-	while (scanf("%d", &n), n) {
-		for (int i = 0; i<n; i++) {
-			scanf("%lld", vet + i);
+	while(scanf("%d", &n), n){
+		for(int i=0; i<n; i++){
+			scanf("%lld", vet+i);
 		}
-		printf("%lld\n", histogram(vet, n));
+		printf("%lld\n", histogram(vet, 0, n-1));
 	}
 	return 0;
 }

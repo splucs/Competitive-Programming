@@ -4,7 +4,7 @@
 #define INF (1<<30)
 using namespace std;
 
-int neutral = 0;
+const int neutral = 0;
 int comp(int a, int b) {
 	return a+b;
 }

@@ -22,38 +22,39 @@ void sieve(ll n) {
 	}
 }
 
+//O(sqrt(n)/logn), works if factors are less than the biggest prime in primes
 bool isPrimeSieve(ll N) {
 	if (N <= (ll)sievesize) return bs[N];
-	for (int i = 0; i < (int)primes.size() && primes[i] * primes[i] <= N; i++)
+	for (int i = 0; i < (int)primes.size() && primes[i]*primes[i] <= N; i++)
 		if (N % primes[i] == 0) return false;
 	return true;
 }
 
 //O(sqrt(n))
-bool isPrime(ll N) {
-	if (N < 0) return isPrime(-N);
-	for (ll i = 2; i*i <= N; i++) {
+bool isPrime(ll N){
+    if (N < 0) return isPrime(-N);
+	for(ll i=2; i*i <= N; i++){
 		if (N % i == 0) return false;
 	}
 	return true;
 }
 
-//O(sqrt(n)) cortesia do Fabinho
-bool isPrimeFast(ll n) {
-	if (n < 0) return isPrimeFast(-n);
-	if (n < 5 || n % 2 == 0 || n % 3 == 0)
-		return (n == 2 || n == 3);
-	ll maxP = sqrt(n) + 2;
-	for (int p = 5; p < maxP; p += 6)
-		if (n % p == 0 || n % (p + 2) == 0) return false;
-	return true;
+//O(sqrt(n))
+bool isPrimeFast(ll n){
+    if (n < 0) return isPrime(-n);
+    if (n < 5 || n % 2 == 0 || n % 3==0)
+        return (n == 2 || n == 3);
+    ll maxP = sqrt(n) + 2;
+    for (int p = 5; p < maxP; p += 6)
+        if (n % p == 0 || n % (p + 2)==0) return false;
+    return true;
 }
 
 
 vector<ll> primeFactors(ll N) {
 	vector<int> factors;
 	ll PF_idx = 0, PF = primes[PF_idx];
-	while (PF * PF <= N) {
+	while (PF * PF <= N) { 
 		while (N % PF == 0) {
 			N /= PF;
 			factors.push_back(PF);
@@ -89,10 +90,17 @@ ll EulerPhi(ll N) {
 	return ans;
 }
 
-void numDiffPf() {
+void numDiffPf(){
 	memset(numDiffPF, 0, sizeof numDiffPF);
 	for (int i = 2; i < MAXN; i++)
 		if (numDiffPF[i] == 0)
 			for (int j = i; j < MAXN; j += i)
 				numDiffPF[j]++;
+}
+
+int main(){
+	sieve(MAXN); // can go up to 10^7 (need few seconds)
+	printf("%d\n", isPrime(2147483647)); // 10-digits prime
+	printf("%d\n", isPrime(136117223861LL)); // not a prime, 104729*1299709
+	return 0;
 }

@@ -26,7 +26,7 @@ void tarjan(int u) {
 	}
 }
 
-int main() {
+int main(){
 	counter = 0;
 	memset(&num, UNVISITED, sizeof num);
 	memset(&low, 0, sizeof low);

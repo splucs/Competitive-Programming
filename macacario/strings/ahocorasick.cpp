@@ -7,69 +7,69 @@
 #define MAXN 1000009
 using namespace std;
 
-struct STnode {
+struct STnode{
 	map<char, int> sons;
 	char carac;
 	int fail; int parent;
 	int depth;
 	vector<int> ids;
-	STnode(int p, char c, int d) {
+	STnode(int p, char c, int d){
 		fail = -1;
 		parent = p; carac = c;
 		depth = d;
 	}
 };
 
-void action(int pos, int id) {
+void action(int pos, int id){
 	printf("found %d at pos %d\n", id, pos);
 }
 
-class SuffixTrie {
+class SuffixTrie{
 private:
 	vector<STnode> st;
 	char* str;
-	void build(int i, int n, int id) {
-		if (str[i] == '\0') {
+	void build(int i, int n, int id){
+		if (str[i]=='\0'){
 			st[n].ids.push_back(id); return;
 		}
-		if (!st[n].sons.count(str[i])) {
+		if (!st[n].sons.count(str[i])){
 			st[n].sons[str[i]] = (int)st.size();
-			st.push_back(STnode(n, str[i], st[n].depth + 1));
+			st.push_back(STnode(n, str[i], st[n].depth+1));
 		}
-		build(i + 1, st[n].sons[str[i]], id);
+		build(i+1, st[n].sons[str[i]], id);
 	}
-	bool find(int i, int n) {
-		if (str[i] == '\0') return true;
+	bool find(int i, int n){
+		if (str[i]=='\0') return true;
 		if (!st[n].sons.count(str[i])) return false;
-		return find(i + 1, st[n].sons[str[i]]);
+		return find(i+1, st[n].sons[str[i]]);
 	}
-	int callids(int pos, int p) {
-		for (int i = 0; i<(int)st[p].ids.size(); i++) {
+	int callids(int pos, int p){
+		for(int i=0; i<(int)st[p].ids.size(); i++){
 			action(pos, st[p].ids[i]);
 		}
 		return (int)st[p].ids.size();
 	}
-	int match(int i, int n) {
+	int match(int i, int n){
 		int ans = 0;
-		if (str[i] == '\0' || st[n].sons.count(str[i])) {
+		if (str[i] == '\0' || st[n].sons.count(str[i])){
 			int p = n;
-			while (p != 0) {
-				ans += callids(i - st[p].depth - 1, p);
+			while(p != 0){
+				ans += callids(i-st[p].depth-1, p);
 				p = st[p].fail;
 			}
 			if (str[i] == '\0') return ans;
-			ans += match(i + 1, st[n].sons[str[i]]);
+			ans += match(i+1, st[n].sons[str[i]]);
 		}
-		else if (n != 0) {
-			ans += callids(i - st[n].depth - 1, n);
+		else if (n != 0){
+			ans += callids(i-st[n].depth-1, n);
 			ans += match(i, st[n].fail);
 		}
-		else ans += match(i + 1, 0);
+		else ans += match(i+1, 0);
 		return ans;
 	}
 public:
-	SuffixTrie() { clear(); }
-	void push(char* s, int id) {
+	SuffixTrie(){ clear(); }
+	void push(char* s, int id){
 		str = s;
 		build(0, 0, id);
 	}
@@ -81,19 +81,19 @@ public:
 		str = s;
 		return find(0, 0);
 	}
-	void setfails() {
+	void setfails(){
 		st[0].fail = 0;
 		queue<int> q; q.push(0);
 		map<char, int>::iterator it;
 		int n, p; char c;
-		while (!q.empty()) {
+		while(!q.empty()){
 			n = q.front(); q.pop(); c = st[n].carac;
-			for (it = st[n].sons.begin(); it != st[n].sons.end(); it++) {
+			for(it = st[n].sons.begin(); it != st[n].sons.end(); it++){
 				q.push(it->second);
 			}
 			p = st[st[n].parent].fail;
-			while (p != 0 && !st[p].sons.count(c)) p = st[p].fail;
-			st[n].fail = (p != st[n].parent && st[p].sons.count(c) ? st[p].sons[c] : 0);
+			while(p != 0 && !st[p].sons.count(c)) p = st[p].fail;
+			st[n].fail = (p != st[n].parent && st[p].sons.count(c)? st[p].sons[c] : 0);
 		}
 	}
 	int ahoCorasick(char* s) {
@@ -101,3 +101,60 @@ public:
 		return match(0, 0);
 	}
 };
+
+int main(){
+	SuffixTrie st;
+    char keyword[500], text[500];
+
+    sprintf(keyword, "a");
+    printf("inserting string #%d: %s\n", 0, keyword);
+    st.push(keyword, 0);
+    sprintf(keyword, "ab");
+    printf("inserting string #%d: %s\n", 1, keyword);
+    st.push(keyword, 1);
+    sprintf(keyword, "abc");
+    printf("inserting string #%d: %s\n", 2, keyword);
+    st.push(keyword, 2);
+    sprintf(keyword, "aab");
+    printf("inserting string #%d: %s\n", 3, keyword);
+    st.push(keyword, 3);
+    sprintf(keyword, "ac");
+    printf("inserting string #%d: %s\n", 4, keyword);
+    st.push(keyword, 4);
+
+    printf("setting fail pointers\n");
+    st.setfails();
+
+    sprintf(text, "aabcac");
+
+    int len = strlen(text);
+    printf("%s\n", text);
+    for(int i=0; i<len; i++){
+    	printf("%d", i);
+    }
+    printf("\n");
+    st.ahoCorasick(text);
+
+    st.clear();
+
+    sprintf(keyword, "aa");
+    printf("inserting string #%d: %s\n", 0, keyword);
+    st.push(keyword, 0);
+    sprintf(keyword, "ab");
+    printf("inserting string #%d: %s\n", 1, keyword);
+    st.push(keyword, 1);
+
+    printf("setting fail pointers\n");
+    st.setfails();
+
+    sprintf(text, "aab");
+
+    len = strlen(text);
+    printf("%s\n", text);
+    for(int i=0; i<len; i++){
+    	printf("%d", i);
+    }
+    printf("\n");
+    st.ahoCorasick(text);
+    return 0;
+}

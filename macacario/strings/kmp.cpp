@@ -1,30 +1,52 @@
 #include <cstdio>
+#include <string>
+#include <vector>
 #include <cstring>
-#define MAXN 100009 
-void kmpPreprocess(char* P, int* b) {
-	b[0] = -1;
-	int m = strlen(P);
-	for (int i = 0, j = -1; i < m;) {
-		while (j >= 0 && P[i] != P[j]) j = b[j];
-		i++; j++;
-		b[i] = j;
-	}
-}
+using namespace std;
+#define MAXN 100009
 
-void action(int i) {
-	printf("P is found at index %d in T\n", i);
-}
-
-int kmpSearch(char* P, char* T, int* b) {
-	int n = strlen(T), m = strlen(P), nmatches = 0;
-	for (int i = 0, j = 0; i < n;) {
-		while (j >= 0 && T[i] != P[j]) j = b[j];
-		i++; j++;
-		if (j == m) {
-			action(i - j);
-			nmatches++;
-			j = b[j];
+class KMP{
+private:
+	char P[MAXN];
+	int m, n, b[MAXN];
+public:
+	KMP(const char* _P){
+		strcpy(P, _P);
+		b[0] = -1;
+		m = strlen(P);
+		for(int i = 0, j = -1; i < m;) {
+			while (j >= 0 && P[i] != P[j]) j = b[j];
+			i++; j++;
+			b[i] = j;
 		}
 	}
-	return nmatches;
+	vector<int> match(const char* T){
+		n = strlen(T);
+		vector<int> ans;
+		for (int i=0, j=0; i < n;) {
+			while (j >= 0 && T[i] != P[j]) j = b[j];
+			i++; j++;
+			if (j == m) {
+				ans.push_back(i - j);
+				j = b[j];
+			}
+		}
+		return ans;
+	}
+};
+
+void test(){
+	string P = "ababa";
+	string T = "abababababababa";
+	KMP kmp(P.c_str());
+	vector<int> index = kmp.match(T.c_str());
+	for(int i=0; i<(int)index.size(); i++){
+		printf("%d ", index[i]);
+	}
+	printf("\n");
+}
+
+int main(){
+	test();
+	return 0;
 }

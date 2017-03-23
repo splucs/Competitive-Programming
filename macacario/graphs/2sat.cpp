@@ -36,32 +36,32 @@ void dfs(int u) {
 	}
 }
 
-void tarjan() {
+void tarjan(){
 	counter = numSCC = 0;
 	memset(&num, UNVISITED, sizeof num);
 	memset(&vis, 0, sizeof vis);
 	memset(&low, 0, sizeof low);
-	for (int i = 0; i < N; i++) {
+	for (int i = 0; i < N; i++){
 		if (num[i] == UNVISITED)
 			dfs(i);
 	}
 }
 
-void ts(int u) {
+void ts(int u){
 	vis[u] = VISITED;
 	set<int>::iterator it;
-	for (it = adjComp[u].begin(); it != adjComp[u].end(); it++) {
+	for(it = adjComp[u].begin(); it!=adjComp[u].end(); it++){
 		if (vis[*it] == UNVISITED) dfs(*it);
 	}
 	toposort.push_back(u);
 }
 
-bool ffill(int u, int k) {
+bool ffill(int u, int k){
 	value[u] = k;
-	int v = (u >= N / 2 ? u - N / 2 : u + N / 2);
+	int v = (u>=N/2 ? u-N/2 : u+N/2);
 	if (value[v] == value[u]) return false;
-	if (value[v] == -1 && !ffill(v, 1 - k)) return false;
-	for (int i = 0; i<(int)adjList[u].size(); i++) {
+	if (value[v] == -1 && !ffill(v, 1-k)) return false;
+	for(int i=0; i<(int)adjList[u].size(); i++){
 		v = adjList[u][i];
 		if (value[v] == 0 && k == 1) return false;
 		if (value[v] == -1 && (component[u] == component[v]
@@ -70,15 +70,15 @@ bool ffill(int u, int k) {
 	return true;
 }
 
-bool twosat() {
+bool twosat(){
 	tarjan();
-	for (int i = 0; i<N / 2; i++) {
+	for(int i=0; i<N/2; i++){
 		C[i].clear(); adjComp[i].clear();
-		if (component[i] == component[i + N / 2]) return false;
+		if (component[i]==component[i+N/2]) return false;
 	}
-	for (int u = 0, v; u<N; u++) {
+	for(int u=0, v; u<N; u++){
 		C[component[u]].push_back(u);
-		for (int i = 0; i<(int)adjList[u].size(); i++) {
+		for(int i=0; i<(int)adjList[u].size(); i++){
 			v = adjList[u][i];
 			if (component[u] != component[v])
 				adjComp[component[u]].insert(component[v]);
@@ -86,13 +86,13 @@ bool twosat() {
 	}
 	memset(&vis, UNVISITED, sizeof vis);
 	toposort.clear();
-	for (int i = 0; i<numSCC; i++) {
+	for(int i=0; i<numSCC; i++){
 		if (vis[i] == UNVISITED) ts(i);
 	}
 	memset(&value, -1, sizeof value);
-	for (int i = 0, c, u; i<(int)toposort.size(); i++) {
+	for(int i=0, c, u; i<(int)toposort.size(); i++){
 		c = toposort[i];
-		for (int j = 0; j<(int)C[c].size(); j++) {
+		for(int j=0; j<(int)C[c].size(); j++){
 			u = C[c][j];
 			if (value[u] == -1 && !ffill(u, 1))
 				return false;

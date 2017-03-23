@@ -13,16 +13,16 @@ void graphCheck(int u) { // DFS for checking graph edge properties
 	vis[u] = EXPLORED;
 	for (int j = 0, v; j < (int)adjList[u].size(); j++) {
 		v = adjList[u][j];
-		if (vis[v] == UNVISITED) {
+		if (vis[v] == UNVISITED) { // EXPLORED->UNVISITED
 			printf(" Tree Edge (%d, %d)\n", u, v);
 			parent[v] = u; // parent of this children is me
 			graphCheck(v);
 		}
-		else if (vis[v] == EXPLORED) {
+		else if (vis[v] == EXPLORED) { // EXPLORED->EXPLORED
 			printf(" Back Edge (%d, %d) (Cycle)\n", u, v);
 		}
-		else if (vis[v] == VISITED)
+		else if (vis[v] == VISITED) // EXPLORED->VISITED
 			printf(" Forward/Cross Edge (%d, %d)\n", u, v);
 	}
-	vis[u] = VISITED;
+	vis[u] = VISITED; // after recursion, color u as VISITED (DONE)
 }

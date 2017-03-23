@@ -2,8 +2,8 @@
 #include <vector>
 using namespace std;
 
-int comp(int a, int b) {
-	return a + b;
+int comp(int a, int b){
+	return a+b;
 }
 
 class FenwickTree {
@@ -15,14 +15,14 @@ public:
 	}
 	int rsq(int i) { // returns RSQ(1, i)
 		int sum = 0;
-		while (i > 0) {
+		while(i > 0){
 			sum = comp(sum, ft[i]);
 			i -= (i & -i);
 		}
 		return sum;
 	}
 	void update(int i, int v) {
-		while (i < (int)ft.size()) {
+		while(i < (int)ft.size()) {
 			ft[i] = comp(v, ft[i]);
 			i += (i & -i);
 		}
