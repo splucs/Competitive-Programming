@@ -1,123 +1,58 @@
 /*
  * Solução do problema http://www.spoj.com/submit/EZDIJKST/
  */
-
 #include <cstdio>
+#include <set>
 #include <vector>
 #include <cstring>
 #include <iostream>
-#define MAXN 100009
-#define swap(a,b){ int _x=a; a=b; b=_x; }
 using namespace std;
-
-typedef long long ll;
+#define MAXN 100009
+#define INF (1<<30)
+ 
 typedef pair<int, int> ii;
-
 vector<ii> adjList[MAXN];
-int dist[MAXN], N;
-
-//função de prioridade da heap, equivale a 'menor que'
-bool comp(int a, int b){
-	return dist[a] < dist[b];
-}
-
-class Heap{
-private:
-	int heap[MAXN];
-	int inv[MAXN];
-	int heapsize;
-	void sifup(int n){
-		int k = n << 1;
-		while (k <= heapsize){
-			if (k < heapsize && comp(heap[k+1], heap[k])) k++;
-			if (comp(heap[k], heap[n])){
-				swap(heap[n], heap[k]);
-				inv[heap[n]]=n;
-				n = inv[heap[k]]=k;
-				k <<= 1;
-			}
-			else break;
-		}
-	}
-	void sifdown(int n){
-		int k = n >> 1;
-		while (k){
-			if (comp(heap[n], heap[k])){
-				swap(heap[n], heap[k]);
-				inv[heap[n]]=n;
-				n = inv[heap[k]]=k;
-				k >>= 1;
-			}
-			else break;
-		}
-	}
-public:
-	Heap(){ heapsize = 0; }
-	void clear(){ heapsize = 0; }
-	bool empty(){ return heapsize==0; }
-	void update(int n){
-		if (inv[n]>heapsize || heap[inv[n]]!=n) return;
-		sifup(inv[n]);
-		sifdown(inv[n]);
-	}
-	void push(int n){
-		heap[++heapsize] = n;
-		inv[n] = heapsize;
-		sifdown(heapsize);
-	}
-	bool count(int n){
-		int k = inv[n];
-		return k <= heapsize && heap[k] == n;
-	}
-	int top(){
-		if (heapsize <=0) return -1;
-		return heap[1];
-	}
-	void pop(){
-		if (heapsize<=0) return;
-		heap[1] = heap[heapsize--];
-		inv[heap[1]] = 1;
-		sifup(1);
-	}
-};
-
-int dijkstra(int s, int t){
-	memset(&dist, -1, sizeof dist);
+int dist[MAXN], n, m;
+ 
+int dijkstra(int s, int t)
+{
+	for(int i=1; i<=n; i++) dist[i] = INF;
 	dist[s]=0;
-	int u, v, w;
-	Heap heap; heap.push(s);
-	while(!heap.empty()){
-		u = heap.top();
-		if (u==t) break;
-		heap.pop();
+	set<pair<int, int> > nodes;
+	nodes.insert(ii(0, s));
+	while(!nodes.empty()){
+		int u = nodes.begin()->second;
+		nodes.erase(nodes.begin());
 		for(int i=0; i<(int)adjList[u].size(); i++){
-			v = adjList[u][i].first;
-			w = adjList[u][i].second;
-			if (dist[v] < 0 || dist[v] > dist[u] + w){
+			int v = adjList[u][i].second;
+			int w = adjList[u][i].first;
+			if (dist[v] > dist[u] + w){
+				if (dist[v] < INF){
+					nodes.erase(ii(dist[v], v));
+				}
 				dist[v] = dist[u] + w;
-				if (heap.count(v)) heap.update(v);
-				else heap.push(v);
+				nodes.insert(ii(dist[v], v));
 			}
 		}
 	}
 	return dist[t];
 }
-
+ 
 int main(){
-	int T, M, X, Y, H, O, D;
+	int T;
+	int u, v, w, s, t;
 	scanf("%d", &T);
-	for(int t=0; t<T; t++){
-		scanf("%d %d", &N, &M);
-		N++;
-		for(int i=0; i<N; i++) adjList[i].clear();
-		for(int i=0; i<M; i++){
-			scanf("%d %d %d", &X, &Y, &H);
-			adjList[X].push_back(ii(Y, H));
+	while(T--){
+		scanf("%d %d", &n, &m);
+		for(int i=1; i<=n; i++) adjList[i].clear();
+		for(int i=0; i<m; i++){
+			scanf("%d %d %d", &u, &v, &w);
+			adjList[u].push_back(ii(w, v));
 		}
-		scanf("%d %d", &O, &D);
-		H = dijkstra(O, D);
-		if (H>=0) printf("%d\n", H);
-		else printf("NO\n");
+		scanf("%d %d", &s, &t);
+		int ans = dijkstra(s, t);
+		if (ans == INF) printf("NO\n");
+		else printf("%d\n", ans);
 	}
 	return 0;
 }

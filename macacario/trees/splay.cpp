@@ -22,11 +22,6 @@ private:
 		p->left = q;
 		return p;
 	}
-	node* removemin(node* p) {
-		if (p->left == 0) return p->right;
-		p->left = removemin(p->left);
-		return balance(p);
-	}
 	node* splay(node* p, int key) {
 		if (p == NULL || p->key == key) return p;
 		if (p->key > key) {
@@ -72,7 +67,10 @@ public:
 		root = 0;
 	}
 	void insert(int key) {
-		if (!root) return new node(key);
+		if (!root){
+			root = new node(key);
+			return;
+		}
 		node* p = splay(root, key);
 		if (p->key == key) return;
 		root = new node(key);
@@ -95,19 +93,10 @@ public:
 			delete p;
 			return;
 		}
-		node* minr = p->right;
-		while (minr->left != NULL) minr = minr->left;
-		else {
-			node* l = p->left;
-			node* r = p->right;
-			delete p;
-			if (!r) return l;
-			node* min = findmin(r);
-			min->right = removemin(r);
-			min->left = l;
-			return balance(min);
-		}
-		return balance(p);
+		node* q = splay(p->right, key);
+		q->left = p->left;
+		root = q;
+		delete p;
 	}
 	bool count(int key) {
 		if (!root) return false;
@@ -115,3 +104,38 @@ public:
 		return root->key == key;
 	}
 };
+
+#include <set>
+#include <cstdlib>
+using namespace std;
+
+bool test()
+{
+	SplayTree splay;
+	set<int> s;
+	int N = 1000000;
+	for(int t=1; t<=N; t++){
+		int x = rand()%100;
+		if (s.count(x) != splay.count(x)){
+			printf("failed on test %d\n", t);
+			return false;
+		}
+		if (s.count(x)){
+			s.erase(x);
+			splay.erase(x);
+		}
+		else{
+			s.insert(x);
+			splay.insert(x);
+		}
+	}
+	return true;
+}
+
+int main()
+{
+	if (test()){
+		printf("all tests passed\n");
+	}
+	return 0;
+}

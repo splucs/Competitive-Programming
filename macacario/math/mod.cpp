@@ -1,6 +1,6 @@
 #include <cstdio>
 #define MAXN 1000009
-#define REM 1000000007LL
+#define MOD 1000000007LL
 
 template <typename T>
 T gcd(T a, T b) {
@@ -38,6 +38,17 @@ T modDiv(T a, T b, T m) {
 }
 
 template<typename T>
+T modMul(T a, T b, T m){
+	T x = 0, y = a % m;
+	while (b > 0){
+		if (b % 2 == 1) x = (x + y) % m;
+		y = (y * 2) % m;
+		b /= 2;
+	}
+	return x % m;
+}
+
+template<typename T>
 T modExp(T a, T b, T m) {
     if (b == 0) return 1;
     T c = modExp(a, b / 2, m);
@@ -53,6 +64,19 @@ void diophantine(T a, T b, T c, T& x, T& y) {
     y *= c / d;
 }
 
+ll fat[MAXN];
+void preprocessfat(){
+    fat[0] = 1;
+    for(ll i=1; i<MAXN; i++){
+        fat[i] = (i*fat[i-1])%MOD;
+    }
+}
+
+template<typename T>
+T pascal(int n, int k, T m){
+    return modDiv(fat[n], (fat[k]*fat[n-k])%m, m);
+}
+
 template<typename T>
 T chineseremtheorem(T* a, T* p, int n) {
     T P = 1;
@@ -63,19 +87,6 @@ T chineseremtheorem(T* a, T* p, int n) {
         x += (a[i]*pp*modInv(pp, p[i])) % P;
     }
     return x % P;
-}
-
-ll fat[MAXN];
-void preprocessfat(){
-    fat[0] = 1;
-    for(ll i=1; i<MAXN; i++){
-        fat[i] = (i*fat[i-1])%REM;
-    }
-}
-
-template<typename T>
-T pascal(int n, int k, T m){
-    return modDiv(fat[n], (fat[k]*fat[n-k])%m, m);
 }
 
 int main(void)
