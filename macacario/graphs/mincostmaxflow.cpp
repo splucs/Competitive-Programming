@@ -28,7 +28,7 @@ void add(int u, int v, ll f, ll c){
     first[v] = ned++;
 }
 
-bool spfa(int s, int t){
+bool dijkstra(int s, int t){
     memset(prv, -1, sizeof prv);
     for(int i = 0; i < N; i++) dist[i] = INF;
     set< pair<ll, int> > q;
@@ -71,7 +71,7 @@ ll augment(int s, int t){
 ll mincostmaxflow(int s, int t){
     ll flowCost = 0;
     memset(pot,0,sizeof(pot));
-    while(spfa(s, t)){
+    while(dijkstra(s, t)){
         flowCost += augment(s, t);
     }
     return flowCost;
