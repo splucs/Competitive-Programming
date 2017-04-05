@@ -3,11 +3,19 @@
 #include <cstdio>
 #include <cstring>
 #define INF (1<<30)
-#define MAXN 109
+#define MAXN 2509
 using namespace std;
 
 vector<int> adjList[MAXN];
 int cap[MAXN][MAXN], dist[MAXN], work[MAXN], N, M;
+
+void add(int u, int v, int c){
+	if (cap[u][v] == 0 && cap[v][u] == 0){
+		adjList[u].push_back(v);
+		adjList[v].push_back(u);
+	}
+	cap[u][v] += c;
+}
 
 int dfs(int u, int f, int s, int t) {
 	if (u == t) return f;
@@ -55,24 +63,34 @@ int dinic(int s, int t) {
 	return result;
 }
 
+/*
+ *	Codeforces 101128F
+ */
+
 int main(){
-	N = MAXN;
-	scanf("%d", &M);
-	char cu, cv;
-	int u, v, f;
+	int R, C, A, B, pos[60][60];
+	char c;
+	scanf("%d %d %d %d", &R, &C, &A, &B);
 	memset(&cap, 0, sizeof cap);
-	for(int i=0; i<M; i++){
-		scanf(" %c %c %d", &cu, &cv, &f);
-		if(cu >='A' && cu <= 'Z') u = cu-'A';
-		else u = cu-'a'+'Z'-'A'+1;
-		if(cv >='A' && cv <= 'Z') v = cv-'A';
-		else v = cv-'a'+'Z'-'A'+1;
-		if (cap[u][v]==0 && cap[v][u]==0){
-			adjList[u].push_back(v);
-			adjList[v].push_back(u);
-		}
-		cap[u][v] += f;
+	N = R*C+2;
+	for(int i=0, k=1; i<R; i++){
+		for(int j=0; j<C; j++) pos[i][j] = k++;
 	}
-	printf("%d\n", dinic(0, 'Z'-'A'));
+	for(int i=0; i<R; i++){
+		for(int j=0; j<C; j++){
+			scanf(" %c", &c);
+			if (c == '.') add(0, pos[i][j], B);
+			else add(pos[i][j], N-1, B);
+			if (i < R-1){
+				add(pos[i][j], pos[i+1][j], A);
+				add(pos[i+1][j], pos[i][j], A);
+			}
+			if (j < C-1){
+				add(pos[i][j], pos[i][j+1], A);
+				add(pos[i][j+1], pos[i][j], A);
+			}
+		}
+	}
+	printf("%d\n", dinic(0, N-1));
 	return 0;
 }
