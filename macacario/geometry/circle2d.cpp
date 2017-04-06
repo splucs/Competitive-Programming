@@ -82,8 +82,7 @@ circle incircle( point p1, point p2, point p3 ){
     double m3=dist(p1, p2);
     point c = (p1*m1+p2*m2+p3*m3)*(1/(m1+m2+m3));
     double s = 0.5*(m1+m2+m3);
-    double K = sqrt(s*(s-m1)*(s-m2)*(s-m3));
-    double r = K/s;
+    double r = sqrt(s*(s-m1)*(s-m2)*(s-m3))/s;
     return circle(c, r);
 }
 

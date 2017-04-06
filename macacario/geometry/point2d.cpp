@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <cmath>
+#include <vector>
+using namespace std;
 #define EPS 1e-9
 
 struct point {
@@ -13,6 +15,10 @@ struct point {
 		return point(x,y)*(1.0/norm());
 	}
 	double angle(){ return atan2(y, x);	}
+	double polarAngle(){
+		double a = atan2(y, x);
+		return a < 0 ? a + 2*M_PI : a;
+	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
 		else return y < other.y;
@@ -62,4 +68,16 @@ double angle(point a, point o, point b) {
 
 point proj(point u, point v){
 	return v*(inner(u,v)/inner(v,v));
+}
+
+bool between(point p, point q, point r) {
+    return collinear(p, q, r) && inner(p - q, r - q) <= 0;
+}
+
+int leftmostIndex(vector<point> &P){
+	int ans = 0;
+	for(int i=1; i<(int)P.size(); i++){
+		if (P[i] < P[ans]) ans = i;
+	}
+	return ans;
 }

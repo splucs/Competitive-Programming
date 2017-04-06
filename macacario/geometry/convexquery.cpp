@@ -2,21 +2,35 @@
 using namespace std;
 #define EPS 1e-9
 
-struct point{
+struct point {
 	double x, y;
-	point() : x(0), y(0) {}
+	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm() { return hypot(x, y); }
-	bool operator == (point other){
-		return fabs(x-other.x)<EPS && fabs(y-other.y)<EPS;
+	double norm(){
+		return hypot(x, y);
 	}
-	point operator +(point other){
-		return point(x+other.x, y+other.y);
+	point normalized(){
+		return point(x,y)*(1.0/norm());
 	}
-	point operator -(point other){
-		return point(x-other.x, y-other.y);
+	double angle(){ return atan2(y, x);	}
+	double polarAngle(){
+		double a = atan2(y, x);
+		return a < 0 ? a + 2*M_PI : a;
 	}
-	point operator *(double k){
+	bool operator < (point other) const {
+		if (fabs(x - other.x) > EPS) return x < other.x;
+		else return y < other.y;
+	}
+	bool operator == (point other) const {
+		return (fabs(x - other.x) < EPS && (fabs(y - other.y) < EPS));
+	}
+	point operator +(point other) const{
+		return point(x + other.x, y + other.y);
+	}
+	point operator -(point other) const{
+		return point(x - other.x, y - other.y);
+	}
+	point operator *(double k) const{
 		return point(x*k, y*k);
 	}
 };
@@ -35,6 +49,13 @@ bool ccw(point p, point q, point r){
 }
 bool collinear(point p, point q, point r){
 	return fabs(cross(p-q, r-p)) < EPS;
+}
+int leftmostIndex(vector<point> &P){
+	int ans = 0;
+	for(int i=1; i<(int)P.size(); i++){
+		if (P[i] < P[ans]) ans = i;
+	}
+	return ans;
 }
 struct triangle{
 	point a, b, c;
@@ -65,13 +86,8 @@ vector<point> convexHull(vector<point> P){
 		if (!(P[0] == P[n-1])) P.push_back(P[0]);
 		return P;
 	}
-	int P0 = 0;
-	for(int i=1; i<n; i++){
-		if(P[i].y < P[P0].y || (P[i].y == P[P0].y && P[i].x > P[P0].x)) P0 = i;
-	}
-	point temp = P[0];
-	P[0] = P[P0];
-	P[P0] = temp;
+	int P0 = leftmostIndex(P);
+	swap(P[0], P[P0]);
 	pivot = P[0];
 	sort(++P.begin(), P.end(), angleCmp);
 	vector<point> S;
@@ -81,19 +97,11 @@ vector<point> convexHull(vector<point> P){
 	i = 2;
 	while(i < n){
 		j = (int)S.size()-1;
-		if (ccw(S[j-1], S[j], P[i])){
-			S.push_back(P[i++]);
-			//printf("pushed back (%f,%f)\n", S.back().x, S.back().y);
-		}
-		else{
-			//printf("popped back (%f,%f)\n", S.back().x, S.back().y);
-			S.pop_back();
-		}
+		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
+		else S.pop_back();
 	}
 	return S;
 }
-
-int nL, nS, nC;
 
 bool query(vector<point> &CH, point q){
 	int i = 2, j = CH.size()-1, m;
@@ -106,7 +114,12 @@ bool query(vector<point> &CH, point q){
 	return isInsideTriangle(pivot, CH[i], CH[j], q) != 2;
 }
 
+/*
+ * Codeforces 101128J
+ */
+
 int main(){
+	int nL, nS, nC;
 	vector<point> L, S;
 	scanf("%d", &nL);
 	L.resize(nL);

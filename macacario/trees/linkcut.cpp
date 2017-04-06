@@ -161,7 +161,9 @@ public:
 	}
 };
 
-/*TEST MATRIX*/
+/*
+ * TEST MATRIX
+ */
 
 #include <cstring>
 #include <cstdlib>

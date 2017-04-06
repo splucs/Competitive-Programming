@@ -13,32 +13,21 @@ struct triangle{
 		return area()/semiPerimeter();
 	}
 	circle inCircle() {
-		circle ans;
-		ans.r = rInCircle();
-		if (fabs(ans.r) < EPS) return circle(point(NAN,NAN), NAN);
-		line l1, l2;
-		double ratio = dist(a, b) / dist(a, c);
-		point p = b + ((c-b)*(ratio / (1 + ratio)));
-		l1 = pointsToLine(a, p);
-		ratio = dist(b, a) / dist(b, c);
-		p = a + ((c-a)*(ratio / (1 + ratio)));
-		l2 = pointsToLine(b, p);
-		ans.c = intersection(l1, l2);
-		return ans;
+		return incircle(a,b,c);
 	}
 	double rCircumCircle() {
 		return dist(a,b)*dist(b,c)*dist(c,a)/(4.0*area());
 	}
 	circle circumCircle(){
-		return pointsToCircle(a,b,c);
+		return circumcircle(a,b,c);
 	}
 	int isInside(point p){
 		double u = cross(b-a,p-a)*cross(b-a,c-a);
 		double v = cross(c-b,p-b)*cross(c-b,a-b);
 		double w = cross(a-c,p-c)*cross(a-c,b-c);
-		if (fabs(u) < EPS || fabs(v) < EPS || fabs(w) < EPS) return 1;
-		else if (u > 0.0 && v > 0.0 && w > 0.0) return 0;
-		else return 2;
+		if (u > 0.0 && v > 0.0 && w > 0.0) return 0;
+		if (u < 0.0 || v < 0.0 || w < 0.0) return 2;
+		else return 1;
 	} //0 = inside/ 1 = border/ 2 = outside
 };
 

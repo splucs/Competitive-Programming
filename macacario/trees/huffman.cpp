@@ -1,7 +1,3 @@
-/*
- *	Codeforces 101128C
- */
-
 #include <cstdio>
 #include <queue>
 #include <vector>
@@ -60,6 +56,10 @@ public:
 		*buffer = '\0';
 	}
 };
+
+/*
+ * Codeforces 101128C
+ */
 
 int main()
 {
