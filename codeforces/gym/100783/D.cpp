@@ -27,8 +27,9 @@ int dfs(int u, int f, int s, int t) {
 	if (u == t) return f;
 	int v, df;
 	for(int e = first[u]; e!=-1; e = nxt[e]){
+        if(cap[e] <= 0) continue;
         v = to[e];
-		if (dist[v] == dist[u] + 1 && cap[e] > 0) {
+		if (dist[v] == dist[u] + 1) {
 			df = dfs(v, min(f, cap[e]), s, t);
 			if (df > 0) {
 				cap[e] -= df;
@@ -48,8 +49,9 @@ bool bfs(int s, int t){
 	while (!q.empty()) {
 		u = q.front(); q.pop();
 		for(int e = first[u]; e!=-1; e = nxt[e]){
+			if(cap[e] <= 0) continue;
 			v = to[e];
-			if (dist[v] < 0 && cap[e] > 0) {
+			if (dist[v] < 0) {
 				dist[v] = dist[u] + 1;
 				q.push(v);
 			}

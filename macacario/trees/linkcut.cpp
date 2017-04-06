@@ -3,12 +3,12 @@
 using namespace std;
 #define INF (1<<30)
 
-struct node{
-	int dist, sdist, id;
-	node *par, *ppar, *left, *right;
-	node() {
-		par = ppar = left = right = NULL;
-		dist = sdist = INF;
+struct node
+{   int size, id, w;
+    node *par, *ppar, *left, *right;
+    node() {
+		par = ppar = left = right = NULL; 
+		w = size = INF;
 	}
 };
 
@@ -16,17 +16,18 @@ class LinkCutTree
 {
 	vector<node> lct;
 
-	void update(node *p){
-		p->sdist = p->dist;
-		if (p->left) p->sdist += p->left->sdist;
-		if (p->right) p->sdist += p->right->sdist;
+	void update(node* p) {
+		p->size = p->w;
+		if (p->left) p->size += p->left->size;
+		if (p->right) p->size += p->right->size;
 	}
-	void rotateright(node* p){
+
+	void rotateright(node* p) {
 		node *q, *r;
 		q = p->par, r = q->par;
 		if ((q->left = p->right)) q->left->par = q;
 		p->right = q, q->par = p;
-		if ((p->par = r)){
+		if ((p->par = r)) {
 			if (q == r->left) r->left = p;
 			else r->right = p;
 		}
@@ -34,67 +35,59 @@ class LinkCutTree
 		q->ppar = NULL;
 		update(q);
 	}
-	void rotateleft(node* p){
+
+	void rotateleft(node* p) {
 		node *q, *r;
 		q = p->par, r = q->par;
 		if ((q->right = p->left)) q->right->par = q;
 		p->left = q, q->par = p;
-		if ((p->par = r)){
+		if ((p->par = r))
+		{
 			if (q == r->left) r->left = p;
 			else r->right = p;
 		}
 		p->ppar = q->ppar;
-		q->ppar = NULL;
+		q->ppar = 0;
 		update(q);
 	}
-	void splay(node *p){
+
+	void splay(node* p) {
 		node *q, *r;
-		while (p->par){
+		while (p->par != NULL) {
 			q = p->par;
-			if (!q->par){
+			if (q->par == NULL) {
 				if (p == q->left) rotateright(p);
 				else rotateleft(p);
 			}
-			else{
+			else {
 				r = q->par;
-				if (q == r->left){
-					if (p == q->left) {
-						rotateright(q);
-						rotateright(p);
-					}
-					else {
-						rotateleft(p);
-						rotateright(p);
-					}
+				if (q == r->left) {
+					if (p == q->left) rotateright(q), rotateright(p);
+					else rotateleft(p), rotateright(p);
 				}
-				else{
-					if (p == q->right) {
-						rotateleft(q);
-						rotateleft(p);
-					}
-					else {
-						rotateright(p);
-						rotateleft(p);
-					}
+				else {
+					if (p == q->right) rotateleft(q), rotateleft(p);
+					else rotateright(p), rotateleft(p);
 				}
 			}
 		}
 		update(p);
 	}
-	node* access(node *p){
+
+	node* access(node* p){
 		splay(p);
-		if (p->right){
+		if (p->right != NULL) {
 			p->right->ppar = p;
 			p->right->par = NULL;
 			p->right = NULL;
 			update(p);
 		}
 		node* last = p;
-		while (p->ppar){
-			node *q = p->ppar;
+		while (p->ppar != NULL) {
+			node* q = p->ppar;
 			last = q;
 			splay(q);
-			if (q->right){
+			if (q->right != NULL) {
 				q->right->ppar = q;
 				q->right->par = NULL;
 			}
@@ -106,59 +99,59 @@ class LinkCutTree
 		}
 		return last;
 	}
+
 public:
-	LinkCutTree(int n){
-		lct.assign(n+1, node());
-		for (int i = 0; i < n; i++){
+    LinkCutTree(int n) {
+		lct.resize(n + 1);
+        for(int i = 0; i <= n; i++){
 			lct[i].id = i;
-		}
-	}
-	int findroot(int u) {
-		node* p = &lct[u];
-		access(p);
-		while (p->left) p = p->left;
-		splay(p);
-		return p->id;
-	}
-	bool IsSameTree(int u, int v) {
-		return findroot(u) == findroot(v);
-	}
-	void link(int u, int v, int w) { //v becomes parent of u
-		if (IsSameTree(u, v)) return;
+            update(&lct[i]);
+        }
+    }
+
+	void link(int u, int v, int w) { //u becomes child of v
 		node *p = &lct[u], *q = &lct[v];
 		access(p);
 		access(q);
 		p->left = q;
 		q->par = p;
-		p->dist = w;
+		p->w = w;
 		update(p);
 	}
-	void link(int u, int v) { //unweighted graph
+
+	void link(int u, int v) { //unweighted
 		link(u, v, 1);
 	}
-	void cut(int u){
+
+    void cut(int u) {
 		node* p = &lct[u];
 		access(p);
-		if (p->left) {
-			p->left->par = NULL;
-			p->left = NULL;
-			p->dist = INF;
-		}
+		p->left->par = NULL;
+		p->left = NULL;
 		update(p);
+    }
+
+    int findroot(int u) {
+		node* p = &lct[u];
+		access(p);
+		while (p->left) p = p->left;
+		splay(p);
+		return p->id;
+    }
+
+	bool IsSameTree(int u, int v) {
+		return findroot(u) == findroot(v);
 	}
-	int disttoroot(int u){
+
+    int depth(int u) {
 		access(&lct[u]);
-		return lct[u].sdist - lct[u].dist;
-	}
-	int LCA(int u, int v){
-		if (!IsSameTree(u, v)) return -1;
+		return lct[u].size - lct[u].w;
+    }
+
+    int LCA(int u, int v) {
 		access(&lct[u]);
 		return access(&lct[v])->id;
-	}
-	int dist(int u, int v) {
-		if (!IsSameTree(u, v)) return INF;
-		return disttoroot(u) + disttoroot(v) - disttoroot(LCA(u, v));
-	}
+    }
 };
 
 /*
@@ -170,63 +163,63 @@ public:
 #define MAXN 100009
 int par[MAXN];
 
-int findroot(int i){
-	if (par[i] >=0) return findroot(par[i]);
+int findroot(int i) {
+	if (par[i] >= 0) return findroot(par[i]);
 	else return i;
 }
 
-bool IsSameSet(int u, int v){
+bool IsSameSet(int u, int v) {
 	return findroot(u) == findroot(v);
 }
 
-void link(int u, int v){
-	if(!IsSameSet(u, v)) par[u] = v;
+void link(int u, int v) {
+	if (!IsSameSet(u, v)) par[u] = v;
 }
 
-void cut(int u){
+void cut(int u) {
 	par[u] = -1;
 }
 
-int LCA(int u, int v){
+int LCA(int u, int v) {
 	if (!IsSameSet(u, v)) return -1;
-	int du=0, ul = u;
-	while(ul >= 0){
+	int du = 0, ul = u;
+	while (ul >= 0) {
 		du++;
 		ul = par[ul];
 	}
-	int dv=0, vl = v;
-	while(vl >= 0){
+	int dv = 0, vl = v;
+	while (vl >= 0) {
 		dv++;
 		vl = par[vl];
 	}
-	while(du > dv){
+	while (du > dv) {
 		du--;
 		u = par[u];
 	}
-	while(du < dv){
+	while (du < dv) {
 		dv--;
 		v = par[v];
 	}
-	while(u!=v){
+	while (u != v) {
 		u = par[u];
 		v = par[v];
 	}
 	return u;
 }
 
-bool test(int N, int T){
+bool test(int N, int T) {
 	LinkCutTree lct(N);
 	memset(&par, -1, sizeof par);
-	for(int i=0, u, v; i<T; i++){
-		int cmd = rand()%4;
-		if (cmd == 0){
-			u = rand()%N;
-			v = rand()%N;
-			if (IsSameSet(u, v) != lct.IsSameTree(u, v)){
+	for (int i = 0, u, v; i<T; i++) {
+		int cmd = rand() % 4;
+		if (cmd == 0) {
+			u = rand() % N;
+			v = rand() % N;
+			if (IsSameSet(u, v) != lct.IsSameTree(u, v)) {
 				printf("failed on test %d (IsSameSet(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.IsSameTree(u, v), IsSameSet(u, v));
 				return false;
 			}
-			if(IsSameSet(u, v) || par[u]>=0){
+			if (IsSameSet(u, v) || par[u] >= 0) {
 				i--;
 				continue;
 			}
@@ -234,9 +227,9 @@ bool test(int N, int T){
 			link(u, v);
 			lct.link(u, v);
 		}
-		if (cmd == 1){
-			u = rand()%N;
-			if(par[u] == -1){
+		if (cmd == 1) {
+			u = rand() % N;
+			if (par[u] == -1) {
 				i--;
 				continue;
 			}
@@ -244,25 +237,25 @@ bool test(int N, int T){
 			cut(u);
 			lct.cut(u);
 		}
-		if (cmd == 2){
-			u = rand()%N;
-			v = rand()%N;
-			if (IsSameSet(u, v) != lct.IsSameTree(u, v)){
+		if (cmd == 2) {
+			u = rand() % N;
+			v = rand() % N;
+			if (IsSameSet(u, v) != lct.IsSameTree(u, v)) {
 				printf("failed on test %d (IsSameSet(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.IsSameTree(u, v), IsSameSet(u, v));
 				return false;
 			}
-			if(!IsSameSet(u, v)){
+			if (!IsSameSet(u, v)) {
 				i--;
 				continue;
 			}
-			if (LCA(u, v) != lct.LCA(u, v)){
+			if (LCA(u, v) != lct.LCA(u, v)) {
 				printf("failed on test %d (LCA(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.LCA(u, v), LCA(u, v));
 				return false;
 			}
 		}
-		if (cmd == 3){
-			u = rand()%N;
-			if (findroot(u) != lct.findroot(u)){
+		if (cmd == 3) {
+			u = rand() % N;
+			if (findroot(u) != lct.findroot(u)) {
 				printf("failed on test %d (findroot(%d) LCT:%d BF:%d)\n", i, u, lct.findroot(u), findroot(u));
 				return false;
 			}
@@ -270,14 +263,16 @@ bool test(int N, int T){
 	}
 }
 
-/*SPOJ - DYNALCA*/
+/*
+ * SPOJ DYNALCA
+ */
 
 int main()
 {
 	int N, M, u, v;
 	char str[10];
 	scanf("%d %d", &N, &M);
-	LinkCutTree lct(N);
+	LinkCutTree lct(N+1);
 	for(int i=0; i<M; i++){
 		scanf(" %s", str);
 		if(str[1] == 'i'){
