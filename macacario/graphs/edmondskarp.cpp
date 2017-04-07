@@ -1,32 +1,35 @@
-#include <vector>
-#include <cstdio>
-#include <cstring>
 #include <queue>
-#include <algorithm>
+#include <cstring>
 #define INF (1<<30)
-#define MAXN 2509
+#define MAXN 103000
+#define MAXM 900000
 using namespace std;
 
-vector<int> adjList[MAXN];
-int p[MAXN], cap[MAXN][MAXN], dist[MAXN], N, M;
+int N, M, ned, prv[MAXN], first[MAXN];
+int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
 
-void add(int u, int v, int c){
-	if (cap[u][v] == 0 && cap[v][u] == 0){
-		adjList[u].push_back(v);
-		adjList[v].push_back(u);
-	}
-	cap[u][v] += c;
+void init(){
+   memset(first, -1, sizeof first);
+   ned = 0;
+}
+
+void add(int u, int v, int f){
+    to[ned] = v, cap[ned] = f;
+    nxt[ned] = first[u];
+    first[u] = ned++;
+    
+    to[ned] = u, cap[ned] = 0;
+    nxt[ned] = first[v];
+    first[v] = ned++;
 }
 
 int augment(int v, int minEdge, int s) {
-	if (v == s) return minEdge;
-	else if (p[v] != -1) {
-		int f = augment(p[v], min(minEdge, cap[p[v]][v]), s);
-		cap[p[v]][v] -= f;
-		cap[v][p[v]] += f;
-		return f;
-	}
-	return 0;
+	int e = prv[v];
+	if (e == -1) return minEdge;
+	int f = augment(to[e^1], min(minEdge, cap[e]), s);
+	cap[e] -= f;
+	cap[e^1] += f;
+	return f;
 }
 
 bool bfs(int s, int t){
@@ -34,16 +37,16 @@ bool bfs(int s, int t){
 	memset(&dist, -1, sizeof dist);
 	dist[s] = 0;
 	queue<int> q; q.push(s);
-	memset(&p, -1, sizeof p);
+	memset(&prv, -1, sizeof prv);
 	while (!q.empty()) {
 		u = q.front(); q.pop();
 		if (u == t) break;
-		for(int i = 0; i<(int)adjList[u].size(); i++){
-			v = adjList[u][i];
-			if (dist[v] < 0 && cap[u][v] > 0) {
+		for(int e = first[u]; e!=-1; e = nxt[e]){
+			v = to[e];
+			if (dist[v] < 0 && cap[e] > 0) {
 				dist[v] = dist[u] + 1;
 				q.push(v);
-				p[v] = u;
+				prv[v] = e;
 			}
 		}
 	}
@@ -62,11 +65,13 @@ int edmondskarp(int s, int t){
 /*
  *	Codeforces 101128F
  */
+#include <cstdio>
 
 int main(){
 	int R, C, A, B, pos[60][60];
 	char c;
 	scanf("%d %d %d %d", &R, &C, &A, &B);
+	init();
 	memset(&cap, 0, sizeof cap);
 	N = R*C+2;
 	for(int i=0, k=1; i<R; i++){

@@ -5,7 +5,7 @@
 #define MAXM 900000
 using namespace std;
 
-int N, M, ned, prv[MAXN], first[MAXN];
+int N, M, ned, first[MAXN];
 int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
 
 void init(){
