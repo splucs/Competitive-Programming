@@ -1,6 +1,4 @@
-#include <cstdio>
 #include <vector>
-#include <algorithm>
 #define INF (1<<30)
 using namespace std;
 
@@ -65,6 +63,13 @@ public:
 	}
 };
 
+/*
+ *	TEST MATRIX
+ */
+#include <cstdio>
+#include <algorithm>
+
+
 int vet[100009], aux[100009];
 int less(int a, int b, int k){
 	int ans = 0;
@@ -82,12 +87,12 @@ int nth_element(int a, int b, int n){
 }
 
 bool test(){
-	int N = 100000;
+	int N = 10000;
 	/*for(int i=0; i<N; i++){
 		vet[i] = rand()%N;
 		printf("%d ", vet[i]);
-	}*/
-	printf("\n");
+	}
+	printf("\n");*/
 	MergeSortTree st(vet, vet+N);
 	for(int q=0, a, b, k, n; q<N; q++){
 
