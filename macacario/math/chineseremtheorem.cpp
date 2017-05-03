@@ -1,5 +1,5 @@
 #include <cstdio>
-#define MAXN 1009
+#define MOD 1000000007LL
 typedef long long ll;
 
 template <typename T>
@@ -21,56 +21,63 @@ T modInv(T a, T m) {
     extGcd(a, m, x, y);
     return (x % m + m) % m;
 }
+ 
+template <typename T>
+T modDiv(T a, T b, T m) {
+    return ((a % m) * modInv(b, m)) % m;
+}
 
-ll chinesert(const int* y, const int* a, int n, ll mod) {
-	ll ans = 0;
-	ll mult = 1;
-	int x[MAXN];
-	for (int i = 0; i<n; i++) {
-		x[i] = y[i];
-		for (int j = 0; j<i; ++j) {
-			ll cur = (x[i] - x[j]) * 1ll * modInv(a[j], a[i]);
-			x[i] = (int)(cur % a[i]);
-			if (x[i] < 0) x[i] += a[i];
-		}
-		ans = (ans + mult * 1ll * x[i]);
-		mult = (mult * 1ll * a[i]);
-		if (mod != -1) {
-			ans %= mod;
-			mult %= mod;
-		}
-	}
-	return ans;
+template<typename T>
+T chinesert(T* a, T* p, int n, T m) {
+    T P = 1;
+    for(int i=0; i<n; i++) P = (P * p[i]) % m;
+    T x = 0, pp;
+    for(int i=0; i<n; i++){
+        pp = modDiv(P, p[i], m);
+        x = (x + (((a[i] * pp) % m) * modInv(pp, p[i]))) % m;
+    }
+    return x;
 }
 
 /*TEST MATRIX*/
 #include <cstdlib>
+#define PRINTTEST 0
 
 int primes[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59};
 
 bool test(int ntests){
 	for(int t=0; t<ntests; t++){
-		int T = 9;
-		int y[20], a[20];
+		int T = 17;
+		ll y[20], a[20];
 		for(int i=1; i<=T; i++){
+			if (PRINTTEST) printf("test %d:\n", t*T + i);
 			for(int j=0; j<i; j++){
 				a[j] = primes[j];
 				y[j] = rand()%a[j];
+				if (PRINTTEST) printf("x = %lld mod %lld\n", y[j], a[j]);
 			}
-			ll ans = chinesert(y, a, i, 1000000007ll);
+			ll ans = chinesert(y, a, i, MOD);
+			if (PRINTTEST) printf("answer is x = %lld\n", ans);
 			for(int j=0; j<i; j++){
-				if (ans%a[j] != y[j]){
-					printf("failed on test %d, ans = %I64d\n", i, ans);
+				ll mans = ans;
+				int count = 10000;
+				while(mans%a[j] != y[j] && count > 0){
+					mans += MOD;
+					count--;
+				}
+				if (mans%a[j] != y[j]){
+					printf("failed on test %d, ans = %I64d\n", t*T + i, ans);
 					return false;
 				}
 			}
 		}
 	}
+	printf("All tests passed\n");
 	return true;
 }
 
 int main()
 {
-	if (test(10000)) printf("All tests passed\n");
+	test(10000);
 	return 0;
 }

@@ -2,6 +2,8 @@
 #define MAXN 1000009
 #define MOD 1000000007LL
 
+typedef long long ll;
+
 template <typename T>
 T gcd(T a, T b) {
     return b == 0 ? a : gcd(b, a % b);
@@ -75,25 +77,4 @@ void preprocessfat(){
 template<typename T>
 T pascal(int n, int k, T m){
     return modDiv(fat[n], (fat[k]*fat[n-k])%m, m);
-}
-
-template<typename T>
-T chineseremtheorem(T* a, T* p, int n) {
-    T P = 1;
-    for(int i=0; i<n; i++) P *= p[i];
-    T x = 0, pp;
-    for(int i=0; i<n; i++){
-        pp = P / p[i];
-        x += (a[i]*pp*modInv(pp, p[i])) % P;
-    }
-    return x % P;
-}
-
-int main(void)
-{
-    int num[] = {3, 4, 5};
-    int rem[] = {2, 3, 1};
-    int k = sizeof(num)/sizeof(num[0]);
-    printf("x = %d\n", chineseremtheorem(rem, num, k));
-    return 0;
 }

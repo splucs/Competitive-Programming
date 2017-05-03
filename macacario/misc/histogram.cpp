@@ -10,20 +10,14 @@ ll histogram(ll * vet, int n) {
 	stack<ll> s;
 	ll ans = 0, tp, cur;
 	int i = 0;
-	while(i < n) {
-		if (s.empty() || vet[s.top()] <= vet[i]) s.push(i++);
+	while(i < n || !s.empty()) {
+		if (i < n && (s.empty() || vet[s.top()] <= vet[i])) s.push(i++);
 		else {
 			tp = s.top();
 			s.pop();
 			cur = vet[tp] * (s.empty() ? i : i - s.top() - 1);
 			if (ans < cur) ans = cur;
 		}
-	}
-	while (!s.empty()) {
-		tp = s.top();
-		s.pop();
-		cur = vet[tp] * (s.empty() ? i : i - s.top() - 1);
-		if (ans < cur) ans = cur;
 	}
 	return ans;
 }

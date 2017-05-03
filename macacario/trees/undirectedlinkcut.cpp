@@ -155,140 +155,80 @@ public:
     }
 };
 
-/*
- * TEST MATRIX
- */
+class UndirectedLinkCutTree
+{
+	LinkCutTree lct;
+	vector<int> par;
 
-#include <cstring>
-#include <cstdlib>
-#define MAXN 100009
-int par[MAXN];
-
-int findroot(int i) {
-	if (par[i] >= 0) return findroot(par[i]);
-	else return i;
-}
-
-bool IsSameSet(int u, int v) {
-	return findroot(u) == findroot(v);
-}
-
-void link(int u, int v) {
-	if (!IsSameSet(u, v)) par[u] = v;
-}
-
-void cut(int u) {
-	par[u] = -1;
-}
-
-int LCA(int u, int v) {
-	if (!IsSameSet(u, v)) return -1;
-	int du = 0, ul = u;
-	while (ul >= 0) {
-		du++;
-		ul = par[ul];
+	void invert(int u) {
+		if (par[u] == -1) return;
+		int v = par[u];
+		invert(v);
+		lct.cut(u);
+		par[u] = -1;
+		lct.link(v, u);
+		par[v] = u;
 	}
-	int dv = 0, vl = v;
-	while (vl >= 0) {
-		dv++;
-		vl = par[vl];
+public:
+	UndirectedLinkCutTree() {}
+	UndirectedLinkCutTree(int n) {
+		lct = LinkCutTree(n);
+		par.assign(n+1, -1);
 	}
-	while (du > dv) {
-		du--;
-		u = par[u];
-	}
-	while (du < dv) {
-		dv--;
-		v = par[v];
-	}
-	while (u != v) {
-		u = par[u];
-		v = par[v];
-	}
-	return u;
-}
-
-bool test(int N, int T) {
-	LinkCutTree lct(N);
-	memset(&par, -1, sizeof par);
-	for (int i = 0, u, v; i<T; i++) {
-		int cmd = rand() % 4;
-		if (cmd == 0) {
-			u = rand() % N;
-			v = rand() % N;
-			if (IsSameSet(u, v) != lct.IsSameTree(u, v)) {
-				printf("failed on test %d (IsSameSet(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.IsSameTree(u, v), IsSameSet(u, v));
-				return false;
-			}
-			if (IsSameSet(u, v) || par[u] >= 0) {
-				i--;
-				continue;
-			}
-			//printf("%d son of %d\n", u, v);
-			link(u, v);
+	void link(int u, int v) {
+		if (lct.depth(u) < lct.depth(v)) {
+			invert(u);
 			lct.link(u, v);
+			par[u] = v;
 		}
-		if (cmd == 1) {
-			u = rand() % N;
-			if (par[u] == -1) {
-				i--;
-				continue;
-			}
-			//printf("%d cut from %d\n", u, par[u]);
-			cut(u);
-			lct.cut(u);
-		}
-		if (cmd == 2) {
-			u = rand() % N;
-			v = rand() % N;
-			if (IsSameSet(u, v) != lct.IsSameTree(u, v)) {
-				printf("failed on test %d (IsSameSet(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.IsSameTree(u, v), IsSameSet(u, v));
-				return false;
-			}
-			if (!IsSameSet(u, v)) {
-				i--;
-				continue;
-			}
-			if (LCA(u, v) != lct.LCA(u, v)) {
-				printf("failed on test %d (LCA(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.LCA(u, v), LCA(u, v));
-				return false;
-			}
-		}
-		if (cmd == 3) {
-			u = rand() % N;
-			if (findroot(u) != lct.findroot(u)) {
-				printf("failed on test %d (findroot(%d) LCT:%d BF:%d)\n", i, u, lct.findroot(u), findroot(u));
-				return false;
-			}
+		else{
+			invert(v);
+			lct.link(v, u);
+			par[v] = u;
 		}
 	}
-}
+	void cut(int u, int v) {
+		if (par[v] == u) u = v;
+		lct.cut(u);
+		par[u] = -1;
+	}
+	bool IsSameTree(int u, int v) {
+		return lct.IsSameTree(u, v);
+	}
+};
 
 /*
- * SPOJ DYNALCA
+ * Codeforces 100960H
  */
+
+UndirectedLinkCutTree ulct;
 
 int main()
 {
-	int N, M, u, v;
-	char str[10];
-	scanf("%d %d", &N, &M);
-	LinkCutTree lct(N+1);
-	for(int i=0; i<M; i++){
-		scanf(" %s", str);
-		if(str[1] == 'i'){
-			scanf("%d %d", &u, &v);
-			lct.link(u, v);
-		}
-		if(str[1] == 'u'){
-			scanf("%d", &u);
-			lct.cut(u);
-		}
-		if (str[1] == 'c'){
-			scanf("%d %d", &u, &v);
-			printf("%d\n", lct.LCA(u, v));
+	int N, a, b;
+	char op;
+	scanf("%d", &N);
+	ulct = UndirectedLinkCutTree(N);
+	while(true) {
+		scanf(" %c", &op);
+		switch(op) {
+		case 'C':
+			scanf("%d %d", &a, &b);
+			ulct.link(a, b);
+			break;
+		case 'D':
+			scanf("%d %d", &a, &b);
+			ulct.cut(a, b);
+			break;
+		case 'T':
+			scanf("%d %d", &a, &b);
+			if (ulct.IsSameTree(a, b)) printf("YES\n");
+			else printf("NO\n");
+			fflush(stdout);
+			break;
+		case 'E':
+			return 0;
 		}
 	}
-	//if (test(10000, 5000000)) printf("All tests passed\n");
 	return 0;
 }

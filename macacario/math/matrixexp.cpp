@@ -56,15 +56,6 @@ matrix operator -(matrix a, matrix b){
 	return a + ((-1.0) * b);
 }
 
-matrix id(int n){
-	matrix c; c.resize(n);
-	for(int i=0; i<n; i++){
-		c[i].assign(n, 0);
-		c[i][i] = 1;
-	}
-	return c;
-}
-
 void printmatrix(matrix & a){
 	int n = (int)a.size();
 	int m = (int)a[0].size();
@@ -74,4 +65,29 @@ void printmatrix(matrix & a){
 		}
 		printf("\n");
 	}
+}
+
+/*
+ * Matrix Exp and fast Fibonacci
+ */
+
+matrix matrixExp(matrix a, int n){
+	if (n == 0) return id(a.size());
+	matrix c = matrixExp(a, n/2);
+	c = c*c;
+	if (n%2 != 0) c = c*a;
+	return c;
+}
+
+matrix fibo(){
+	matrix c; c.resize(2);
+	c[0].assign(2, 1);
+	c[1].assign(2, 1);
+	c[1][1] = 0;
+	return c;
+}
+
+double fibo(int n){
+	matrix f = matrixExp(fibo(), n);
+	return f[0][1];
 }
