@@ -12,20 +12,7 @@ struct rec{
 rec vet[MAXN];
 bool vis[MAXN];
 vector<int> adjList[MAXN];
-
-struct xcomp{
-	bool operator()(int a, int b){
-		return vet[a].l < vet[b].l;
-	}
-};
-struct ycomp{
-	bool operator()(int a, int b){
-		return vet[a].b < vet[b].b;
-	}
-};
-
-map<int, set<int, vector<int>, &xsort> > bot, top;
-map<int, set<int, vector<int>, &ysort> > lef, rig;
+map<int, vector<int> > bot, top, lef, rig;
 
 bool areAdj(rec i, rec j){
 	if (i.t == j.b || i.b == j.t){
@@ -39,27 +26,6 @@ bool areAdj(rec i, rec j){
 	return false;
 }
 
-vector<int> getAdj(rec r){
-	vector<int> cur, ans;
-	cur = bot[r.t];
-	for(int i=0; i<(int)cur.size(); i++){
-		if (areAdj(r, vet[cur[i]])) ans.push_back(cur[i]);
-	}
-	cur = top[r.b];
-	for(int i=0; i<(int)cur.size(); i++){
-		if (areAdj(r, vet[cur[i]])) ans.push_back(cur[i]);
-	}
-	cur = lef[r.r];
-	for(int i=0; i<(int)cur.size(); i++){
-		if (areAdj(r, vet[cur[i]])) ans.push_back(cur[i]);
-	}
-	cur = rig[r.l];
-	for(int i=0; i<(int)cur.size(); i++){
-		if (areAdj(r, vet[cur[i]])) ans.push_back(cur[i]);
-	}
-	return ans;
-}
-
 int dfs(int u){
 	if (vis[u]) return 0;
 	vis[u] = true;
@@ -71,11 +37,18 @@ int dfs(int u){
 	return ans;
 }
 
+bool tcomp(int i, int j){
+	return vet[i].t < vet[j].t;
+}
+
+bool rcomp(int i, int j){
+	return vet[i].r < vet[j].r;
+}
+
 int main()
 {
 	int N, l, r, b, t, u, v;
 	scanf("%d", &N);
-	vector<int> curadjlist;
 	rec cur;
 	for(int i=0; i<N; i++){
 		scanf("%d %d %d %d", &l, &b, &r, &t);
@@ -90,14 +63,48 @@ int main()
 		rig[r].push_back(i);
 		lef[l].push_back(i);
 		vet[i] = cur;
-		curadjlist = getAdj(cur);
-		for(int j=0; j<(int)curadjlist.size(); j++){
-			u = i;
-			v = curadjlist[j];
-			adjList[u].push_back(v);
-			adjList[v].push_back(u);
+	}
+	
+	map<int, vector<int> >::iterator it;
+	
+	for(it = top.begin(); it!=top.end(); it++){
+		if (!bot.count(it->first)) continue;
+		vector<int> &A = it->second;
+		sort(A.begin(), A.end(), &rcomp);
+		vector<int> &B = bot[it->first];
+		sort(B.begin(), B.end(), &rcomp);
+		int i=0, j=0, u, v;
+		while(i < (int)A.size() && j < (int)B.size()){
+			u = A[i]; v = B[j];
+			if (areAdj(vet[u], vet[v])){
+				adjList[u].push_back(v);
+				adjList[v].push_back(u);
+			}
+			if (vet[u].r <= vet[v].r && i+1 < (int)A.size()) i++;
+			else if (vet[u].r >= vet[v].r && j+1 < (int)B.size()) j++;
+			else break;
 		}
 	}
+	
+	for(it = lef.begin(); it!=lef.end(); it++){
+		if (!rig.count(it->first)) continue;
+		vector<int> &A = it->second;
+		sort(A.begin(), A.end(), &tcomp);
+		vector<int> &B = rig[it->first];
+		sort(B.begin(), B.end(), &tcomp);
+		int i=0, j=0, u, v;
+		while(i < (int)A.size() && j < (int)B.size()){
+			u = A[i]; v = B[j];
+			if (areAdj(vet[u], vet[v])){
+				adjList[u].push_back(v);
+				adjList[v].push_back(u);
+			}
+			if (vet[u].t <= vet[v].t && i+1 < (int)A.size()) i++;
+			else if (vet[u].t >= vet[v].t && j+1 < (int)B.size()) j++;
+			else break;
+		}
+	}
+	
 	memset(&vis, false, sizeof vis);
 	int ans = 0;
 	for(int i=0; i<N; i++){
