@@ -1,11 +1,4 @@
-3 5
-9
-swerc
-icpc
-fbi
-cia
-bio
-z
-hi
-no
-yes
+2
+5
+3
+1 -1
