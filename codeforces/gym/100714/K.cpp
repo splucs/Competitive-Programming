@@ -14,19 +14,11 @@ int main(){
 	int ci=1, cj=1, ofx=0, ofy=0;
 	char op;
 	while(true) {
-		/*printf("tried:\n");
-		for(int i=1; i<=N; i++) {
-			for(int j=1; j<=M; j++){
-					printf("%d", tried[i][j]);
-			}
-			printf("\n");
-		}*/
 		while (tried[ci][cj]) {
 			cj++;
 			if (cj > M) cj=1, ci++;
 		}
 		printf("%d %d\n", ci+ofy, cj+ofx);
-		//printf("%d+%d %d+%d\n", ci,ofx, cj,ofy);
 		tried[ci][cj] = true;
 		fflush(stdout);
 		scanf(" %s", str);

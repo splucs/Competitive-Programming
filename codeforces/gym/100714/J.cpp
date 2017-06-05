@@ -39,8 +39,6 @@ int main()
 {
 	ii n1 = read();
 	ii n2 = read();
-	//printf("n1 = %I64d.%09I64d\n", n1.first, n1.second);
-	//printf("n2 = %I64d.%09I64d\n", n2.first, n2.second);
 	ll a = n1.first*1000000000 + n1.second;
 	ll b = n2.first*1000000000 + n2.second;
 	ll c = a/b;

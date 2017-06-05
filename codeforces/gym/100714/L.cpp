@@ -1,55 +1,61 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define MAXN 1509
+#define MAXN 409
 #define INF (1<<30)
-#define state dp[i][sp][in]
+#define state dp[i][si][vi]
 
-int dp[409][409][MAXN];
+int dp[409][1509][59];
 
-int vet[MAXN], N, S, maxv;
+int v[MAXN], s[MAXN], N, S, maxv, minv;
 
-int DP(const int i, const int sp, const int in) {
-	const int rin = in-S;
-	if (rin < 0 || rin > 2*S) return INF;
+int DP(const int i, const int si, const int vi) {
+	if (vi < minv || vi > maxv || si < 0) return INF;
 	if (state >= 0) return state;
-	if (i == N) {
-		return state = (in == 0 ? 0 : INF);
+	if (i == 0){
+		if (si != 0) return state = INF;
+		else return state = 0;
 	}
-	if (abs(in) >= maxv) return state = INF;
-	int ans = INF;
-	for(int sc = max(0, sp-1); sc <= min(sp+1, maxv); sc++) {
-		//if (i == 0) sc = sp;
-		int nin = rin+vet[i]-sc;
-		ans = min(ans, abs(nin) + DP(i+1, sc, S+nin));
-		//if (i == 0) break;
+	state = INF;
+	for(int vj = vi-1; vj <= vi+1; vj++) {
+		state = min(state, DP(i-1, si-vj, vj));
 	}
-	return state = ans;
-}
-
-bool canmaxv() {
-	int ans = 0;
-	for(int i=0; i<N; i++){
-		ans += maxv-i;
-	}
-	return ans <= S;
+	state += abs(s[i] - si);
+	return state;
 }
 
 int main() {
 	scanf("%d", &N);
 	S = 0;
-	for(int i=0; i<N; i++) {
-		scanf("%d", &vet[i]);
-		S += vet[i];
+	for(int i=1; i<=N; i++) {
+		scanf("%d", &v[i]);
+		S += v[i];
 	}
-	//maxv = 1;
-	//while(canmaxv()) maxv++;
-	//maxv--;
-	maxv = MAXN-1;
-	//printf("maxv = %d\n", maxv);
+	minv = 0;
+	maxv = 0;
+	int d = 1, cs=0;
+	while(cs + d <= S){
+		cs += d;
+		maxv++;
+		if (d < N) d++;
+		else minv++;
+	}
+	maxv++;
+	if (minv > 0) minv--;
+	s[0] = 0;
+	for(int i=1; i<=N; i++) {
+		v[i] -= minv;
+		s[i] = v[i] + s[i-1];
+	}
+	maxv -= minv;
+	minv -= minv;
 	int ans = INF;
-	memset(&dp, -1, sizeof dp);
-	for(int i=0; i<=maxv; i++) {
-		ans = min(ans, DP(0, i, S));
+	for(int i=0; i<=N; i++) {
+		for(int si=0; si<=S; si++){
+			for(int vi=minv; vi<=maxv; vi++) state = -1;
+		}
+	}
+	for(int i=minv; i<=maxv; i++) {
+		ans = min(ans, DP(N, s[N], i));
 	}
 	printf("%d\n", ans);
 	return 0;

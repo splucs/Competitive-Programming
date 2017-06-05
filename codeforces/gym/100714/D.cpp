@@ -18,7 +18,6 @@ ll dijkstra()
 		if (dist[j] < INF) return 0;
 		dist[j] = 0;
 		own[j] = i;
-		//printf("dist[%d]=%I64d, own[%d]=%d\n", j, dist[j], j, own[j]);
 		nodes.insert(ii(0, j));
 	}
 	while(!nodes.empty()){
@@ -49,7 +48,6 @@ ll dijkstra()
 				}
 				dist[v] = dv;
 				own[v] = own[u];
-				//printf("dist[%d]=%I64d, own[%d]=%d\n", v, dist[v], v, own[v]);
 				nodes.insert(ii(dist[v], v));
 			}
 		}
