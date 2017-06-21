@@ -88,42 +88,33 @@ int leftmostIndex(vector<point> &P){
 
 #include <algorithm>
 
-struct polygon{
-	vector<point> P;
-	polygon(){ }
-	polygon(vector<point> _P) : P(_P) {
-		if (!P.empty() && !(P.back() == P.front()))
-			P.push_back(P[0]);
-		if (signedArea() < 0.0){
-			for(int i = 0; 2*i < (int)P.size(); i++){
-				swap(P[i], P[P.size()-i-1]);
-			}
+typedef vector<point> polygon;
+
+double signedArea(polygon & P){
+	double result = 0.0;
+	for (int i = 0; i < (int)P.size()-1; i++) {
+		result += cross(P[i], P[i+1]);
+	}
+	return result/2.0;
+}
+
+polygon make_polygon(vector<point> P) {
+	if (!P.empty() && !(P.back() == P.front()))
+		P.push_back(P[0]);
+	if (signedArea(P) < 0.0){
+		for(int i = 0; 2*i < (int)P.size(); i++){
+			swap(P[i], P[P.size()-i-1]);
 		}
 	}
-	double signedArea(){
-		double result = 0.0;
-		for (int i = 0; i < (int)P.size()-1; i++) {
-			result += cross(P[i], P[i+1]);
-		}
-		return result/2.0;
-	}
-	bool inPolygon(point p) {
-		if (P.size() == 0u) return false;
-		double sum = 0.0;
-		for (int i = 0; i < (int)P.size()-1; i++) {
-			if (ccw(p, P[i], P[i+1])) sum += angle(P[i], p, P[i+1]);
-			else sum -= angle(P[i], p, P[i+1]);
-		}
-		return fabs(fabs(sum) - 2*M_PI) < EPS;
-	}
-};
+	return P;
+}
 
 /*
  * MINKOWSKI
  */
 
-polygon minkowski(polygon p1, polygon p2){
-	vector<point> &A = p1.P, &B = p2.P, P;
+polygon minkowski(polygon A, polygon B){
+	polygon P;
 	A.pop_back(); B.pop_back();
 	int s1 = leftmostIndex(A), n1 = A.size();
 	int s2 = leftmostIndex(B), n2 = B.size();
@@ -147,7 +138,7 @@ polygon minkowski(polygon p1, polygon p2){
 			j = (j+1)%n2; c2++;
 		}
 	}
-	return polygon(P);
+	return make_polygon(P);
 }
 
 /*
@@ -171,7 +162,7 @@ bool test(){
 		p2.push_back(point(x, y));
 	}
 	printf("minkowski sum:\n");
-	m = minkowski(polygon(p1), polygon(p2)).P;
+	m = minkowski(make_polygon(p1), make_polygon(p2));
 	for(int i=0; i<(int)m.size(); i++){
 		printf("%.2f %.2f\n", m[i].x, m[i].y);
 	}
@@ -179,7 +170,7 @@ bool test(){
 }
 
 /*
- * Codeforces 87F
+ * Codeforces 87E
  */
 
 struct triangle{
@@ -216,10 +207,10 @@ bool query(vector<point> &CH, point q){
 	return isInsideTriangle(pivot, CH[i], CH[j], q) != 2;
 }
 
-void printpolygon(polygon p){
+void printpolygon(polygon & P){
 	printf("printing polygon:\n");
-	for(int i=0; i<(int)p.P.size(); i++){
-		printf("%.2f %.2f\n", p.P[i].x, p.P[i].y);
+	for(int i=0; i<(int)P.size(); i++){
+		printf("%.2f %.2f\n", P[i].x, P[i].y);
 	}
 }
 
@@ -235,12 +226,12 @@ int main()
 			scanf("%lf %lf", &x, &y);
 			P.push_back(point(x, y));
 		}
-		city[i] = polygon(P);
+		city[i] = make_polygon(P);
 	}
 	sum = minkowski(city[0], city[1]);
 	sum = minkowski(sum, city[2]);
 		//printpolygon(sum);
-	P = sum.P;
+	P = sum;
 	for(int i=(int)P.size()-1; i>0; i--){
 		P[i] = P[i-1];
 	}

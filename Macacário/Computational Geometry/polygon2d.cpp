@@ -89,64 +89,70 @@ point lineIntersectSeg(point p, point q, point A, point B) {
 	return point((p.x * v + q.x * u) / (u+v), (p.y * v + q.y * u) / (u+v));
 }
 
-struct polygon{
-	vector<point> P;
-	polygon(){ }
-	polygon(vector<point> _P) : P(_P) {
-		if (!P.empty() && !(P.back() == P.front()))
-			P.push_back(P[0]);
-		if (signedArea() < 0.0){
-			for(int i = 0; 2*i < (int)P.size(); i++){
-				swap(P[i], P[P.size()-i-1]);
-			}
+typedef vector<point> polygon;
+
+double perimeter(polygon & P){
+	double result = 0.0;
+	for (int i = 0; i < (int)P.size()-1; i++) result += dist(P[i], P[i+1]);
+	return result;
+}
+
+double signedArea(polygon & P){
+	double result = 0.0;
+	for (int i = 0; i < (int)P.size()-1; i++) {
+		result += cross(P[i], P[i+1]);
+	}
+	return result/2.0;
+}
+
+double area(polygon & P) {
+	return fabs(signedArea(P));
+}
+
+bool isConvex(polygon & P) {
+	int sz = (int)P.size();
+	if (sz <= 3) return false;
+	bool isLeft = ccw(P[0], P[1], P[2]);
+	for (int i = 1; i < sz-1; i++){
+		if (ccw(P[i], P[i+1], P[(i+2) == sz ? 1 : i+2]) != isLeft)
+			return false;
+	}
+	return true;
+}
+bool inPolygon(polygon & P, point p) {
+	if (P.size() == 0u) return false;
+	double sum = 0.0;
+	for (int i = 0; i < (int)P.size()-1; i++) {
+		if (ccw(p, P[i], P[i+1])) sum += angle(P[i], p, P[i+1]);
+		else sum -= angle(P[i], p, P[i+1]);
+	}
+	return fabs(fabs(sum) - 2*M_PI) < EPS;
+}
+
+polygon make_polygon(vector<point> P) {
+	if (!P.empty() && !(P.back() == P.front()))
+		P.push_back(P[0]);
+	if (signedArea(P) < 0.0){
+		for(int i = 0; 2*i < (int)P.size(); i++){
+			swap(P[i], P[P.size()-i-1]);
 		}
 	}
-	double perimeter(){
-		double result = 0.0;
-		for (int i = 0; i < (int)P.size()-1; i++) result += dist(P[i], P[i+1]);
-		return result;
+	return P;
+}
+
+polygon cutPolygon(polygon P, point a, point b) {
+	vector<point> R;
+	double left1, left2;
+	for (int i = 0; i < (int)P.size(); i++) {
+		left1 = cross(b-a, P[i]-a);
+		if (i != (int)P.size()-1) left2 = cross(b-a, P[i+1]-a);
+		else left2 = 0;
+		if (left1 > -EPS) P.push_back(P[i]);
+		if (left1 * left2 < -EPS)
+			R.push_back(lineIntersectSeg(P[i], P[i+1], a, b));
 	}
-	double signedArea(){
-		double result = 0.0;
-		for (int i = 0; i < (int)P.size()-1; i++) {
-			result += cross(P[i], P[i+1]);
-		}
-		return result/2.0;
-	}
-	double area() { return fabs(signedArea()); }
-	bool isConvex() {
-		int sz = (int)P.size();
-		if (sz <= 3) return false;
-		bool isLeft = ccw(P[0], P[1], P[2]);
-		for (int i = 1; i < sz-1; i++){
-			if (ccw(P[i], P[i+1], P[(i+2) == sz ? 1 : i+2]) != isLeft)
-				return false;
-		}
-		return true;
-	}
-	bool inPolygon(point p) {
-		if (P.size() == 0u) return false;
-		double sum = 0.0;
-		for (int i = 0; i < (int)P.size()-1; i++) {
-			if (ccw(p, P[i], P[i+1])) sum += angle(P[i], p, P[i+1]);
-			else sum -= angle(P[i], p, P[i+1]);
-		}
-		return fabs(fabs(sum) - 2*M_PI) < EPS;
-	}
-	polygon cutPolygon(point a, point b) {
-		vector<point> R;
-		double left1, left2;
-		for (int i = 0; i < (int)P.size(); i++) {
-			left1 = cross(b-a, P[i]-a);
-			if (i != (int)P.size()-1) left2 = cross(b-a, P[i+1]-a);
-			else left2 = 0;
-			if (left1 > -EPS) P.push_back(P[i]);
-			if (left1 * left2 < -EPS)
-				R.push_back(lineIntersectSeg(P[i], P[i+1], a, b));
-		}
-		return polygon(R);
-	}
-};
+	return make_polygon(R);
+}
 
 /*
  * TEST MATRIX
