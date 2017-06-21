@@ -1,0 +1,13 @@
+6 6
+Seahawks:Players;Coaching Staff;Owners;Paul Allen
+Players:Russell Wilson;Marshawn Lynch (BEAST)
+Coaching Staff:Pete Carroll
+Owners:Paul Allen
+Backup dancers:Left Shark;Right Shark
+Halftime Show:Backup dancers;Katy Perry
+Tom Brady;Seahawks
+Left Shark;Halftime Show
+Marshawn Lynch (BEAST);Seahawks
+Pete Carroll;Coaching Staff
+Katy Perry;Seahawks
+Paul Allen;Seahawks
