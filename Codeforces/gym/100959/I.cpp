@@ -1,87 +1,115 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 100009
-#define INF (1LL << 60)
+#define INF (1LL<<60)
 
 typedef long long ll;
-map<ll, map<ll, int> > xy, yx;
+map<ll, vector<int> > idx, idy;
+int N, invx[MAXN], invy[MAXN];
+ll x[MAXN], y[MAXN];
 char dir[MAXN];
-ll T[MAXN], qT, x[MAXN], y[MAXN];
+ll dist[MAXN];
 
-int n;
-
-void remove(int u) {
-	xy[x[u]].erase(y[u]);
-	if (xy[x[u]].empty()) xy.erase(x[u]);
-	yx[y[u]].erase(x[u]);
-	if (yx[y[u]].empty()) yx.erase(y[u]);
+int dijkstra() {
+	for(int i=0; i<N; i++) dist[i] = INF;
+	dist[0]=0;
+	set<pair<ll, int> > nodes;
+	nodes.insert(make_pair(0LL, 0));
+	while(!nodes.empty()){
+		int u = nodes.begin()->second;
+		nodes.erase(nodes.begin());
+		if (dir[u] == 'U' || dir[u] == 'D'){
+            vector<int> & vet = idx[x[u]];
+            if (dir[u] == 'U'){
+                for(int i = invx[u]+1; i<(int)vet.size(); i++){
+                    int v = vet[i];
+                    if (dist[v] > dist[u] + abs(y[u] - y[v])){
+                        nodes.erase(make_pair(dist[v], v));
+                        dist[v] = dist[u] + abs(y[u] - y[v]);
+                        if(dir[u] != dir[v]) nodes.insert(make_pair(dist[v], v));
+                    }
+                    else if (dir[v] == dir[u]) break;
+                }
+            }
+            if (dir[u] == 'D'){
+                for(int i = invx[u]-1; i>=0; i--){
+                    int v = vet[i];
+                    if (dist[v] > dist[u] + abs(y[u] - y[v])){
+                        nodes.erase(make_pair(dist[v], v));
+                        dist[v] = dist[u] + abs(y[u] - y[v]);
+                        if(dir[u] != dir[v]) nodes.insert(make_pair(dist[v], v));
+                    }
+                    else if (dir[v] == dir[u]) break;
+                }
+            }
+		}
+		if (dir[u] == 'L' || dir[u] == 'R'){
+            vector<int> & vet = idy[y[u]];
+            if (dir[u] == 'R'){
+                for(int i = invy[u]+1; i<(int)vet.size(); i++){
+                    int v = vet[i];
+                    if (dist[v] > dist[u] + abs(x[u] - x[v])){
+                        nodes.erase(make_pair(dist[v], v));
+                        dist[v] = dist[u] + abs(x[u] - x[v]);
+                        if(dir[u] != dir[v]) nodes.insert(make_pair(dist[v], v));
+                    }
+                    else if (dir[v] == dir[u]) break;
+                }
+            }
+            if (dir[u] == 'L'){
+                for(int i = invy[u]-1; i>=0; i--){
+                    int v = vet[i];
+                    if (dist[v] > dist[u] + abs(x[u] - x[v])){
+                        nodes.erase(make_pair(dist[v], v));
+                        dist[v] = dist[u] + abs(x[u] - x[v]);
+                        if(dir[u] != dir[v]) nodes.insert(make_pair(dist[v], v));
+                    }
+                    else if (dir[v] == dir[u]) break;
+                }
+            }
+		}
+	}
 }
 
-int main()
-{
-	scanf("%d %I64d", &n, &qT);
-	for(int i=1; i<=n; i++) {
-		scanf("%I64d %I64d %c", &x[i], &y[i], &dir[i]);
-		xy[x[i]][y[i]] = i;
-		yx[y[i]][x[i]] = i;
-		T[i] = INF;
-	}
-	queue<int> q;
-	stack<int> tr;
-	q.push(1);
-	T[1] = 0;
-	remove(1);
-	map<ll, map<ll, int> >::iterator it1;
-	map<ll, int>::iterator fi;
-	map<ll, int>::reverse_iterator ri;
-	while(!q.empty()){
-		int u = q.front();
-		q.pop();
-		printf("analysing %d, T[%d] = %I64d\n", u, u, T[u]);
-		if (dir[u] == 'U'){
-			it1 = xy.find(x[u]);
-			if (it1 == xy.end()) continue;
-			for(ri = it1->second.rbegin(); ri!=it1->second.rend() && ri->first > y[u]; ri++){
-				tr.push(ri->second);
-			}
-		}
-		if (dir[u] == 'D'){
-			it1 = xy.find(x[u]);
-			if (it1 == xy.end()) continue;
-			for(fi = it1->second.begin(); fi!=it1->second.end() && fi->first < y[u]; fi++){
-				tr.push(fi->second);
-			}
-		}
-		if (dir[u] == 'L'){
-			it1 = yx.find(y[u]);
-			if (it1 == yx.end()) continue;
-			for(fi = it1->second.begin(); fi!=it1->second.end() && fi->first < x[u]; fi++){
-				tr.push(fi->second);
-			}
-		}
-		if (dir[u] == 'R'){
-			it1 = yx.find(y[u]);
-			if (it1 == yx.end()) continue;
-			for(ri = it1->second.rbegin(); ri!=it1->second.rend() && ri->first > x[u]; ri++){
-				tr.push(ri->second);
-			}
-		}
-		while(!tr.empty()) {
-			int v = tr.top();
-			printf("reaches %d\n", v);
-			tr.pop();
-			q.push(v);
-			remove(v);
-			T[v] = abs(x[u] - x[v]) + abs(y[u] - y[v]) + T[u];
-		}
-	}
-	for(int i=1; i<=n; i++){
-		if (T[i] <= qT && dir[i] == 'U') y[i] += qT - T[i];
-		if (T[i] <= qT && dir[i] == 'D') y[i] -= qT - T[i];
-		if (T[i] <= qT && dir[i] == 'R') x[i] += qT - T[i];
-		if (T[i] <= qT && dir[i] == 'L') x[i] -= qT - T[i];
-		printf("T[%d] = %I64d\n", i, T[i]);
-		printf("%I64d %I64d\n", x[i], y[i]);
-	}
-	return 0;
+bool compx(int i, int j) {
+    if (x[i] == x[j]) return y[i] < y[j];
+    return x[i] < x[j];
+}
+
+bool compy(int i, int j) {
+    if (y[i] == y[j]) return x[i] < x[j];
+    return y[i] < y[j];
+}
+
+int main() {
+    ll T;
+    scanf("%d %I64d", &N, &T);
+    for(int i=0; i<N; i++) {
+        scanf("%I64d %I64d %c", &x[i], &y[i], &dir[i]);
+        idx[x[i]].push_back(i);
+        idy[y[i]].push_back(i);
+    }
+    for(map<ll, vector<int> >::iterator it = idx.begin(); it!=idx.end(); it++){
+        sort(it->second.begin(), it->second.end(), &compy);
+        for(int i=0; i<(int)it->second.size(); i++){
+            invx[it->second[i]] = i;
+        }
+    }
+    for(map<ll, vector<int> >::iterator it = idy.begin(); it!=idy.end(); it++){
+        sort(it->second.begin(), it->second.end(), &compx);
+        for(int i=0; i<(int)it->second.size(); i++){
+            invy[it->second[i]] = i;
+        }
+    }
+    dijkstra();
+    for(int i=0; i<N; i++){
+        if (dist[i] < INF){
+            if (dir[i] == 'U') y[i] += max(0LL, T-dist[i]);
+            if (dir[i] == 'D') y[i] -= max(0LL, T-dist[i]);
+            if (dir[i] == 'R') x[i] += max(0LL, T-dist[i]);
+            if (dir[i] == 'L') x[i] -= max(0LL, T-dist[i]);
+        }
+        printf("%I64d %I64d\n", x[i], y[i]);
+    }
+    return 0;
 }

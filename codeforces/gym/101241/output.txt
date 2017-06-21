@@ -1,11 +1,1 @@
-T
-NIL
-NIL
-T
-T
-NIL
-T
-T
-T
-NIL
-NIL
+NO

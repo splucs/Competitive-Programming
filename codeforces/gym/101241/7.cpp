@@ -1,103 +1,75 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 50009
+#define ALFA 70
 
-struct node {
-	map<char, node*> next;
-	bool pats;
-	char c;
-	node() {
-		pats = false;
-		c = '$';
-	}
-};
+char str[MAXN], carac[MAXN];
+int adj[MAXN][ALFA], sz, gru=0;
+const int root = 0;
+bool end[MAXN], possible;
+set<int> vis[MAXN];
 
-bool ans;
+inline int carac2id(char c){
+	if (c >= 'a' && c <= 'z') return c - 'a';
+	else if (c >= 'A' && c <= 'Z') return c - 'A' + 'z'-'a';
+	else if (c >= '0' && c <= '9') return c - '0' + 'z'-'a' + 'Z'-'A';
+	else return -1;
+}
 
-class AhoCorasick
-{
-	//Automaton build
-private:
-	node *trie;
-	map<node*, set<node*> > dp;
-	vector<node> nds;
-	int size;
-	node* newnode(char c) {
-		nds[size].pats = false;
-		nds[size].c = c;
-		nds[size].next.clear();
-		size++;
-		return &nds[size-1];
+void dfs(int u, int v) {
+	if (u == v) possible = true;
+	if (u > v) swap(u, v);
+	if (possible || vis[u].count(v)) return;
+	//printf("dfs %d %d\n", u, v);
+	gru++;
+	if (gru > 2000000) possible = true;
+	vis[u].insert(v);
+	if (end[u]) dfs(root, v);
+	if (end[v]) dfs(u, root);
+	for(int j = 0; j<ALFA; j++) {
+		if (adj[u][j] > 0 && adj[v][j] > 0) dfs(adj[u][j], adj[v][j]);
 	}
-public:
-	AhoCorasick() {
-		size = 0;
-		nds.resize(MAXN);
-		trie = newnode('$');
-	}
-	void insert(const char* s) {
-		int len = strlen(s);
-		node *x = trie;
-		for (int i = 0; i < len && len > 0; i++) {
-			if (!x->next.count(s[i])) {
-				x->next[s[i]] = newnode(s[i]);
-			}
-			x = x->next[s[i]];
-		}
-		x->pats = true;
-	}
-	void dfs() { dfs(trie); }
-private:
-	void dfs(node* x) {
-		if (x == NULL) return;
-		if (x->pats) DP(x, trie);
-		for(map<char, node*>::iterator it = x->next.begin(); it!=x->next.end(); it++) {
-			dfs(it->second);
-		}
-	}
-	void DP(node* x, node* y) {
-		if (ans || !x || !y) return;
-		//if (dp.count(x) && dp[x].count(y)) return;
-		//dp[x].insert(y);
-		//dp[y].insert(x);
-		//printf("dp(%c,%c)\n", x->c, y->c);
-		if (x->pats && y->pats) {
-			ans = true;
-			return;
-		}
-		if (x->pats && y != trie){
-			//printf(" ->dp(%c,%c)\n", trie->c, y->c);
-			DP(trie, y);
-		}
-		if (y->pats && x != trie){
-			//printf(" ->dp(%c,%c)\n", x->c, trie->c);
-			DP(x, trie);
-		}
-		for(map<char, node*>::iterator it = x->next.begin(); it!=x->next.end(); it++) {
-			char c = it->first;
-			//if (y->next[c]) printf(" ->dp(%c,%c)\n", x->next[c]->c, y->next[c]->c);
-			if (y->next.count(c)) DP(x->next[c], y->next[c]);
-		}
-	}
-};
+}
 
-char str[MAXN];
-AhoCorasick ac;
-
-int main() 
-{
+int main(){
 	freopen("input.txt", "r", stdin);
 	freopen("output.txt", "w", stdout);
 	
 	int N;
 	scanf("%d", &N);
+	
+	memset(&adj, 0, sizeof adj);
+	memset(&end, false, sizeof end);
+	sz = 1;
+	carac[root] = '$';
+	
 	while(N-->0) {
 		scanf(" %s", str);
-		ac.insert(str);
+		int cur = root;
+		int len = strlen(str);
+		for(int i=0; i<len; i++) {
+			int ne = carac2id(str[i]);
+			if (adj[cur][ne] == 0){
+				carac[sz] = str[i];
+				adj[cur][ne] = sz;
+				//printf("node %d->%d(%d): %c\n", cur, sz, ne, str[i]);
+				sz++;
+			}
+			cur = adj[cur][ne];
+		}
+		end[cur] = true;
 	}
-	ans = false;
-	ac.dfs();
-	if (ans) printf("YES\n");
+	
+	possible = false;
+	for(int i=0; i<sz && !possible; i++){
+		if (!end[i]) continue;
+		//printf("i=%d\n", i);
+		for(int j = 0; j<ALFA; j++) {
+			if (adj[i][j] > 0 && adj[root][j] > 0) dfs(adj[i][j], adj[root][j]);
+		}
+	}
+	
+	if (possible) printf("YES\n");
 	else printf("NO\n");
 	
 	fclose(stdin);
