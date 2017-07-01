@@ -1,9 +1,10 @@
-#include <cstdio>
-#include <map>
+#include <bits/stdc++.h>
 using namespace std;
 
 template <typename T>
-T solve (T a, T b, T m) {
+T baby (T a, T b, T m) {
+	a %= m;
+	b %= m;
 	T n = (T) sqrt (m + .0) + 1;
 	T an = 1;
 	for (T i=0; i<n; ++i)
@@ -23,4 +24,19 @@ T solve (T a, T b, T m) {
 		cur = (cur * a) % m;
 	}
 	return -1;
+}
+
+typedef long long ll;
+
+int main() {
+	int T;
+	ll r, x, p, a, b;
+	scanf("%d", &T);
+	while(T-->0) {
+		scanf("%lld %lld %lld", &r, &x, &p);
+		a = r;
+		b = x*(r-1) + 1;
+		printf("%lld\n", baby(a, b, p));
+	}
+	return 0;
 }
