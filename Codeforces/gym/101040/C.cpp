@@ -1,11 +1,9 @@
-#include <cmath>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 #define MAXN 200009
 
 typedef long long int ll;
+typedef pair<int, int> ii;
 
 /*
  * ALGORITMO DE MO
@@ -16,7 +14,7 @@ int inv[MAXN];	//mo tree
 
 struct query {
 	int l, r, id, lca;
-	ll ans;
+	int ans, tot;
 	query() { l=r=id=lca=-1; }
 	query(int _id, int _l, int _r){
 		id = _id; l = _l; r = _r; lca = -1;
@@ -30,38 +28,42 @@ bool idcomp(query a, query b){
 	return a.id < b.id;
 }
 
-ll freq[MAXN], curAns;
+int freq[MAXN], curTot, freqs[MAXN], maxfreqs;
 void check(int i) {
-	if (i < 0 || i >= N) return;
-	//if (appeared[i]) {	//mo array
+	if (i < 0 || i>= N) return;
 	if (appeared[inv[i]]) {	//mo tree
+		freqs[freq[arr[i]]]--;
 		freq[arr[i]]--;
-		if (freq[arr[i]] == 0) curAns--;
+		curTot--;
+		freqs[freq[arr[i]]]++;
+		if (freqs[maxfreqs] == 0) maxfreqs--;
 	}
 	else {
-		if (freq[arr[i]] == 0) curAns++;
+		freqs[freq[arr[i]]]--;
 		freq[arr[i]]++;
+		curTot++;
+		freqs[freq[arr[i]]]++;
+		maxfreqs = max(maxfreqs, freq[arr[i]]);
 	}
 	appeared[inv[i]] = !appeared[inv[i]];	//mo tree
-	//appeared[i] = !appeared[i];			//mo array
 }
 
 void mo(){
 	sn = sqrt(N);
 	sort(qrs, qrs+Q, &lrcomp);
 	memset(&freq, 0, sizeof freq);
-	memset(&appeared, false, sizeof appeared);
+	memset(&freqs, 0, sizeof freqs);
+	maxfreqs = 0;
 	int l = 1, r = 0;
-	curAns = 0;
+	curTot = 0;
 	for(int i=0; i<Q; i++){
 		query & q = qrs[i];
 		while(r > q.r) check(r--);
 		while(r < q.r) check(++r);
 		while(l < q.l) check(l++);
 		while(l > q.l) check(--l);
-		check(q.lca);
-		q.ans = curAns;
-		check(q.lca);
+		q.ans = maxfreqs;
+		q.tot = curTot;
 	}
 	sort(qrs, qrs+Q, &idcomp);
 }
@@ -72,7 +74,6 @@ void mo(){
 #include <vector>
 #define MAXLOGN 20
  
-typedef pair<int, int> ii;
 vector<ii> adjList[MAXN];
 int depth[MAXN], level[MAXN];
 int P[MAXN][MAXLOGN];
@@ -121,7 +122,10 @@ void prepos(int u, int p) {
 	st[u] = cnt++;
 	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i].first;
-		if (v != p) prepos(v, u);
+		int w = adjList[u][i].second;
+		if (v == p) continue;
+		c[v] = w;
+		prepos(v, u);
 	}
 	arr[cnt] = c[u];
 	inv[cnt] = u;
@@ -129,17 +133,19 @@ void prepos(int u, int p) {
 }
 void treemo(int root) {
 	cnt = 0;
+	c[root] = -1;
 	prepos(root, -1);
 	computeP(root);
 	N = cnt;
+	memset(&appeared, false, sizeof appeared);
 	for(int i=0, u, v, lca; i<Q; i++) {
 		query & q = qrs[i];
 		u = q.l; v = q.r; lca = LCA(u, v);
 		if (st[u] > st[v]) swap(u, v);
-		//if (lca == u) q.l = st[u]+1, q.lca = -1;	//propriedade na aresta
-		//else q.l = en[u], q.lca = -1;
-		if (lca == u) q.l = st[u], q.lca = -1;	//propriedade no noh
-		else q.l = en[u], q.lca = st[lca];
+		if (lca == u) q.l = st[u]+1, q.lca = -1;	//propriedade na aresta
+		else q.l = en[u], q.lca = -1;
+		//if (lca == u) q.l = st[u], q.lca = -1;	//propriedade no noh
+		//else q.l = en[u], q.lca = st[lca];
 		q.r = st[v];
 	}
 	mo();
@@ -148,24 +154,15 @@ void treemo(int root) {
 /*
  * SPOJ COT2
  */
-#include <cstdio>
-#include <map>
  
 int main()
 {
-	map<int, int> x2id;
-	int k=0;
 	scanf("%d %d", &N, &Q);
-	for(int i=1; i<=N; i++){
-		scanf("%d", c+i);
-		if (!x2id.count(c[i])) x2id[c[i]] = k++;
-		c[i] = x2id[c[i]];
-	}
-	int u, v;
+	int u, v, w;
 	for(int i=1; i<N; i++) {
-		scanf("%d %d", &u, &v);
-		adjList[u].push_back(ii(v, -1));
-		adjList[v].push_back(ii(u, -1));
+		scanf("%d %d %d", &u, &v, &w);
+		adjList[u].push_back(ii(v, w));
+		adjList[v].push_back(ii(u, w));
 	}
 	int l, r;
 	for(int i=0; i<Q; i++){
@@ -174,7 +171,7 @@ int main()
 	}
 	treemo(1);
 	for(int i=0; i<Q; i++){
-		printf("%lld\n", qrs[i].ans);
+		printf("%.10f\n", qrs[i].ans*100.0/qrs[i].tot);
 	}
 	return 0;
 }

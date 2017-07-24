@@ -4,7 +4,7 @@ using namespace std;
 
 void quicksort(int* arr, int l, int r){
     if (l >= r) return;
-    int mid = l + (r - l) / 2;
+    int mid = rand()%(r-l+1) + l;
     int pivot = arr[mid];
     swap(arr[mid],arr[l]);
     int i = l + 1, j = r;
@@ -16,6 +16,18 @@ void quicksort(int* arr, int l, int r){
     swap(arr[i-1], arr[l]);
     quicksort(arr, l, i-2);
     quicksort(arr, i, r);
+}
+
+void quicksort(int* arr, int l, int r){
+    if (l >= r) return;
+    int i, m = rand()%(t-l+1) + l;
+	swap(arr[l], arr[m]);
+	for(m = l, i = l + 1; i <= r; i++) {
+		if (x[i] < x[l]) swap(arr[++m], arr[i]);
+	}
+    swap(arr[l], arr[m]);
+    quicksort(arr, l, m-1);
+    quicksort(arr, i, m+1);
 }
 
 int main(){

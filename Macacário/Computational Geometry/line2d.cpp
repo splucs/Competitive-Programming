@@ -54,7 +54,7 @@ double distToLine(point p, line l) {
 }
 
 point closestToLineSegment(point p, point a, point b) {
-	double u = innerProduct(p-a, b-a) / innerProduct(b-a, b-a);
+	double u = inner(p-a, b-a) / inner(b-a, b-a);
 	if (u < 0.0) return a;
 	if (u > 1.0) return b;
 	return a + ((b-a)*u);
