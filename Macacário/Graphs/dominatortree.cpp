@@ -48,7 +48,7 @@ void dominator() {
 			else dom[z] = x;
 		}
 		dtree[x].clear();
-    }
+	}
 	idom[1] = -1;
 	for (int i = 1; i < cnt; i++) {
 		if (sdom[i] != dom[i]) dom[i] = dom[dom[i]];
