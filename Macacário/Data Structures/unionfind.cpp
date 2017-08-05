@@ -7,9 +7,9 @@ private:
 	vector<int> parent, rank;
 public:
 	UnionFind(int N) {
-		rank.assign(N, 0);
-		parent.assign(N, 0);
-		for (int i = 0; i < N; i++) parent[i] = i;
+		rank.assign(N+1, 0);
+		parent.assign(N+1, 0);
+		for (int i = 0; i <= N; i++) parent[i] = i;
 	}
 	int find(int i) {
 		while(i != parent[i]) i = parent[i];
