@@ -28,7 +28,7 @@ int main() {
 		ans[i] = amount[hsh[i]].size();
 	}
 	int i1, i2, j1, j2;
-	ll P1, P2, p21, p22;
+	ll P1, P2;
 	while(M--) {
 		scanf("%d %d %d %d", &i1, &j1, &i2, &j2);
 		i1--; i2--;
