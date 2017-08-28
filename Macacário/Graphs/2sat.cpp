@@ -72,8 +72,10 @@ bool ffill(int u, int k){
 
 bool twosat(){
 	tarjan();
-	for(int i=0; i<N/2; i++){
+	for(int i=0; i<N; i++){
 		C[i].clear(); adjComp[i].clear();
+	}
+	for(int i=0; i<N/2; i++){
 		if (component[i]==component[i+N/2]) return false;
 	}
 	for(int u=0, v; u<N; u++){
