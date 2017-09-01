@@ -147,7 +147,7 @@ polygon cutPolygon(polygon P, point a, point b) {
 		left1 = cross(b-a, P[i]-a);
 		if (i != (int)P.size()-1) left2 = cross(b-a, P[i+1]-a);
 		else left2 = 0;
-		if (left1 > -EPS) P.push_back(P[i]);
+		if (left1 > -EPS) R.push_back(P[i]);
 		if (left1 * left2 < -EPS)
 			R.push_back(lineIntersectSeg(P[i], P[i+1], a, b));
 	}
