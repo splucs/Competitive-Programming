@@ -53,7 +53,7 @@ public:
 	}
 	bool count(int n){
 		int k = inv[n];
-		return k <= heapsize && heap[k] == n;
+		return k <= heapsize && k > 0 && heap[k] == n;
 	}
 	int top(){
 		if (heapsize <=0) return -1;

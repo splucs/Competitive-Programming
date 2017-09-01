@@ -11,20 +11,20 @@ vector<int> rabinkarp(const char* P, const char* T){
 	int n = strlen(T);
 	int m = strlen(P);
 	int p = 0, t = 0, h = 1;
-    for (int i = 0; i < m-1; i++) h = (h*d)%MOD;
-    for (int i = 0; i < m; i++){
-        p = (d*p + P[i])%MOD;
-        t = (d*t + T[i])%MOD;
-    }
-    for (int i = 0; i <= n-m; i++){
+	for (int i = 0; i < m-1; i++) h = (h*d)%MOD;
+	for (int i = 0; i < m; i++){
+		p = (d*p + P[i])%MOD;
+		t = (d*t + T[i])%MOD;
+	}
+	for (int i = 0; i <= n-m; i++){
 		if (p == t && strncmp(T+i, P, m) == 0){
 			ans.push_back(i);
 		}
-        if (i+m < n){
-            t = (d*(t - T[i]*h) + T[i+m])%MOD;
-            if (t < 0) t += MOD;
-        }
-    }
+		if (i+m < n){
+			t = (d*(t - T[i]*h) + T[i+m])%MOD;
+			if (t < 0) t += MOD;
+		}
+	}
 	return ans;
 }
 
