@@ -8,6 +8,74 @@ typedef pair<int, int> ii;
 
 int N, M;
 
+/*
+  Algoritmo de Fluxo (Dinic)
+*/
+int ned, prv[MAXN], first[MAXN], frt[MAXN];
+int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
+
+void init(){
+   memset(first, -1, sizeof first);
+   ned = 0;
+}
+void add(int u, int v, int f){
+    to[ned] = v, cap[ned] = f;
+    nxt[ned] = first[u];
+    first[u] = ned++;   
+    to[ned] = u, cap[ned] = 0;
+    nxt[ned] = first[v];
+    first[v] = ned++;
+}
+
+int dfs(int u, int f, int s, int t) {
+	if (u == t) return f;
+	int v, df;
+	for(int& e = frt[u]; e!=-1; e = nxt[e]){
+        v = to[e];
+
+		if (dist[v] == dist[u] + 1 && cap[e] > 0) {
+			df = dfs(v, min(f, cap[e]), s, t);
+			if (df > 0) {
+				cap[e] -= df;
+				cap[e^1] += df;
+				return df;
+			}
+		}
+	}
+	return 0;
+}
+bool bfs(int s, int t){
+	int u, v;
+	memset(&dist, -1, sizeof dist);
+	dist[s] = 0;
+	queue<int> q; q.push(s);
+	while (!q.empty()) {
+		u = q.front(); q.pop();
+		for(int e = first[u]; e!=-1; e = nxt[e]){
+			v = to[e];
+			if (dist[v] < 0 && cap[e] > 0) {
+				dist[v] = dist[u] + 1;
+				q.push(v);
+			}
+		}
+	}
+	return dist[t] >= 0;
+}
+
+int dinic(int s, int t) {
+	int result = 0, f;
+	while (bfs(s, t)) {
+		
+		memcpy(frt, first, sizeof(frt));
+		while (f = dfs(s, INF, s, t)) result += f;
+	}
+	return result;
+}
+
+/*
+  Gomory Hu Tree
+*/
+
 int parent[MAXN], flowToParent[MAXN];
 int backup[MAXM];
 bool belongToCut[MAXN];
@@ -71,16 +139,42 @@ void gomory_hu_tree(int n, vector<vector<ii> >& neighbor) {
 	}
 }
 
+/*
+  2015-2016 ACM-ICPC, Central Europe Regional Contest (CERC 15)
+  http://codeforces.com/gym/101480
+  Problem J
+*/
+
+vector<vector<ii> > tree;
+
+int cnt(int v, int previous, int k) {
+	int ans = 0;
+	for (int i = 0; i < tree[v].size(); i++) {
+		if (tree[v][i].first == previous) continue;
+		ans += min(k, tree[v][i].second);
+		ans += cnt(tree[v][i].first, v, min(k, tree[v][i].second));
+	}
+
+	return ans;
+}
+
 int main() {
 	int a, b;
 	scanf("%d %d", &N, &M);
+	
+	init();
 	for (int i = 0; i < M; i++) {
 		scanf("%d %d", &a, &b);
 		a--; b--;
-		addEdge(a, b, 1);
-		addEdge(b, a, 1);
+		add(a, b, 1);
+		add(b, a, 1);
 	}
 
-	vector<vector<ii> > tree;
 	gomory_hu_tree(N, tree);
+	
+	int ans = 0;
+	for (int i = 0; i < N; i++) {
+		ans += cnt(i, -1, INF);
+	}
+	printf("%d\n", ans/2);
 }
