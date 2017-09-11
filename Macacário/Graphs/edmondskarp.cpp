@@ -5,6 +5,10 @@
 #define MAXM 900000
 using namespace std;
 
+/*
+ * Edmonds-Karp's Algorithm - O(VE^2)
+ */
+
 int N, M, ned, prv[MAXN], first[MAXN];
 int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
 
@@ -53,7 +57,6 @@ bool bfs(int s, int t){
 	return dist[t] >= 0;
 }
 
-//O(VE^2)
 int edmondskarp(int s, int t){
 	int result = 0;
 	while (bfs(s, t)) {

@@ -1,13 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define MAXN 19
-#define MOD 1000000007LL
 
-typedef long long ll;
-
-int mex[MAXN][MAXN];
-
-int Mex(int N, int B) {
+int mex(int N, int B) {
 	if (B % 2 != 0) return N%2;
 	int s = N % (B + 1);
 	if (s == B) return 2;
@@ -24,7 +18,7 @@ int main() {
 		int ans = 0;
 		while(K-->0) {
 			scanf("%d %d", &B, &N);
-			ans ^= Mex(N, B);
+			ans ^= mex(N, B);
 		}
 		if (ans) printf("1\n");
 		else printf("2\n");
