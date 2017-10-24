@@ -63,3 +63,11 @@ point closestToLineSegment(point p, point a, point b) {
 double distToLineSegment(point p, point a, point b) {
 	return dist(p, closestToLineSegment(p, a, b));
 }
+
+bool segIntersects(point a,point b,point p,point q){
+    point u = b-a, v = q-p;
+    if (fabs(cross(v,u))<EPS) return between(a,p,b) || between(a,q,b);
+    double k1 = (cross(a,u)-cross(p,u))/cross(v,u);
+    double k2 = (cross(a,v)-cross(p,v))/cross(v,u);
+    return k1 >= 0 && k1 <= 1 && k2 >= 0 && k2 <= 1;
+}
