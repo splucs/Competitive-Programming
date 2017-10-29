@@ -16,38 +16,31 @@ struct node {
 	vector<char> adj;
 	vector<int> pats;
 	int nid;
-	node(int _nid) {
+	node(vector<node*> & st) {
 		fail = NULL;
-		nid = _nid;
+		nid = st.size();
 		memset(&next, 0, sizeof next);
+		st.push_back(this);
 	}
 };
 
-class AhoCorasick
-{
+class AhoCorasick {
 	//Automaton build
 private:
 	node *trie;
 	map<int, int> sizes;
-	int size;
+	vector<node*> st;
 	node *suffix(node *x, char c) {
 		while (x != trie && x->next[c] == 0) x = x->fail;
 		return (x->next[c] ? x->next[c] : trie);
 	}
 public:
-	AhoCorasick() { trie = new node(0); size = 1; }
+	AhoCorasick() { clear(); }
 	void clear() {
-		node *x, *y;
-		queue<node*> q; q.push(trie);
-		while (!q.empty()) {
-			x = q.front(); q.pop();
-			for (int i = 0; i < (int)x->adj.size(); i++) {
-				y = x->next[x->adj[i]];
-				if (y != NULL && y != trie) q.push(y);
-			}
-			delete x;
-		}
-		trie = new node(0); size = 1;
+		for(int i=0; i<(int)st.size(); i++) delete st[i];
+		st.clear();
+		sizes.clear();
+		trie = new node(st);
 	}
 	void setfails() {
 		queue<node*> q;
@@ -77,7 +70,7 @@ public:
 		for (int i = 0; i < len; i++) {
 			y = x->next[s[i]];
 			if (y == NULL || y == trie) {
-				x->next[s[i]] = new node(size++);
+				x->next[s[i]] = new node(st);
 				x->adj.push_back(s[i]);
 			}
 			x = x->next[s[i]];
@@ -131,7 +124,7 @@ public:
 	void initDP() {
 		for (int i = 0; i < MAXK; i++)
 			for (int j = 0; j < MAXK; j++)
-				for(int s = 0; s < size; s++)
+				for(int s = 0; s < (int)st.size(); s++)
 					dp[i][j][s] = -1;
 	}
 };
