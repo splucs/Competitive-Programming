@@ -47,6 +47,6 @@ int main() {
 		adjList[u].push_back(ii(0, v+n));
 	}
 	dijkstra(s);
-	printf("%I64d\n", min(dist[t], dist[t+n]));
+	printf("%lld\n", min(dist[t], dist[t+n]));
 	return 0;
 }
