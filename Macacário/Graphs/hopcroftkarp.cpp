@@ -9,11 +9,11 @@ using namespace std;
 vector<int> adjU[MAXN];
 int pairU[MAXN], pairV[MAXN], dist[MAXN];
 int m, n;
-///Vértices enumerados de 1 a m em U e de 1 a n em V!!!!
-bool bfs()
-{
+
+//Vértices enumerados de 1 a m em U e de 1 a n em V!!!!
+bool bfs() {
     queue<int> q;
-    for (int u=1; u<=m; u++){
+    for (int u=1; u<=m; u++) {
         if (pairU[u]==0) {
             dist[u] = 0;
             q.push(u);
@@ -22,9 +22,9 @@ bool bfs()
     }
     dist[0] = INF;
     int u, v;
-    while (!q.empty()){
+    while (!q.empty()) {
         u = q.front(); q.pop();
-        if (dist[u] < dist[0]){
+        if (dist[u] < dist[0]) {
             for (int i=0; i<(int)adjU[u].size(); ++i) {
                 v = adjU[u][i];
                 if (dist[pairV[v]] == INF){
@@ -37,14 +37,13 @@ bool bfs()
     return (dist[0] != INF);
 }
 
-bool dfs(int u)
-{
+bool dfs(int u) {
     if (u == 0) return true;
     int v;
-    for (int i=0; i!=(int)adjU[u].size(); ++i){
+    for (int i=0; i!=(int)adjU[u].size(); ++i) {
         v = adjU[u][i];
-        if (dist[pairV[v]] == dist[u]+1){
-            if (dfs(pairV[v])){
+        if (dist[pairV[v]] == dist[u]+1) {
+            if (dfs(pairV[v])) {
                 pairV[v] = u; pairU[u] = v;
                 return true;
             }
@@ -55,13 +54,12 @@ bool dfs(int u)
 }
 
 //O(E*sqrt(V))
-int hopcroftKarp()
-{
+int hopcroftKarp() {
     memset(&pairU, 0, sizeof pairU);
     memset(&pairV, 0, sizeof pairV);
     int result = 0;
-    while (bfs()){
-        for (int u=1; u<=m; u++){
+    while (bfs()) {
+        for (int u=1; u<=m; u++) {
             if (pairU[u]==0 && dfs(u))
                 result++;
         }
@@ -69,8 +67,7 @@ int hopcroftKarp()
     return result;
 }
 
-int main()
-{
+int main() {
     int T, lu[MAXN], lv[MAXN];
     scanf("%d", &T);
     for(int caseNo=1; caseNo <= T; caseNo++){

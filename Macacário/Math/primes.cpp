@@ -6,7 +6,7 @@ using namespace std;
 #define MAXN 10000009
 
 typedef long long int ll;
-ll sievesize, numDiffPF[MAXN];
+ll sievesize, numDiffp[MAXN];
 bitset<MAXN> bs;
 vector<ll> primes;
 
@@ -52,51 +52,51 @@ bool isPrimeFast(ll n){
     return true;
 }
 
-vector<ll> primeFactors(ll N) {
-	vector<int> factors;
-	ll PF_idx = 0, PF = primes[PF_idx];
-	while (PF * PF <= N) { 
-		while (N % PF == 0) {
-			N /= PF;
-			factors.push_back(PF);
+typedef pair<ll, int> ii;
+vector<ii> primeFactors(ll N) {
+	vector<ii> factors;
+	ll i = 0, p = primes[i];
+	while (p * p <= N) {
+		if (N % p == 0) {
+			int cnt = 0;
+			while (N % p == 0) N /= p, cnt++;
+			factors.push_back(ii(p, cnt));
 		}
-		PF = primes[++PF_idx];
+		p = primes[++i];
 	}
-	// special case if N is a prime
-	if (N != 1) factors.push_back(N);
+	if (N != 1) factors.push_back(ii(N, 1));
 	return factors;
 }
 
 ll numDiv(ll N) {
-	ll PF_idx = 0, PF = primes[PF_idx], ans = 1; // start from ans = 1
-	while (PF * PF <= N) {
-		ll power = 0; // count the power
-		while (N % PF == 0) { N /= PF; power++; }
-		ans *= (power + 1); // according to the formula
-		PF = primes[++PF_idx];
+	ll i = 0, p = primes[i], ans = 1;
+	while (p * p <= N) {
+		ll power = 0;
+		while (N % p == 0) { N /= p; power++; }
+		ans *= (power + 1);
+		p = primes[++i];
 	}
-	// (last factor has pow = 1, we add 1 to it)
 	if (N != 1) ans *= 2;
 	return ans;
 }
 
 ll EulerPhi(ll N) {
-	ll PF_idx = 0, PF = primes[PF_idx], ans = N;
-	while (PF * PF <= N) {
-		if (N % PF == 0) ans -= ans / PF;
-		while (N % PF == 0) N /= PF;
-		PF = primes[++PF_idx];
+	ll i = 0, p = primes[i], ans = N;
+	while (p * p <= N) {
+		if (N % p == 0) ans -= ans / p;
+		while (N % p == 0) N /= p;
+		p = primes[++i];
 	}
 	if (N != 1) ans -= ans / N;
 	return ans;
 }
 
-void numDiffPf(){
-	memset(numDiffPF, 0, sizeof numDiffPF);
+void numDiffp(){
+	memset(numDiffp, 0, sizeof numDiffp);
 	for (int i = 2; i < MAXN; i++)
-		if (numDiffPF[i] == 0)
+		if (numDiffp[i] == 0)
 			for (int j = i; j < MAXN; j += i)
-				numDiffPF[j]++;
+				numDiffp[j]++;
 }
 
 int main(){

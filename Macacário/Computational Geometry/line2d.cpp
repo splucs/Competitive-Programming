@@ -6,7 +6,7 @@ struct line {
 
 line pointsToLine(point p1, point p2) {
 	line l;
-	if (fabs(p1.x - p2.x) < EPS && fabs(p1.y - p2.y) < EPS){
+	if (fabs(p1.x - p2.x) < EPS && fabs(p1.y - p2.y) < EPS) {
 		l.a = l.b = l.c = NAN;
 	}
 	else if (fabs(p1.x - p2.x) < EPS) {
@@ -36,9 +36,9 @@ point intersection(line l1, line l2) {
 	return p;
 }
 
-point projPointToLine(point u, line l){
+point projPointToLine(point u, line l) {
 	point a, b;
-	if (fabs(l.b-1.0)<EPS){
+	if (fabs(l.b-1.0)<EPS) {
 		a = point(-l.c/l.a, 0.0);
 		b = point(-l.c/l.a, 1.0);
 	}
@@ -64,10 +64,11 @@ double distToLineSegment(point p, point a, point b) {
 	return dist(p, closestToLineSegment(p, a, b));
 }
 
-bool segIntersects(point a,point b,point p,point q){
+bool segIntersects(point a, point b, point p, point q) {
     point u = b-a, v = q-p;
-    if (fabs(cross(v,u))<EPS) return between(a,p,b) || between(a,q,b);
-    double k1 = (cross(a,v)-cross(p,v))/cross(v,u);
-    double k2 = (cross(a,u)-cross(p,u))/cross(v,u);
+    if (fabs(cross(v, u)) < EPS)
+		return between(a, p, b) || between(a, q, b);
+    double k1 = (cross(a, v) - cross(p, v)) / cross(v, u);
+    double k2 = (cross(a, u) - cross(p, u)) / cross(v, u);
     return k1 >= 0 && k1 <= 1 && k2 >= 0 && k2 <= 1;
 }

@@ -9,15 +9,15 @@ using namespace std;
  * Edmonds-Karp's Algorithm - O(VE^2)
  */
 
-int N, M, ned, prv[MAXN], first[MAXN];
+int ned, prv[MAXN], first[MAXN];
 int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
 
-void init(){
+void init() {
    memset(first, -1, sizeof first);
    ned = 0;
 }
 
-void add(int u, int v, int f){
+void add(int u, int v, int f) {
     to[ned] = v, cap[ned] = f;
     nxt[ned] = first[u];
     first[u] = ned++;
@@ -36,7 +36,7 @@ int augment(int v, int minEdge, int s) {
 	return f;
 }
 
-bool bfs(int s, int t){
+bool bfs(int s, int t) {
 	int u, v;
 	memset(&dist, -1, sizeof dist);
 	dist[s] = 0;
@@ -45,7 +45,7 @@ bool bfs(int s, int t){
 	while (!q.empty()) {
 		u = q.front(); q.pop();
 		if (u == t) break;
-		for(int e = first[u]; e!=-1; e = nxt[e]){
+		for(int e = first[u]; e!=-1; e = nxt[e]) {
 			v = to[e];
 			if (dist[v] < 0 && cap[e] > 0) {
 				dist[v] = dist[u] + 1;
@@ -57,7 +57,7 @@ bool bfs(int s, int t){
 	return dist[t] >= 0;
 }
 
-int edmondskarp(int s, int t){
+int edmondskarp(int s, int t) {
 	int result = 0;
 	while (bfs(s, t)) {
 		result += augment(t, INF, s);
@@ -71,7 +71,7 @@ int edmondskarp(int s, int t){
 #include <cstdio>
 
 int main(){
-	int R, C, A, B, pos[60][60];
+	int N, M, R, C, A, B, pos[60][60];
 	char c;
 	scanf("%d %d %d %d", &R, &C, &A, &B);
 	init();

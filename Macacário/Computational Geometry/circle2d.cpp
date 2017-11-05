@@ -10,13 +10,13 @@ struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm(){
+	double norm() {
 		return hypot(x, y);
 	}
-	point normalized(){
+	point normalized() {
 		return point(x,y)*(1.0/norm());
 	}
-	double angle(){ return atan2(y, x);	}
+	double angle() { return atan2(y, x);	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
 		else return y < other.y;
@@ -48,29 +48,27 @@ double inner(point p1, point p2) {
 struct circle{
 	point c;
 	double r;
-	circle(){ c = point(); r = 0; }
+	circle() { c = point(); r = 0; }
 	circle(point _c, double _r) : c(_c), r(_r) {}
 	double area() { return M_PI*r*r; }
 	double chord(double rad) { return  2*r*sin(rad/2.0); }
 	double sector(double rad) { return 0.5*rad*area()/M_PI; }
-	bool intersects(circle other){
+	bool intersects(circle other) {
 		return dist(c, other.c) < r + other.r;
 	}
 	bool contains(point p) { return dist(c, p) <= r + EPS; }
-	
-	pair<point,point> getTangentPoint(point p){
+	pair<point, point> getTangentPoint(point p) {
 		double d1 = dist(p,c);
 		double theta = asin(r/d1);
 		point p1 = rotate(c-p,-theta);
 		point p2 = rotate(c-p,theta);
 		p1 = p1*(sqrt(d1*d1-r*r)/d1)+p;
 		p2 = p2*(sqrt(d1*d1-r*r)/d1)+p;
-
 		return make_pair(p1,p2);
-    	}
+	}
 };
 
-circle circumcircle(point a, point b, point c){
+circle circumcircle(point a, point b, point c) {
 	circle ans;
 	point u = point((b-a).y, -(b-a).x);
 	point v = point((c-a).y, -(c-a).x);
@@ -87,7 +85,7 @@ int insideCircle(point p, circle c) {
 	else return 2;
 } //0 = inside/1 = border/2 = outside
 
-circle incircle( point p1, point p2, point p3 ){
+circle incircle( point p1, point p2, point p3 ) {
     double m1=dist(p2, p3);
     double m2=dist(p1, p3);
     double m3=dist(p1, p2);
@@ -98,16 +96,16 @@ circle incircle( point p1, point p2, point p3 ){
 }
 
 //Minimum enclosing circle, O(n)
-circle minimumCircle(vector<point> p){
+circle minimumCircle(vector<point> p) {
 	random_shuffle(p.begin(), p.end());
 	circle C = circle(p[0], 0.0);
-	for(int i = 0; i < (int)p.size(); i++){
+	for(int i = 0; i < (int)p.size(); i++) {
 		if (C.contains(p[i])) continue;
 		C = circle(p[i], 0.0);
-		for(int j = 0; j < i; j++){
+		for(int j = 0; j < i; j++) {
 			if (C.contains(p[j])) continue;
 			C = circle((p[j] + p[i])*0.5, 0.5*dist(p[j], p[i]));
-			for(int k = 0; k < j; k++){
+			for(int k = 0; k < j; k++) {
 				if (C.contains(p[k])) continue;
 				C = circumcircle(p[j], p[i], p[k]);
 			}
@@ -122,10 +120,10 @@ int main()
 	scanf("%d", &c);
 	vector<point> p;
 	point t;
-	while(c--){
+	while(c--) {
 		scanf("%d", &n);
 		p.clear();
-		for(int i=0; i<n; i++){
+		for(int i=0; i<n; i++) {
 			scanf("%lf %lf", &t.x, &t.y);
 			p.push_back(t);
 		}

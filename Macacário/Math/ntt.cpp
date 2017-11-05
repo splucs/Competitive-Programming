@@ -37,18 +37,18 @@ const ll root_pw = 1LL<<21;
 
 void ntt(vector<ll> & a, bool invert, int m) {
 	ll n = (ll)a.size();
-	for (ll i=1, j=0; i<n; ++i) {
+	for(ll i=1, j=0; i<n; ++i) {
 		ll bit = n >> 1;
 		for (; j>=bit; bit>>=1) j -= bit;
 		j += bit;
 		if (i < j) swap(a[i], a[j]);
 	}
-	for (ll len=2, wlen; len<=n; len<<=1) {
+	for(ll len=2, wlen; len<=n; len<<=1) {
 		wlen = invert ? root_1[m] : root[m];
 		for (ll i=len; i<root_pw; i<<=1)
 			wlen = (wlen * wlen % mod[m]);
-		for (ll i=0; i<n; i+=len) {
-			for (ll j=0, w=1; j<len/2; ++j) {
+		for(ll i=0; i<n; i+=len) {
+			for(ll j=0, w=1; j<len/2; ++j) {
 				ll u = a[i+j],  v = a[i+j+len/2] * w % mod[m];
 				a[i+j] = (u+v < mod[m] ? u+v : u+v-mod[m]);
 				a[i+j+len/2] = (u-v >= 0 ? u-v : u-v+mod[m]);
@@ -56,7 +56,7 @@ void ntt(vector<ll> & a, bool invert, int m) {
 			}
 		}
 	}
-	if (invert) {
+	if(invert) {
 		ll nrev = modInv(n, mod[m]);
 		for (ll i=0; i<n; ++i)
 			a[i] = a[i] * nrev % mod[m];
@@ -65,7 +65,7 @@ void ntt(vector<ll> & a, bool invert, int m) {
 
 void convolution(vector<ll> a, vector<ll> b, vector<ll> & res, int m) {
 	ll n = 1;
-	while (n < max (a.size(), b.size())) n <<= 1;
+	while(n < max (a.size(), b.size())) n <<= 1;
 	n <<= 1;
 	a.resize(n), b.resize(n);
 	ntt(a, false, m); ntt(b, false, m);
