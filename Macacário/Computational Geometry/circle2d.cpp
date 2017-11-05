@@ -57,6 +57,17 @@ struct circle{
 		return dist(c, other.c) < r + other.r;
 	}
 	bool contains(point p) { return dist(c, p) <= r + EPS; }
+	
+	pair<point,point> getTangentPoint(point p){
+		double d1 = dist(p,c);
+		double theta = asin(r/d1);
+		point p1 = rotate(c-p,-theta);
+		point p2 = rotate(c-p,theta);
+		p1 = p1*(sqrt(d1*d1-r*r)/d1)+p;
+		p2 = p2*(sqrt(d1*d1-r*r)/d1)+p;
+
+		return make_pair(p1,p2);
+    	}
 };
 
 circle circumcircle(point a, point b, point c){
