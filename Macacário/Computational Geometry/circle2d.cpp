@@ -58,8 +58,7 @@ struct circle{
 	}
 	bool contains(point p) { return dist(c, p) <= r + EPS; }
 	pair<point, point> getTangentPoint(point p) {
-		double d1 = dist(p,c);
-		double theta = asin(r/d1);
+		double d1 = dist(p, c), theta = asin(r/d1);
 		point p1 = rotate(c-p,-theta);
 		point p2 = rotate(c-p,theta);
 		p1 = p1*(sqrt(d1*d1-r*r)/d1)+p;

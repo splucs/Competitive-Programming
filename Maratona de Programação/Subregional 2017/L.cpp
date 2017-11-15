@@ -1,27 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 2600001
-
+/*
 struct base {
-  double x, y;
-  base() : x(0), y(0) {}
-  base(double a, double b=0) : x(a), y(b) {}
-
-  base operator/=(double k) { x/=k; y/=k; return (*this); }
-  base operator*(base a) const { return base(x*a.x - y*a.y, x*a.y + y*a.x); }
-  base operator*=(base a) {
-	  double tx = x*a.x - y*a.y;
-	  double ty = x*a.y + y*a.x;
-	  x = tx; y = ty;
-	  return (*this);
-  }
-  base operator+(base a) const { return base(x+a.x, y+a.y); }
-  base operator-(base a) const { return base(x-a.x, y-a.y); }
-  double real() { return x; }
-  double imag() { return y; }
+	double x, y;
+	base() : x(0), y(0) {}
+	base(double a, double b=0) : x(a), y(b) {}
+	base operator/=(double k) { x/=k; y/=k; return (*this); }
+	base operator*(base a) const { return base(x*a.x - y*a.y, x*a.y + y*a.x); }
+	base operator*=(base a) {
+		double tx = x*a.x - y*a.y;
+		double ty = x*a.y + y*a.x;
+		x = tx; y = ty;
+		return (*this);
+	}
+	base operator+(base a) const { return base(x+a.x, y+a.y); }
+	base operator-(base a) const { return base(x-a.x, y-a.y); }
+	double real() { return x; }
+	double imag() { return y; }
 };
-
-//typedef complex<double> base;
+*/
+typedef complex<double> base;
 
 void fft(vector<base> & a, bool invert) {
 	int n = (int)a.size();
@@ -50,7 +49,7 @@ void fft(vector<base> & a, bool invert) {
 			a[i] /= (double)n;
 }
 
-void convolution(vector<base> a, vector<base> b, vector<base> & c) {
+void convolution(vector<base> & a, vector<base> & b, vector<base> & c) {
 	int n = 1;
 	while(n < (int)max(a.size(), b.size())) n <<=1;
 	n <<= 1;

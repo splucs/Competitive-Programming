@@ -22,7 +22,6 @@ void dfs(int u, int uver) {
 
 int main() {
 	while(scanf("%d %d %d", &N, &L, &R) != EOF) {
-
 		for(int i=1; i<=N; i++) {
 			scanf("%d %d", &x[i], &y[i]);
 		}
@@ -30,12 +29,9 @@ int main() {
 		for(int i = N; i > 0; i--) {
 			adjList[x[i]].push_back(ii(i, y[i]));
 		}
-		
 		cnt = 0;
 		while(cnt < R) dfs(0, 0);
 		printf("\n");
-		
-		
 	}
 	return 0;
 }

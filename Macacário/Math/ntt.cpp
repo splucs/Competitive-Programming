@@ -27,7 +27,7 @@ T modInv(T a, T m) {
 }
 
 /*
- * NTT
+ * NTT - Number Theoretic Transform O(nlogn)
  */
 
 const ll mod[2] = {1004535809LL, 1092616193LL};

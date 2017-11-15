@@ -47,7 +47,7 @@ struct rec {
 } recs[MAXN];
 
 struct point {
-	int x, y;
+	int x, y, id;
 	bool operator < (point o) {
 		if (x != o.x) return x < o.x;
 		return y < o.y;
@@ -66,6 +66,7 @@ void reduce_coordinates() {
 		xapp[recs[j].xb] = 0; xapp[recs[j].xt] = 0;
 		yapp[recs[j].yb] = 0; yapp[recs[j].yt] = 0;
 	}
+	
 	xmax = 0;
 	for(map<int, int>::iterator it = xapp.begin(); it != xapp.end(); it++) {
 		it->second = ++xmax;
@@ -74,6 +75,7 @@ void reduce_coordinates() {
 	for(map<int, int>::iterator it = yapp.begin(); it != yapp.end(); it++) {
 		it->second = ++ymax;
 	}
+	
 	for(int i=0; i<N; i++) {
 		spots[i].x = xapp[spots[i].x];
 		spots[i].y = yapp[spots[i].y];
@@ -91,7 +93,7 @@ void reduce_coordinates() {
 typedef pair<int, int> ii;
 vector<ii> up[MAXN], down[MAXN];
 ll ans[MAXN];
-FenwickTree ft(MAXN);
+FenwickTree ft(1);
 
 void solve() {
 	sort(spots, spots+N);
@@ -102,6 +104,7 @@ void solve() {
 		down[recs[j].xt].push_back(ii(recs[j].yb+1, recs[j].yt-1));
 	}
 	
+	ft = FenwickTree(MAXN);
 	for(int x=1; x<=xmax; x++) {
 		for(int i=0; i<(int)down[x].size(); i++) {
 			ii cur = down[x][i];
@@ -109,7 +112,7 @@ void solve() {
 		}
 		
 		while(p < N && spots[p].x == x) {
-			ans[p] = ft.rsq(spots[p].y, spots[p].y);
+			ans[spots[p].id] = ft.rsq(spots[p].y, spots[p].y);
 			p++;
 		}
 		
@@ -124,6 +127,7 @@ int main() {
 	scanf("%d %d", &N, &M);
 	for(int i=0; i<N; i++) {
 		scanf("%d %d", &spots[i].x, &spots[i].y);
+		spots[i].id = i;
 	}
 	for(int j=0; j<M; j++) {
 		scanf("%d %d %d %d", &recs[j].xb, &recs[j].yb, &recs[j].xt, &recs[j].yt);

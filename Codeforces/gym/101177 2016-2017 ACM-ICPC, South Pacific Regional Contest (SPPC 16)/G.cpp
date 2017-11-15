@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define MAXN 259
+#define MAXN 1009
 
 struct task {
 	int t, mask, prio, st, stamp;
@@ -30,8 +30,7 @@ void addtask(int i) {
 
 int main() {
 	
-	//while(scanf(" %d", &N) != EOF) {
-		scanf("%d", &N);
+	while(scanf(" %d", &N) != EOF) {
 		curstate = 0;
 		for(int i=0; i<3; i++) {
 			scanf("%d", &am[i]);
@@ -119,7 +118,7 @@ int main() {
 		
 		for(int i=0; i<N; i++) printf("%I64d ", ans[i]);
 		printf("\n");
-	//}
+	}
 	
 	return 0;
 }

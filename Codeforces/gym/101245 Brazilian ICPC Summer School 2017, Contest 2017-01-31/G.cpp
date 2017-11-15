@@ -1,25 +1,49 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define state dp[i][l][n]
+#define MAXN 32
+#define MAXL 1002
 
-int v[39], N, L;
-int dp[39][1009][39];
-
-int DP(const int i, const int l, const int n) {
-	if (state >= 0) return state;
-	if ()
-}
+int v[MAXN], dp[MAXN][MAXN][MAXN][MAXL];
 
 int main() {
-	scanf("%d %d", &L, &N);
-	for(int i=1; i<=N; i++) {
-		scanf("%d", &v[i]);
+	int n, l;
+	while(scanf("%d %d", &l, &n) != EOF) {
+		for(int i=0; i<n; i++) {
+			scanf("%d", &v[i]);
+		}
+		sort(v, v+n);
+		
+		for(int i = n; i>=0; i--) {
+			for(int d=0; d<i; d++) {
+				for(int u=0; u<MAXN; u++) {
+					for(int h = 0; h<=l; h++) {
+						if (l-h < v[d]*(u+1)) dp[i][d][u][h] = 0;
+						else if (i == n) {
+							dp[i][d][u][h] = n;
+						}
+						else {
+							dp[i][d][u][h] = dp[i+1][d][u][h];
+							if (h+v[i] <= l) dp[i][d][u][h] = min(dp[i][d][u][h], 1+dp[i+1][d][u+1][h+v[i]]);
+						}
+					}
+				}
+			}
+		}
+		
+		int ans = n, cur;
+		int sum;
+		for(int i = 0; i<n; i++) {
+			cur = 0; sum = 0;
+			for(int j=0; j<i; j++) {
+				cur++;
+				sum += v[j];
+			}
+			if (sum > l) continue;
+			cur += dp[i+1][i][cur][sum];
+			ans = min(ans, cur);
+		}
+		
+		printf("%d\n", ans);
 	}
-	
-	int ans = N;
-	for(int d=0; d<=100; d++) {
-		ans = min(ans, dp[N][L][d]);
-	}
-	printf("%d\n", ans);
 	return 0;
 }

@@ -10,45 +10,29 @@ int comp(int a, int b) {
 }
 
 class SegmentTree {
-private:
-	vector<int> st, pos;
-	int size;
-#define parent(p) (p >> 1)
-#define left(p) (p << 1)
-#define right(p) ((p << 1) + 1)
-	void build(int p, int l, int r, int* A) {
-		if (l == r) {
-			st[p] = A[l];
-			pos[l] = p;
-		}
-		else {
-			build(left(p), l, (l + r) / 2, A);
-			build(right(p), (l + r) / 2 + 1, r, A);
-			st[p] = comp(st[left(p)], st[right(p)]);
-		}
-	}
-	int find(int p, int l, int r, int a, int b) {
-		if (a > r || b < l) return neutral;
-		if (l >= a && r <= b) return st[p];
-		int p1 = find(left(p), l, (l + r) / 2, a, b);
-		int p2 = find(right(p), (l + r) / 2 + 1, r, a, b);
-		return comp(p1, p2);
-	}
+	vector<int> a;
+	int n;
 public:
-	SegmentTree(int* begin, int* end) {
-		size = (int)(end - begin);
-		st.assign(4 * size, neutral);
-		pos.assign(size + 9, 0);
-		build(1, 0, size - 1, begin);
+	SegmentTree(int* st, int* en) {
+		int sz = int(en-st);
+		for (n = 1; n < sz; n <<= 1);
+		a.assign(n << 1, neutral);
+		for(int i=0; i<sz; i++) a[i+n] = st[i];
+		for(int i=n+sz-1; i; i--)
+			a[i>>1] = comp(a[i>>1], a[i]);
 	}
-	int query(int a, int b) { return find(1, 0, size - 1, a, b); }
-	void update(int n, int num) {
-		st[pos[n]] = num;
-		n = parent(pos[n]);
-		while (n>0) {
-			st[n] = comp(st[left(n)], st[right(n)]);
-			n = parent(n);
+	void update(int i, int x) {
+		a[i+n] = x; //substitui
+		for (i += n, i >>= 1; i>1; i >>= 1)
+			a[i] = comp(a[i<<1], a[1+(i<<1)]);
+	}
+	int query(int l, int r) {
+		int ans = neutral;
+		for (l += n, r += n+1; l < r; l >>= 1, r >>= 1) {
+			if (l & 1) ans = comp(ans, a[l++]);
+			if (r & 1) ans = comp(ans, a[--r]);
 		}
+		return ans;
 	}
 };
 

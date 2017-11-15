@@ -26,7 +26,7 @@ struct base {
 };
 
 /*
- * FFT
+ * FFT - Fast Fourier Transform O(nlogn)
  */
 
 //typedef complex<double> base;
