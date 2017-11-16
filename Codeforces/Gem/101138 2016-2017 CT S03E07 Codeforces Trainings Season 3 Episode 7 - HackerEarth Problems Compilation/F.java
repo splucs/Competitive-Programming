@@ -1,14 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package Main;
-
 import java.util.Scanner;
 import java.math.BigInteger;
 
-public class Main {
+public class F {
 	public static final int MAXN = 100009;
 	public static final int INF = 2000000009;
 	

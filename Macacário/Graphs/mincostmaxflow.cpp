@@ -71,7 +71,7 @@ ll augment(int s, int t) {
 ll mincostmaxflow(int s, int t) {
 	ll flowCost = 0;
 	memset(pot,0,sizeof(pot));
-	while(dijkstra(s, t)) {
+	while(K > 0 && dijkstra(s, t)) {
 		flowCost += augment(s, t);
 	}
 	return flowCost;
