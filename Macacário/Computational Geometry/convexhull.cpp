@@ -64,15 +64,13 @@ int leftmostIndex(vector<point> &P){
 point pivot(0, 0);
 
 bool angleCmp(point a, point b){
-	if (collinear(pivot, a, b)) return dist(pivot, a) < dist(pivot, b);
-	double d1x = a.x-pivot.x, d1y = a.y-pivot.y;
-	double d2x = b.x-pivot.x, d2y = b.y-pivot.y;
-	return atan2(d1y, d1x) - atan2(d2y, d2x) < 0;
+  if (collinear(pivot, a, b)) return (pivot-a)*(pivot-a) < (pivot-b)*(pivot-b);
+  return crossProduct(a-pivot, b-pivot) >= 0;
 }
 
 vector<point> convexHull(vector<point> P){
 	int i, j, n = (int)P.size();
-	if (n <= 3){
+	if (n <= 2){
 		if (!(P[0] == P[n-1])) P.push_back(P[0]);
 		return P;
 	}
