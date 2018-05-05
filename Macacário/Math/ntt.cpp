@@ -4,7 +4,9 @@
 #define MAXN 100009
 using namespace std;
 
-typedef long long ll;
+/*
+ * Modular inverse
+ */
 
 template <typename T>
 T extGcd(T a, T b, T& x, T& y) {
@@ -30,10 +32,12 @@ T modInv(T a, T m) {
  * NTT - Number Theoretic Transform O(nlogn)
  */
 
-const ll mod[2] = {1004535809LL, 1092616193LL};
-const ll root[2] = {12289LL, 23747LL};
-const ll root_1[2] = {313564925LL, 642907570LL};
-const ll root_pw = 1LL<<21;
+typedef long long ll;
+
+const ll mod[3] = {1004535809LL, 1092616193LL, 998244353LL};
+const ll root[3] = {12289LL, 23747LL, 15311432LL};
+const ll root_1[3] = {313564925LL, 642907570LL, 469870224LL};
+const ll root_pw[3] = {1LL<<21, 1LL<<21, 1LL<<23};
 
 void ntt(vector<ll> & a, bool invert, int m) {
 	ll n = (ll)a.size();
@@ -45,7 +49,7 @@ void ntt(vector<ll> & a, bool invert, int m) {
 	}
 	for(ll len=2, wlen; len<=n; len<<=1) {
 		wlen = invert ? root_1[m] : root[m];
-		for (ll i=len; i<root_pw; i<<=1)
+		for (ll i=len; i<root_pw[m]; i<<=1)
 			wlen = (wlen * wlen % mod[m]);
 		for(ll i=0; i<n; i+=len) {
 			for(ll j=0, w=1; j<len/2; ++j) {

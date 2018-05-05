@@ -1,9 +1,3 @@
-#include <cstdio>
-#define MAXN 1000009
-#define MOD 1000000007LL
-
-typedef long long ll;
-
 template <typename T>
 T gcd(T a, T b) {
     return b == 0 ? a : gcd(b, a % b);
@@ -66,11 +60,14 @@ void diophantine(T a, T b, T c, T& x, T& y) {
     y *= c / d;
 }
 
+#define MAXN 1000009
+typedef long long ll;
+
 ll fat[MAXN];
-void preprocessfat(){
+void preprocessfat(ll m){
     fat[0] = 1;
     for(ll i=1; i<MAXN; i++){
-        fat[i] = (i*fat[i-1])%MOD;
+        fat[i] = (i*fat[i-1])%m;
     }
 }
 

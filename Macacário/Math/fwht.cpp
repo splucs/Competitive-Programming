@@ -5,6 +5,10 @@ using namespace std;
  * FWHT - Fast Walsh–Hadamard Transform O(nlogn)
  */
 
+//int mat[2][2] = {{1, 1}, {1, -1}}, inv[2][2] = {{1, 1}, {1, -1}}; //xor
+int mat[2][2] = {{1, 1}, {1, 0}}, inv[2][2] = {{0, 1}, {1, -1}}; //or
+//int mat[2][2] = {{0, 1}, {1, 1}}, inv[2][2] = {{-1, 1}, {1, 0}}; //and
+
 void fwht(vector<double> & a, bool invert) {
 	int n = (int)a.size();
 	double u, v;
@@ -13,14 +17,18 @@ void fwht(vector<double> & a, bool invert) {
 			for (int j = 0; j < len; j++) {
 				u = a[i + j];
 				v = a[i + len + j];
-				a[i + j] = u + v;
-				a[i + len + j] = u - v;
+				if (!invert) {
+					a[i + j] = mat[0][0]*u + mat[0][1]*v;
+					a[i + len + j] = mat[1][0]*u + mat[1][1]*v;
+				}
+				else {
+					a[i + j] = inv[0][0]*u + inv[0][1]*v;
+					a[i + len + j] = inv[1][0]*u + inv[1][1]*v;
+				}
 			}
 		}
 	}
-	if(invert)
-		for (int i=0; i<n; ++i)
-			a[i] /= n;
+	//for (int i=0; invert && i<n; ++i) a[i] /= n; //xor
 }
 
 void convolution(vector<double> a, vector<double> b, vector<double> & res) {
@@ -44,7 +52,7 @@ void naive(vector<double> a, vector<double> b, vector<double> & res) {
 	res.clear(); res.assign(n, 0);
 	for(int i=0; i<n; i++) {
 		for(int j=0; j<n; j++) {
-			res[i^j] += a[i]*b[j];
+			res[i|j] += a[i]*b[j];
 		}
 	}
 }
