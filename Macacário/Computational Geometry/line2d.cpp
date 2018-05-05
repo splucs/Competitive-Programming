@@ -64,6 +64,7 @@ double distToLineSegment(point p, point a, point b) {
 	return dist(p, closestToLineSegment(p, a, b));
 }
 
+// verificar todas as permutacoes (a,b) e (p,q)!
 bool segIntersects(point a, point b, point p, point q) {
     point u = b-a, v = q-p;
     if (fabs(cross(v, u)) < EPS)

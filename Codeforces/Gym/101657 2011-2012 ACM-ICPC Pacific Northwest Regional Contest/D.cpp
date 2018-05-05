@@ -5,31 +5,16 @@ using namespace std;
 #define MAXN 1000009
 
 struct point {
-	double x, y;
+	int x, y;
 	point() : x(0), y(0) {}
 	point(int _x, int _y) : x(_x), y(_y) {}
-	point operator - (point o) {
-		return point(x - o.x, y - o.y);
-	}
 };
 
-double cross(point p1, point p2) {
-	return p1.x*p2.y - p1.y*p2.x;
-}
-
-struct triangle {
-	int x[3], y[3];
-	int maxx() {
-		return max(x[0], max(x[1], x[2]));
-	}
-	int maxy() {
-		return max(y[0], max(y[1], y[2]));
-	}
-	int minx() {
-		return min(x[0], min(x[1], x[2]));
-	}
-	int miny() {
-		return min(y[0], min(y[1], y[2]));
+struct edge {
+	point a, b;
+	edge(point _a, point _b) : a(_a), b(_b) {}
+	bool isDown() {
+		return 
 	}
 }
 

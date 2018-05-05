@@ -1,0 +1,4 @@
+3
+moon sun
+sun paper
+rock rock

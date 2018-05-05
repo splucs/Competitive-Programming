@@ -1,8 +1,5 @@
-#include <cstdio>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-#define EPS 0.00001
+#include <bits/stdc++.h>
+#define EPS 1e-5
 using namespace std;
 
 struct point {
@@ -14,11 +11,6 @@ struct point {
 	}
 	point normalized(){
 		return point(x,y)*(1.0/norm());
-	}
-	double angle(){ return atan2(y, x);	}
-	double polarAngle(){
-		double a = atan2(y, x);
-		return a < 0 ? a + 2*M_PI : a;
 	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
@@ -38,20 +30,24 @@ struct point {
 	}
 };
 
+double inner(point p1, point p2) {
+	return p1.x*p2.x + p1.y*p2.y;
+}
+
 double dist(point p1, point p2) {
 	return hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-double crossProduct(point p1, point p2) {
+double cross(point p1, point p2) {
 	return p1.x*p2.y - p1.y*p2.x;
 }
 
 bool ccw(point p, point q, point r) {
-	return crossProduct(q-p, r-p) > 0;
+	return cross(q-p, r-p) > 0;
 }
 
 bool collinear(point p, point q, point r) {
-	return fabs(crossProduct(p-q, r-p)) < EPS;
+	return fabs(cross(p-q, r-p)) < EPS;
 }
 
 int leftmostIndex(vector<point> &P){
@@ -61,11 +57,12 @@ int leftmostIndex(vector<point> &P){
 	}
 	return ans;
 }
+
 point pivot(0, 0);
 
 bool angleCmp(point a, point b){
-  if (collinear(pivot, a, b)) return (pivot-a)*(pivot-a) < (pivot-b)*(pivot-b);
-  return crossProduct(a-pivot, b-pivot) >= 0;
+	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	return cross(a-pivot, b-pivot) >= 0;
 }
 
 vector<point> convexHull(vector<point> P){
@@ -91,36 +88,51 @@ vector<point> convexHull(vector<point> P){
 	return S;
 }
 
-int main()
-{
-	int N, M;
-	scanf("%d", &M);
-	printf("%d\n", M);
-	vector<point> P;
-	double x, y;
-	int n, smallest;
-	while(M-->0){
+/*
+ * Codeforces 101657C
+ */
+
+point proj(point u, point v) {
+	return v*(inner(u, v)/inner(v, v));
+}
+
+#define FOR(x,n) for(int x=0; (x)<(n); (x)++)
+#define FOR1(x,n) for(int x=1; (x)<=(n); (x)++)
+#define INF 1e+55
+
+int main() {
+	int T;
+	scanf("%d", &T);
+	FOR1(caseNo, T) {
+		int N;
 		scanf("%d", &N);
-		P.clear();
-		for(int i=0; i<N; i++){
-			scanf("%lf %lf", &x, &y);
-			if (i<N-1) P.push_back(point(x, y));
+		vector<point> arr(N);
+		FOR(i, N) {
+			scanf("%lf %lf", &arr[i].x, &arr[i].y);
 		}
-		if (M>0) scanf("%d", &n); //-1
-		P = convexHull(P);
-		P.pop_back();
-		n = (int)P.size();
-		printf("%d\n", n+1);
-		smallest = 0;
-		for(int i = 0; i < n; i++){
-			if (P[i].y < P[smallest].y) smallest = i;
-			if (P[i].y == P[smallest].y && P[i].x < P[smallest].x) smallest = i;
+		vector<point> ch = convexHull(arr);
+		vector<double> h(ch.size());
+		FOR(i, int(ch.size())-1) {
+			h[i] = 0;
+			point v = ch[i+1] - ch[i];
+			for(point& p : ch) {
+				point dp = p - ch[i];
+				point d = dp - proj(dp, v);
+				h[i] = max(h[i], d.norm());
+			}
 		}
-		for(int i = 0; i < n; i++){
-			printf("%.0f %.0f\n", P[(smallest+i)%n].x, P[(smallest+i)%n].y);
+		double ans = INF;
+		FOR(i, int(ch.size())-1) {
+			FOR(j, int(ch.size())-1) {
+				if (i == j) continue;
+				point v1 = ch[i+1] - ch[i];
+				point v2 = ch[j+1] - ch[j];
+				double sintheta = fabs(cross(v1, v2) / (v1.norm()*v2.norm()));
+				if (fabs(sintheta) < EPS) continue;
+				ans = min(ans, h[i]*h[j]/sintheta);
+			}
 		}
-		printf("%.0f %.0f\n", P[smallest].x, P[smallest].y);
-		if (M>0) printf("-1\n");
+		printf("Swarm %d Parallelogram Area: %.4f\n", caseNo, ans);
 	}
 	return 0;
 }

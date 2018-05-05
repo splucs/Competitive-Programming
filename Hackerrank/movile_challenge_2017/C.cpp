@@ -44,7 +44,6 @@ int main() {
 		int len = strlen(buffer);
 		while (len > 0 && buffer[len-1] == '\n') len--;
 		buffer[len] = 0;
-		//printf("bufer = |%s|\n", buffer);
 		if (buffer[0] == 'a') insert(root, buffer + 4);
 		else printf("%d\n", search(root, buffer + 5));
 	}
