@@ -7,60 +7,82 @@ using namespace std;
 #define pb push_back
 typedef pair<int, int> ii;
 
-bool vis[MAXN][11][11], trust[MAXN];
 int N, H, M;
 vector<ii> g[MAXN];
+vector<int> r[MAXN];
+int dist[MAXN];
 
-void dfs(int u, int d, int t, int dist[]) {
-	if (t > 10) return;
-	if (vis[u][d][t]) return;
-	vis[u][d][t] = true;
-	if (trust[u]) dist[u] = min(d, dist[u]);
-	for(auto pp : g[u]) {
-		int v = pp.first;
-		int w = pp.second;
-		dfs(v, d+1, t+w, dist);
+void dijkstra(int s) {
+	set<ii> pq;
+	FOR1(u, N) dist[u] = INF;
+	dist[s] = 0;
+	pq.insert(ii(dist[s], s));
+	r[s].clear();
+	while(!pq.empty()) {
+		int u = pq.begin()->second;
+		pq.erase(pq.begin());
+		if (dist[u] <= 600 && u != s) {
+			r[s].pb(u);
+		}
+		for(ii pp : g[u]) {
+			int v = pp.second;
+			int w = pp.first;
+			if (dist[v] > dist[u] + w) {
+				if (pq.count(ii(dist[v], v)))
+					pq.erase(ii(dist[v], v));
+				dist[v] = dist[u] + w;
+				pq.insert(ii(dist[v], v));
+			}
+		}
 	}
 }
 
-int dist1[MAXN], dist2[MAXN];
+vector<int> trust;
+
+int bfs(int s, int t) {
+	FOR1(u, N) dist[u] = -1;
+	dist[s] = -1;
+	queue<int> q;
+	q.push(s);
+	while(!q.empty()) {
+		int u = q.front();
+		q.pop();
+		for(int v : r[u]) {
+			if (dist[v] == -1) {
+				dist[v] = 1 + dist[u];
+				q.push(v);
+			}
+		}
+	}
+	return dist[t];
+}
 
 int main() {
 	while(scanf("%d", &N), N) {
-		memset(&trust, false, sizeof trust);
 		scanf("%d", &H);
+		trust.clear();
+		trust.pb(1); trust.pb(N);
 		FOR(i, H) {
 			int c;
 			scanf("%d", &c);
-			trust[c] = true;
+			trust.pb(c);
 		}
-		trust[1] = trust[N] = true;
 		scanf("%d", &M);
+		FOR1(u, N) {
+			g[u].clear();
+			r[u].clear();
+		}
 		while(M --> 0) {
 			int u, v, w;
 			scanf("%d %d %d", &u, &v, &w);
-			g[u].pb({v, w});
-			g[v].pb({u, w});
+			g[u].pb({w, v});
+			g[v].pb({w, u});
+		}
+		for(int u : trust) {
+			dijkstra(u);
 		}
 		
-		FOR1(u, N) {
-			dist1[u] = 11;
-			FOR(i, 11) FOR(j, 11) vis[u][i][j] = false;
-		}
-		dfs(1, 0, 0, dist1);
-		
-		FOR1(u, N) {
-			dist2[u] = 11;
-			FOR(i, 11) FOR(j, 11) vis[u][i][j] = false;
-		}
-		dfs(1, 0, 0, dist2);
-		
-		int ans = INF;
-		FOR1(u, N) {
-			ans = min(ans, dist1[u]+dist2[u]);
-		}
-		if (ans == INF) ans = -1;
-		printf("%d\n", ans);
+		printf("%d\n", bfs(1, N));
 	}
 	return 0;
 }

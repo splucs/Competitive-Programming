@@ -1,78 +1,79 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 1009
-#define INF (1<<30)
+#define INF (1LL<<60)
 #define FOR(i, n) for(int i = 0; i < n; i++)
 #define FOR1(i, n) for(int i = 1; i <= n; i++)
 #define pb push_back
 #define all(x) x.begin(), x.end()
-typedef pair<int, int> ii;
+typedef long long ll;
+typedef pair<ll, ll> ii;
 
-int N, L, R;
-map<int, vector<ii> > lines;
-vector<pair<int, double> > f;
+int N;
+ll L, R;
+map<ll, vector<ii> > lines;
+vector<pair<ll, ll> > f;
 
-int xt[MAXN], xb[MAXN], yt[MAXN], yb[MAXN];
+ll xt[MAXN], xb[MAXN], yt[MAXN], yb[MAXN];
 
-ii get(int s, int j) {
-	int l = max((s-xt[j]) - xt[j], yb[j] - (s-yb[j]));
-	int r = min((s-xb[j]) - xb[j], yt[j] - (s-yt[j]));
+ii get(ll s, int j) {
+	ll l = max((s-xt[j]), yb[j]);
+	ll r = min((s-xb[j]), yt[j]);
 	return ii(l, r);
 }
 
 int main() {
-	scanf("%d %d %d", &N, &L, &R);
-	FOR(i, N) {
-		scanf("%d %d %d %d", &xb[i], &yb[i], &xt[i], &yt[i]);
-	}
-	FOR(i, N) FOR(j, N) {
-		int s;
-		s = xb[i]+yb[i];
-		lines[s].pb(get(s, j));
-		s = xb[i]+yt[i];
-		lines[s].pb(get(s, j));
-		s = xt[i]+yb[i];
-		lines[s].pb(get(s, j));
-		s = xt[i]+yt[i];
-		lines[s].pb(get(s, j));
-	}
-	for(auto & pp : lines) {
-		vector<ii> & v = pp.second;
-		sort(all(v));
-		int last = -INF;
-		double cur = 0;
-		for(ii pr : v) {
-			//printf("pair %d-%d\n", pr.first, pr.second);
-			pr.first = max(pr.first, last);
-			last = max(last, pr.second);
-			if (pr.second >= pr.first)
-				cur += pr.second - pr.first;
+	while(scanf("%d %lld %lld", &N, &L, &R) != EOF) {
+		FOR(i, N) {
+			scanf("%lld %lld %lld %lld", &xb[i], &yb[i], &xt[i], &yt[i]);
 		}
-		cur /= 2;
-		f.pb({pp.first, cur});
-		//printf("f(%d) = %.3f\n", pp.first, cur);
+		lines.clear(); f.clear();
+		FOR(i, N) FOR(j, N) {
+			vector<ll> x, y;
+			x.pb(xb[i]); x.pb(xb[j]); x.pb(xt[i]); x.pb(xt[j]);
+			y.pb(yb[i]); y.pb(yb[j]); y.pb(yt[i]); y.pb(yt[j]);
+			for(ll xt : x) for(ll yt : y) {
+				ll s = xt+yt;
+				ii cur = get(s, i);
+				if (cur.second >= cur.first) lines[s].pb(cur);
+				cur = get(s, j);
+				if (cur.second >= cur.first) lines[s].pb(cur);
+			}
+		}
+		for(auto & pp : lines) {
+			vector<ii> & v = pp.second;
+			sort(all(v));
+			ll last = -INF;
+			ll cur = 0;
+			for(ii & pr : v) {
+				pr.first = max(pr.first, last);
+				last = max(last, pr.second);
+				if (pr.second >= pr.first)
+					cur += pr.second - pr.first;
+			}
+			f.pb({pp.first, cur});
+			//printf("f(%lld) = %lld\n", pp.first, cur);
+		}
+		ll ans = 0;
+		ll last = -INF;
+		FOR(i, int(f.size())) {
+			if (i == 0) continue;
+			ll a = f[i-1].first, b = f[i].first;
+			ll fa = f[i-1].second, fb = f[i].second;
+			
+			ll l = max(L, a);
+			l = max(l, last+1);
+			ll fl = fa + ((fb-fa)/(b-a))*(l - a);
+			
+			ll r = min(R, b);
+			ll fr = fa + ((fb-fa)/(b-a))*(r - a);
+			last = max(last, r);
+			
+			if(r >= l) {
+				ans += ((fl+fr)*(r-l+1))/2;
+			}
+		}
+		printf("%lld\n", ans);
 	}
-	double ans = 0;
-	FOR(i, int(f.size())) {
-		if (i == 0) continue;
-		int ds = f[i].first - f[i-1].first;
-		double df = f[i].second - f[i-1].second;
-		
-		//printf("block %d-%d\n", f[i-1].first, f[i].first);
-		int l = max(L, f[i-1].first);
-		int dx = l - f[i-1].first;
-		double dy = df*dx*1.0/ds;
-		double fl = f[i-1].second + dy;
-		
-		int r = min(R, f[i].first);
-		dx = r - f[i-1].first;
-		dy = df*dx*1.0/ds;
-		double fr = f[i-1].second + dy;
-		//printf("f(%d) = %.3f f(%d) = %.3f\n", l, fl, r, fr);
-		if (i >= 1 && f[i-1].first >= L && f[i-1].first <= R) ans -= fl;
-		
-		if(r >= l) ans += (fl+fr)*(r-l+1)/2.0;
-	}
-	printf("%d\n", int(ans + 0.5));
 	return 0;
 }
