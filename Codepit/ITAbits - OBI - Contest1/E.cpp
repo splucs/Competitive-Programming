@@ -52,6 +52,10 @@ int main() {
 			increase = cur;
 			ans = p[i];
 		}
+		if (cur == increase && p[i] < ans) {
+			increase = cur;
+			ans = p[i];
+		}
 	}
 	printf("%d\n", ans);
 	return 0;
