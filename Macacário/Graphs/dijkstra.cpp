@@ -20,14 +20,14 @@ int dijkstra(int s, int t)
 	dist[s]=0;
 	set<pair<int, int> > nodes;
 	nodes.insert(ii(0, s));
-	while(!nodes.empty()){
+	while(!nodes.empty()) {
 		int u = nodes.begin()->second;
 		nodes.erase(nodes.begin());
-		for(int i=0; i<(int)adjList[u].size(); i++){
+		for(int i=0; i<(int)adjList[u].size(); i++) {
 			int v = adjList[u][i].second;
 			int w = adjList[u][i].first;
-			if (dist[v] > dist[u] + w){
-				if (dist[v] < INF){
+			if (dist[v] > dist[u] + w) {
+				if (dist[v] < INF) {
 					nodes.erase(ii(dist[v], v));
 				}
 				dist[v] = dist[u] + w;
@@ -38,14 +38,14 @@ int dijkstra(int s, int t)
 	return dist[t];
 }
  
-int main(){
+int main() {
 	int T;
 	int u, v, w, s, t;
 	scanf("%d", &T);
-	while(T--){
+	while(T--) {
 		scanf("%d %d", &n, &m);
 		for(int i=1; i<=n; i++) adjList[i].clear();
-		for(int i=0; i<m; i++){
+		for(int i=0; i<m; i++) {
 			scanf("%d %d %d", &u, &v, &w);
 			adjList[u].push_back(ii(w, v));
 		}

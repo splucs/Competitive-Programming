@@ -22,10 +22,10 @@ int sizedfs(int u, int p) {
 	return size[u];
 }
 
-void builddfs(int u, int ch, int h){
+void builddfs(int u, int ch, int h) {
 	nchain[u] = ch; id[u] = chain[ch].size();
 	chain[ch].push_back(u);
-	for(int i=0; i<(int)adjList[u].size(); i++){
+	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i];
 		if (v == par[u]) continue;
 		if (v == fson[u]) builddfs(v, ch, h+1);

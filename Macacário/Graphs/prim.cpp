@@ -11,7 +11,7 @@ vector<ii> adjList[MAXN];
 
 int N, M;
 
-ll prim(){
+ll prim() {
 	bool taken[MAXN];
 	memset(&taken, false, sizeof taken);
 	taken[0] = true;
@@ -35,7 +35,7 @@ ll prim(){
 	return cost;
 }
 
-int main(){
+int main() {
 	scanf("%d %d", &N, &M);
 	int u, v, w;
 	for (int i = 0; i < M; i++) {

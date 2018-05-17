@@ -77,14 +77,14 @@ ll mincostmaxflow(int s, int t) {
 	return flowCost;
 }
 
-int main(){
+int main() {
     int Nl,u[5000],v[5000], M;
     ll c[5000],D;
     
-    while(scanf("%d %d",&Nl,&M)==2){
+    while(scanf("%d %d",&Nl,&M)==2) {
         N = 2*Nl+1;
         
-        for(int i = 0;i<M;++i){
+        for(int i = 0;i<M;++i) {
             scanf("%d %d %lld",&u[i],&v[i],&c[i]);
             --u[i]; --v[i];
         }
@@ -95,7 +95,7 @@ int main(){
         
         for(int i = 0;i<Nl;++i) add(1+2*i,1+2*i+1,INF,0);
         
-        for(int i = 0;i<M;++i){
+        for(int i = 0;i<M;++i) {
             add(1+2*u[i]+1,1+2*v[i],D,c[i]);
             add(1+2*v[i]+1,1+2*u[i],D,c[i]);
         }

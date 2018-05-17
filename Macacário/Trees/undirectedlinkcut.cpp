@@ -74,7 +74,7 @@ class LinkCutTree
 		update(p);
 	}
 
-	node* access(node* p){
+	node* access(node* p) {
 		splay(p);
 		if (p->right != NULL) {
 			p->right->ppar = p;
@@ -104,7 +104,7 @@ public:
     LinkCutTree() { }
     LinkCutTree(int n) {
 		lct.resize(n + 1);
-        for(int i = 0; i <= n; i++){
+        for(int i = 0; i <= n; i++) {
 			lct[i].id = i;
             update(&lct[i]);
         }

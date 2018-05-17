@@ -68,15 +68,15 @@ public:
 
 int vet[16];
 
-int main(){
+int main() {
 	int n, k;
 	scanf("%d", &n);
 	for(int i=0; i<n; i++) scanf("%d", &vet[i]);
 	char c;
 	int a, b;
 	SegmentTree st(vet, vet+n);
-	while(scanf(" %c", &c), c=='u' || c=='s' ){
-		if (c == 'u'){
+	while(scanf(" %c", &c), c=='u' || c=='s' ) {
+		if (c == 'u') {
 			scanf("%d %d %d", &a, &b, &k);
 			st.update(a, b, k);
 		}

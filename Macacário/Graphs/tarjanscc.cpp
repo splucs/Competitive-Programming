@@ -31,18 +31,18 @@ void dfs(int u) {
 	}
 }
 
-void tarjan(){
+void tarjan() {
 	counter = numSCC = 0;
 	memset(&num, UNVISITED, sizeof num);
 	memset(&vis, 0, sizeof vis);
 	memset(&low, 0, sizeof low);
-	for (int i = 0; i < N; i++){
+	for (int i = 0; i < N; i++) {
 		if (num[i] == UNVISITED)
 			dfs(i);
 	}
 }
 
-int main(){
+int main() {
 	tarjan();
 	return 0;
 }

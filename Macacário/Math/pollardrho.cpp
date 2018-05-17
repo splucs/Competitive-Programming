@@ -8,9 +8,9 @@ T gcd(T a, T b) {
 }
 
 template<typename T>
-T modMul(T a, T b, T m){
+T modMul(T a, T b, T m) {
 	T x = 0, y = a % m;
-	while (b > 0){
+	while (b > 0) {
 		if (b % 2 == 1) x = (x + y) % m;
 		y = (y * 2) % m;
 		b /= 2;
@@ -37,10 +37,10 @@ T pollard(T n) {
 int main()
 {
 	long long n;
-	while(scanf(" %I64d", &n)!=EOF){
+	while(scanf(" %I64d", &n)!=EOF) {
 		long long r = pollard(n);
 		printf("%I64d->%I64d\n", n, r);
-		if (n%r != 0){
+		if (n%r != 0) {
 			printf("Failed on test\n");
 		}
 	}

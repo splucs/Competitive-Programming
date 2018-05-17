@@ -36,7 +36,7 @@ typedef long long ll;
 int N, M;
 vector< pair<ll, ii> > edgeList; // (weight, two vertices) of the edge
 
-ll kruskal(){
+ll kruskal() {
 	ll cost = 0;
 	UnionFind UF(N);
 	pair<int, ii> edge;
@@ -51,7 +51,7 @@ ll kruskal(){
 	return cost;
 }
 
-int main(){
+int main() {
 	scanf("%d %d", &N, &M);
 	int u, v; ll w;
 	for (int i = 0; i < M; i++) {

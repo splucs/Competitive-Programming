@@ -6,10 +6,10 @@ struct point {
 	double x, y, z;
 	point() { x = y = z = 0.0; }
 	point(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
-	double norm(){
-		return hypot(x, y, z);
+	double norm() {
+		return sqrt(x*x + y*y + z*z);
 	}
-	point normalized(){
+	point normalized() {
 		return point(x,y,z)*(1.0/norm());
 	}
 	bool operator < (point other) const {
@@ -55,6 +55,6 @@ double angle(point a, point o, point b) {
 	return acos(inner(a-o, b-o) / (dist(o,a)*dist(o,b)));
 }
 
-point proj(point u, point v){
+point proj(point u, point v) {
 	return v*(inner(u,v)/inner(v,v));
 }

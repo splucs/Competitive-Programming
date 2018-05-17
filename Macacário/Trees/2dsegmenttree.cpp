@@ -98,8 +98,8 @@ vector< vector<int> > A;
 
 int query(int lx, int rx, int ly, int ry) {
 	int ans = neutral;
-	for(int i=lx; i<=rx; i++){
-		for(int j=ly; j<=ry; j++){
+	for(int i=lx; i<=rx; i++) {
+		for(int j=ly; j<=ry; j++) {
 			ans = comp(ans, A[i][j]);
 		}
 	}
@@ -110,19 +110,19 @@ void update(int x, int y, int v) {
 	A[x][y] = v;
 }
 
-bool test(){
+bool test() {
 	int N = 500, nTests = 100000;
 	int lx, rx, ly, ry, x, y, v;
 	A.resize(N);
-	for(int i=0; i<N; i++){
+	for(int i=0; i<N; i++) {
 		A[i].resize(N);
-		for(int j=0; j<N; j++){
+		for(int j=0; j<N; j++) {
 			A[i][j] = rand() % N;
 		}
 	}
 	SegmentTree2D st(A);
 	printf("starting tests...\n");
-	for(int q=1; q<=nTests; q++){
+	for(int q=1; q<=nTests; q++) {
 		x = rand()%N;
 		y = rand()%N;
 		v = rand()%N;
@@ -134,7 +134,7 @@ bool test(){
 		ry = rand()%N;
 		int q1 = query(lx, rx, ly, ry);
 		int q2 = st.query(lx, rx, ly, ry);
-		if (q1 != q2){
+		if (q1 != q2) {
 			printf("Failed test %d, q1 = %d, q2 = %d\n", q, q1, q2);
 			return false;
 		}

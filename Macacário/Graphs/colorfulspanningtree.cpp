@@ -158,17 +158,17 @@ void buildSpanningTree() {
 
 #include <cstdio>
 
-int main(){
+int main() {
     int u,v,c1,t=1;
-    while (scanf("%d%d%d",&N,&M,&C)!=EOF){
-        for (int i=0;i<M;i++){
+    while (scanf("%d%d%d",&N,&M,&C)!=EOF) {
+        for (int i=0;i<M;i++) {
             scanf("%d%d%d",&u,&v,&c1);
             u--, v--, c1--;
             edges[i] = ii(u, v);
             c[i] = c1;
         }
         buildSpanningTree();
-        if (F.size()!=N-1){
+        if (F.size()!=N-1) {
             printf("Instancia %d\nnao\n\n",t++);
         }else{
             printf("Instancia %d\nsim\n\n",t++);

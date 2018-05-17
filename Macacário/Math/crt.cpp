@@ -28,11 +28,11 @@ T modDiv(T a, T b, T m) {
 }
 
 template<typename T>
-T chinesert(T* a, T* p, int n, T m) {
+T crt(T* a, T* p, int n, T m) {
     T P = 1;
     for(int i=0; i<n; i++) P = (P * p[i]) % m;
     T x = 0, pp;
-    for(int i=0; i<n; i++){
+    for(int i=0; i<n; i++) {
         pp = modDiv(P, p[i], m);
         x = (x + (((a[i] * pp) % m) * modInv(pp, p[i]))) % m;
     }
@@ -45,27 +45,27 @@ T chinesert(T* a, T* p, int n, T m) {
 
 int primes[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59};
 
-bool test(int ntests){
-	for(int t=0; t<ntests; t++){
+bool test(int ntests) {
+	for(int t=0; t<ntests; t++) {
 		int T = 17;
 		ll y[20], a[20];
-		for(int i=1; i<=T; i++){
+		for(int i=1; i<=T; i++) {
 			if (PRINTTEST) printf("test %d:\n", t*T + i);
-			for(int j=0; j<i; j++){
+			for(int j=0; j<i; j++) {
 				a[j] = primes[j];
 				y[j] = rand()%a[j];
 				if (PRINTTEST) printf("x = %lld mod %lld\n", y[j], a[j]);
 			}
-			ll ans = chinesert(y, a, i, MOD);
+			ll ans = crt(y, a, i, MOD);
 			if (PRINTTEST) printf("answer is x = %lld\n", ans);
-			for(int j=0; j<i; j++){
+			for(int j=0; j<i; j++) {
 				ll mans = ans;
 				int count = 10000;
-				while(mans%a[j] != y[j] && count > 0){
+				while(mans%a[j] != y[j] && count > 0) {
 					mans += MOD;
 					count--;
 				}
-				if (mans%a[j] != y[j]){
+				if (mans%a[j] != y[j]) {
 					printf("failed on test %d, ans = %I64d\n", t*T + i, ans);
 					return false;
 				}

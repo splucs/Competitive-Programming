@@ -9,7 +9,7 @@ typedef vector<int> bignum;
 const int base = 1000*1000*1000;
 
 //Impressão
-void print(bignum & a){
+void print(bignum & a) {
 	printf("%d", a.empty() ? 0 : a.back());
 	for (int i=(int)a.size()-2; i>=0; --i) {
 		printf("%09d", a[i]);
@@ -17,24 +17,24 @@ void print(bignum & a){
 }
 
 //Remover Leading zeros
-void fix(bignum & a){
+void fix(bignum & a) {
 	while (a.size() > 1u && a.back() == 0) {
 		a.pop_back();
 	}
 }
 
 //Comparador
-bool comp(bignum a, bignum b){
+bool comp(bignum a, bignum b) {
 	fix(a); fix(b);
 	if (a.size() != b.size()) return a.size() < b.size();
-	for(int i=(int)a.size()-1; i>=0; i--){
+	for(int i=(int)a.size()-1; i>=0; i--) {
 		if (a[i] != b[i]) return a[i] < b[i];
 	}
 	return false;
 }
 
 //Leitura
-void str2bignum(char* s, bignum & a){
+void str2bignum(char* s, bignum & a) {
 	a.clear();
 	for (int i=(int)strlen(s); i>0; i-=9) {
 		s[i] = 0;
@@ -44,18 +44,18 @@ void str2bignum(char* s, bignum & a){
 }
 
 //Construtor a partir de um inteiro
-void int2bignum(int n, bignum & a){
+void int2bignum(int n, bignum & a) {
 	a.clear();
 	if (n == 0) a.push_back(0);
-	while(n > 0){
+	while(n > 0) {
 		a.push_back(n%base);
 		n /= base;
 	}
 }
 
-int bignum2int(bignum & a){
+int bignum2int(bignum & a) {
 	int ans = 0, p=1;
-	for(int i=0; i<(int)a.size(); i++){
+	for(int i=0; i<(int)a.size(); i++) {
 		ans += a[i]*p;
 		p *= base;
 	}
@@ -63,7 +63,7 @@ int bignum2int(bignum & a){
 }
 
 //Soma a+b=c
-void sum(bignum & a, bignum & b, bignum & c){
+void sum(bignum & a, bignum & b, bignum & c) {
 	int carry = 0, n = max(a.size(), b.size());
 	c.resize(n);
 	for (int i=0, ai, bi; i<n; i++) {
@@ -78,7 +78,7 @@ void sum(bignum & a, bignum & b, bignum & c){
 }
 
 //Subtrai a-b=c>=0
-void subtract(bignum & a, bignum & b, bignum & c){
+void subtract(bignum & a, bignum & b, bignum & c) {
 	int carry = 0, n = max(a.size(), b.size());
 	c.resize(n);
 	for (int i=0, ai, bi; i<n; i++) {
@@ -92,9 +92,9 @@ void subtract(bignum & a, bignum & b, bignum & c){
 }
 
 //Shift left por b (multiplica por base^b)
-void shiftL(bignum & a, int b, bignum & c){
+void shiftL(bignum & a, int b, bignum & c) {
 	c.resize((int)a.size() + b);
-	for(int i=(int)c.size()-1; i>=0; i--){
+	for(int i=(int)c.size()-1; i>=0; i--) {
 		if(i>=b) c[i] = a[i-b];
 		else c[i] = 0;
 	}
@@ -102,20 +102,20 @@ void shiftL(bignum & a, int b, bignum & c){
 }
 
 //Shift right por b (multiplica por base^b)
-void shiftR(bignum & a, int b, bignum & c){
+void shiftR(bignum & a, int b, bignum & c) {
 	if (((int)a.size()) <= b) {
 		c.clear(); c.push_back(0);
 		return;
 	}
 	c.resize((int)a.size() - b);
-	for(int i=0; i<(int)c.size(); i++){
+	for(int i=0; i<(int)c.size(); i++) {
 		c[i] = a[i+b];
 	}
 	fix(c);
 }
 
 //Multiplica bignum b por int a<base
-void multiply(int a, bignum & b, bignum & c){
+void multiply(int a, bignum & b, bignum & c) {
 	int carry = 0;
 	c.resize(b.size());
 	for (int i=0; i<(int)b.size() || carry; i++) {
@@ -147,7 +147,7 @@ void multiply(bignum a, bignum b, bignum & c) {
 }
 
 //Divide bignum a por int b<base
-void divide(bignum & a, int b, bignum & c){
+void divide(bignum & a, int b, bignum & c) {
 	int carry = 0;
 	c.resize(a.size());
 	for (int i=(int)a.size()-1; i>=0; --i) {
@@ -159,17 +159,17 @@ void divide(bignum & a, int b, bignum & c){
 }
 
 //Divide bignum a por bignum b, quociente q, resto r
-void divide(bignum a, bignum b, bignum & q, bignum & r){
+void divide(bignum a, bignum b, bignum & q, bignum & r) {
 	bignum z, p;
 	int2bignum(0, z);
 	int2bignum(1, p);
 	int2bignum(0, q);
-	while(comp(b, a)){
+	while(comp(b, a)) {
 		shiftL(p, max(1u, a.size()-b.size()), p);
 		shiftL(b, max(1u, a.size()-b.size()), b);
 	}
-	while(true){
-		while (comp(a, b) && comp(z, p)){
+	while(true) {
+		while (comp(a, b) && comp(z, p)) {
 			shiftR(p, 1, p); shiftR(b, 1, b);
 		}
 		if (!comp(z, p)) break;
@@ -179,12 +179,12 @@ void divide(bignum a, bignum b, bignum & q, bignum & r){
 	swap(a, r);
 }
 
-bool test(){
+bool test() {
 	bool toprint = false;
-	for(int i=1; i<10000; i++){
+	for(int i=1; i<10000; i++) {
 		int na = 1 + rand()%30000;
 		int nb = 1 + rand()%30000;
-		if (nb > na){
+		if (nb > na) {
 			int tmp = na;
 			na = nb;
 			nb = tmp;
@@ -195,7 +195,7 @@ bool test(){
 		bignum c, r; int nc, nr;
 		sum(a, b, c);
 		nc = na + nb;
-		if (nc != bignum2int(c)){
+		if (nc != bignum2int(c)) {
 			printf("failed test %d, n: %d+%d=%d, b: ", i, na, nb, nc);
 			print(a);
 			printf("+");
@@ -208,7 +208,7 @@ bool test(){
 		if(toprint) printf("+ ok ");
 		subtract(a, b, c);
 		nc = na - nb;
-		if (nc != bignum2int(c)){
+		if (nc != bignum2int(c)) {
 			printf("failed test %d, n: %d-%d=%d, b: ", i, na, nb, nc);
 			print(a);
 			printf("-");
@@ -221,7 +221,7 @@ bool test(){
 		if(toprint) printf("- ok ");
 		multiply(a, b, c);
 		nc = na * nb;
-		if (nc != bignum2int(c)){
+		if (nc != bignum2int(c)) {
 			printf("failed test %d, n: %d*%d=%d, b: ", i, na, nb, nc);
 			print(a);
 			printf("*");
@@ -234,7 +234,7 @@ bool test(){
 		if(toprint) printf("* ok ");
 		divide(a, b, c, r);
 		nc = na / nb;
-		if (nc != bignum2int(c)){
+		if (nc != bignum2int(c)) {
 			printf("failed test %d, n: %d/%d=%d, b: ", i, na, nb, nc);
 			print(a);
 			printf("/");
@@ -247,7 +247,7 @@ bool test(){
 		if(toprint) printf("/ ok\n");
 		swap(c, r);
 		nc = na % nb;
-		if (nc != bignum2int(c)){
+		if (nc != bignum2int(c)) {
 			printf("failed test %d, n: %d%%%d=%d, b: ", i, na, nb, nc);
 			print(a);
 			printf("%%");
@@ -264,7 +264,7 @@ bool test(){
 
 char s1[109], s2[109], op;
 
-int main(){
+int main() {
 	if(test()) printf("all tests passed\n");
 	while (scanf(" %s %c %s", s1, &op, s2) != EOF) {
 		bignum a; str2bignum(s1, a);

@@ -29,15 +29,15 @@ public:
 	}
 };
 
-int main(){
+int main() {
 	int a, b;
 	char c;
 	UnionFind uf(100009);
-	while(scanf(" %c %d %d", &c, &a, &b)!=EOF){
-		if (c=='U' || c=='u'){
+	while(scanf(" %c %d %d", &c, &a, &b)!=EOF) {
+		if (c=='U' || c=='u') {
 			uf.unionSet(a,b);
 		}
-		else if (c=='i' || c=='I'){
+		else if (c=='i' || c=='I') {
 			if (uf.isSameSet(a,b)) printf("yes\n");
 			else printf("no\n");
 		}

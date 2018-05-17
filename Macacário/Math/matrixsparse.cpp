@@ -1,6 +1,6 @@
 vector< vector<int> > adjA, adjB;
 
-matrix sparsemult(matrix a, matrix b){
+matrix sparsemult(matrix a, matrix b) {
 	int n = (int)a.size();
 	if (a[0].size() != b.size()) printf("fail\n");
 	int m = (int)b.size();
@@ -21,10 +21,10 @@ matrix sparsemult(matrix a, matrix b){
 	}
 	matrix c;
 	c.resize(n);
-	for(int i=0; i<n; i++){
+	for(int i=0; i<n; i++) {
 		c[i].assign(p, 0);
-		for(int j=0; j<p; j++){
-			for(int u=0, v=0, k; u<(int)adjA[i].size() && v<(int)adjB[j].size();){
+		for(int j=0; j<p; j++) {
+			for(int u=0, v=0, k; u<(int)adjA[i].size() && v<(int)adjB[j].size();) {
 				if (adjA[i][u] > adjB[j][v]) v++;
 				else if (adjA[i][u] < adjB[j][v]) u++;
 				else {

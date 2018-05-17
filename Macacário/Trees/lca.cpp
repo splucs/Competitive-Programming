@@ -129,14 +129,14 @@ bool test(int nTest) {
 bool usertest() {
 	scanf("%d", &N);
 	int a, b, c;
-	for(int i=1; i<N; i++){
+	for(int i=1; i<N; i++) {
 		scanf("%d %d %d", &a, &b, &c);
 		adjList[a].push_back(ii(b, c));
 		adjList[b].push_back(ii(a, c));
 	}
 	int root = 1;
 	computeP(root);
-	while(scanf("%d %d", &a, &b)!=EOF){
+	while(scanf("%d %d", &a, &b)!=EOF) {
 		printf("LCA(%d, %d) = %d, ", a, b, LCA(a,b).first);
 	}
 	return true;

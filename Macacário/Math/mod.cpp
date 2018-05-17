@@ -34,9 +34,9 @@ T modDiv(T a, T b, T m) {
 }
 
 template<typename T>
-T modMul(T a, T b, T m){
+T modMul(T a, T b, T m) {
 	T x = 0, y = a % m;
-	while (b > 0){
+	while (b > 0) {
 		if (b % 2 == 1) x = (x + y) % m;
 		y = (y * 2) % m;
 		b /= 2;
@@ -56,22 +56,22 @@ T modExp(T a, T b, T m) {
 template<typename T>
 void diophantine(T a, T b, T c, T& x, T& y) {
     T d = extGcd(a, b, x, y);
-    x *= c / d;
-    y *= c / d;
+    x *= c / d; x %= b / d;
+    y *= c / d; y %= -a / d;
 }
 
 #define MAXN 1000009
 typedef long long ll;
 
 ll fat[MAXN];
-void preprocessfat(ll m){
+void preprocessfat(ll m) {
     fat[0] = 1;
-    for(ll i=1; i<MAXN; i++){
+    for(ll i=1; i<MAXN; i++) {
         fat[i] = (i*fat[i-1])%m;
     }
 }
 
 template<typename T>
-T pascal(int n, int k, T m){
+T pascal(int n, int k, T m) {
     return modDiv(fat[n], (fat[k]*fat[n-k])%m, m);
 }

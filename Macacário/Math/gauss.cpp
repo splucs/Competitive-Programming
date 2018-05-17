@@ -81,41 +81,29 @@ void printmatrix(matrix & a) {
  */
 
 void switchLines(matrix & a, int i, int j) {
-	double tmp;
 	int m = (int)a[i].size();
-	for(int k=0; k<m; k++) {
-		tmp = a[i][k];
-		a[i][k] = a[j][k];
-		a[j][k] = tmp;
-	}
+	for(int k = 0; k < m; k++) swap(a[i][k], a[j][k]);
 }
 
 void lineSumTo(matrix & a, int i, int j, double c) {
 	int m = (int)a[0].size();
-	for(int k=0; k<m; k++) {
-		a[j][k] += c*a[i][k];
-	}
+	for(int k = 0; k < m; k++) a[j][k] += c*a[i][k];
 }
 
-bool gauss(matrix & a, matrix & b) {
+bool gauss(matrix & a, matrix & b, int & switches) {
+	switches = 0;
 	int n = (int)a.size();
 	int m = (int)a[0].size();
-	double p;
 	for(int i = 0, l; i < min(n, m); i++) {
 		l = i;
-		while(l < n && fabs(a[l][i])<EPS) l++;
+		while(l < n && fabs(a[l][i]) < EPS) l++;
 		if (l == n) return false;
 		switchLines(a, i, l);
 		switchLines(b, i, l);
-		for(int j=i+1; j<n; j++) {
-			p = -a[j][i]/a[i][i];
-			lineSumTo(a, i, j, p);
-			lineSumTo(b, i, j, p);
-		}
-	}
-	for(int i=min(n, m)-1; i>=0; i--) {
-		for(int j=0; j<i; j++) {
-			p = -a[j][i]/a[i][i];
+		switches++;
+		for(int j=0; j<n; j++) {
+			if (i == j) continue;
+			double p = -a[j][i] / a[i][i];
 			lineSumTo(a, i, j, p);
 			lineSumTo(b, i, j, p);
 		}
@@ -127,10 +115,11 @@ double det(matrix a) {
 	int n = a.size();
 	matrix b(n);
 	for(int i=0; i<n; i++) b[i].resize(1);
-	if (gauss(a, b)) {
+	int sw = 0;
+	if (gauss(a, b, sw)) {
 		double ans = 1;
 		for(int i=0; i<n; i++) ans *= a[i][i];
-		return ans;
+		return sw % 2 == 0 ? ans : -ans;
 	}
 	return 0.0;
 }
@@ -154,10 +143,11 @@ bool testgauss(int ntest) {
 		}
 		B = A*X;
 		d = det(A);
-		if (gauss(A, B)) {
+		int sw;
+		if (gauss(A, B, sw)) {
 			for(int i=0; i<n; i++) {
 				if (fabs(X[i][0] - B[i][0]/A[i][i]) > EPS) {
-					printf("falied test %d\n", n);
+					printf("failed test %d\n", n);
 					return false;
 				}
 			}

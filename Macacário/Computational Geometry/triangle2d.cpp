@@ -18,10 +18,10 @@ struct triangle{
 	double rCircumCircle() {
 		return dist(a,b)*dist(b,c)*dist(c,a)/(4.0*area());
 	}
-	circle circumCircle(){
+	circle circumCircle() {
 		return circumcircle(a,b,c);
 	}
-	int isInside(point p){
+	int isInside(point p) {
 		double u = cross(b-a,p-a)*cross(b-a,c-a);
 		double v = cross(c-b,p-b)*cross(c-b,a-b);
 		double w = cross(a-c,p-c)*cross(a-c,b-c);
@@ -39,6 +39,6 @@ double rCircumCircle(point a, point b, point c) {
 	return triangle(a,b,c).rCircumCircle();
 }
 
-int isInsideTriangle(point a, point b, point c, point p){
+int isInsideTriangle(point a, point b, point c, point p) {
 	return triangle(a,b,c).isInside(p);
 } //0 = inside/ 1 = border/ 2 = outside

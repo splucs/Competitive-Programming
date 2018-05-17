@@ -18,15 +18,17 @@ struct query {
 	int l, r, id, lca;
 	ll ans;
 	query() { l=r=id=lca=-1; }
-	query(int _id, int _l, int _r){
+	query(int _id, int _l, int _r) {
 		id = _id; l = _l; r = _r; lca = -1;
 	}
 } qrs[MAXN];
-bool lrcomp(query a, query b){
+
+bool lrcomp(query a, query b) {
 	if (a.l/sn != b.l/sn) return a.l/sn < b.l/sn;
   	return a.r > b.r;
 }
-bool idcomp(query a, query b){
+
+bool idcomp(query a, query b) {
 	return a.id < b.id;
 }
 
@@ -46,14 +48,14 @@ void check(int i) {
 	//appeared[i] = !appeared[i];			//mo array
 }
 
-void mo(){
+void mo() {
 	sn = sqrt(N);
 	sort(qrs, qrs+Q, &lrcomp);
 	memset(&freq, 0, sizeof freq);
 	memset(&appeared, false, sizeof appeared);
 	int l = 1, r = 0;
 	curAns = 0;
-	for(int i=0; i<Q; i++){
+	for(int i=0; i<Q; i++) {
 		query & q = qrs[i];
 		while(r > q.r) check(r--);
 		while(r < q.r) check(++r);
@@ -77,8 +79,8 @@ vector<ii> adjList[MAXN];
 int depth[MAXN], level[MAXN];
 int P[MAXN][MAXLOGN];
 
-void depthdfs(int u){
-	for(int i=0; i<(int)adjList[u].size(); i++){
+void depthdfs(int u) {
+	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i].first;
 		int w = adjList[u][i].second;
 		if (v == P[u][0]) continue;
@@ -88,7 +90,7 @@ void depthdfs(int u){
 		depthdfs(v);
 	}
 }
-void computeP(int root){
+void computeP(int root) {
 	level[root] = depth[root] = 0;
 	P[root][0] = root;
 	depthdfs(root);
@@ -96,15 +98,15 @@ void computeP(int root){
 		for(int i = 1; i <= N; i++)
 			P[i][j] = P[P[i][j-1]][j-1];
 }
-int LCA(int a, int b){
+int LCA(int a, int b) {
 	if(level[a] > level[b]) swap(a, b);
 	int d = level[b] - level[a];
-	for(int i=0; i<MAXLOGN; i++){
+	for(int i=0; i<MAXLOGN; i++) {
 		if((d & (1<<i)) != 0) b = P[b][i];
 	}
 	if(a == b) return a;
 	for(int i = MAXLOGN-1; i>=0; i--)
-		while(P[a][i] != P[b][i]){
+		while(P[a][i] != P[b][i]) {
 			a=P[a][i]; b=P[b][i];
 		}
 	return P[a][0];
@@ -127,6 +129,7 @@ void prepos(int u, int p) {
 	inv[cnt] = u;
 	en[u] = cnt++;
 }
+
 void treemo(int root) {
 	cnt = 0;
 	prepos(root, -1);
@@ -156,7 +159,7 @@ int main()
 	map<int, int> x2id;
 	int k=0;
 	scanf("%d %d", &N, &Q);
-	for(int i=1; i<=N; i++){
+	for(int i=1; i<=N; i++) {
 		scanf("%d", c+i);
 		if (!x2id.count(c[i])) x2id[c[i]] = k++;
 		c[i] = x2id[c[i]];
@@ -168,12 +171,12 @@ int main()
 		adjList[v].push_back(ii(u, -1));
 	}
 	int l, r;
-	for(int i=0; i<Q; i++){
+	for(int i=0; i<Q; i++) {
 		scanf("%d %d", &l, &r);
 		qrs[i] = query(i, l, r);		
 	}
 	treemo(1);
-	for(int i=0; i<Q; i++){
+	for(int i=0; i<Q; i++) {
 		printf("%lld\n", qrs[i].ans);
 	}
 	return 0;

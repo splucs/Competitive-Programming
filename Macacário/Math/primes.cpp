@@ -31,16 +31,16 @@ bool isPrimeSieve(ll N) {
 }
 
 //O(sqrt(n))
-bool isPrime(ll N){
+bool isPrime(ll N) {
     if (N < 0) return isPrime(-N);
-	for(ll i=2; i*i <= N; i++){
+	for(ll i=2; i*i <= N; i++) {
 		if (N % i == 0) return false;
 	}
 	return true;
 }
 
 //O(sqrt(n))
-bool isPrimeFast(ll n){
+bool isPrimeFast(ll n) {
     if (n < 0) n = -n;
     if (n < 5 || n % 2 == 0 || n % 3 == 0)
         return (n == 2 || n == 3);
@@ -91,7 +91,7 @@ ll EulerPhi(ll N) {
 	return ans;
 }
 
-void numDiffp(){
+void numDiffp() {
 	memset(numDiffp, 0, sizeof numDiffp);
 	for (int i = 2; i < MAXN; i++)
 		if (numDiffp[i] == 0)
@@ -99,7 +99,7 @@ void numDiffp(){
 				numDiffp[j]++;
 }
 
-int main(){
+int main() {
 	sieve(MAXN); // can go up to 10^7 (need few seconds)
 	printf("%d\n", isPrime(2147483647)); // 10-digits prime
 	printf("%d\n", isPrime(136117223861LL)); // not a prime, 104729*1299709

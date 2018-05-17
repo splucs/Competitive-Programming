@@ -12,32 +12,32 @@ vector<int> csons[MAXN];
 vector<ii> adjList[MAXN];
 int N, K;
 
-int subsize(int u, int p){
+int subsize(int u, int p) {
 	csize[u]=1;
-	for(int i=0; i<(int)adjList[u].size(); i++){
+	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i].second;
 		if (v != p && clevel[v] < 0)
 			csize[u] += subsize(v, u);
 	}
 	return csize[u];
 }
-int findcentroid(int u, int p, int nn){
-	for(int i=0; i<(int)adjList[u].size(); i++){
+int findcentroid(int u, int p, int nn) {
+	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i].second;
 		if (v != p && clevel[v] < 0 && csize[v] > nn/2)
 			return findcentroid(v, u, nn);
 	}
 	return u;
 }
-int decompose(int root, int par){
+int decompose(int root, int par) {
 	subsize(root, -1);
 	int u = findcentroid(root, -1, csize[root]);
 	cpar[u] = par;
 	clevel[u] = par >= 0 ? clevel[par]+1 : 0;
 	csize[u] = 1;
-	for(int i=0; i<(int)adjList[u].size(); i++){
+	for(int i=0; i<(int)adjList[u].size(); i++) {
 		int v = adjList[u][i].second;
-		if (v != par && clevel[v] < 0){
+		if (v != par && clevel[v] < 0) {
 			v = decompose(v, u);
 			csons[u].push_back(v);
 			csize[u] += csize[v];
@@ -45,7 +45,7 @@ int decompose(int root, int par){
 	}
 	return u;
 }
-int centroiddecomposition(int root){
+int centroiddecomposition(int root) {
 	memset(&clevel, -1, sizeof clevel);
 	for(int i=0; i<=N; i++) csons[i].clear();
 	return decompose(root, -1);
@@ -61,7 +61,7 @@ vector<ll> cost(MAXN), subs(MAXN);
 int limit;
 ll depth[MAXN];
 
-void dfs(int u, int par, int h){
+void dfs(int u, int par, int h) {
 	while(cost.size() < h+1) cost.push_back(INF);
 	cost[h] = min(cost[h], depth[u]);
 	for(int i=0; i<(int)adjList[u].size(); i++) {
@@ -106,11 +106,11 @@ ll solve(int u) {
 	}
 	return ans;
 }
-int main(){
+int main() {
 	scanf("%d %d", &N, &K);
 	int P;
 	ll C, ans;
-	for(int i=2; i<=N; i++){
+	for(int i=2; i<=N; i++) {
 		scanf("%d %I64d", &P, &C);
 		adjList[i].push_back(ii(C, P));
 		adjList[P].push_back(ii(C, i));

@@ -82,11 +82,11 @@ int main() {
 	init();
 	memset(&cap, 0, sizeof cap);
 	scanf("%d %d", &N, &M);
-	for(int i=1; i<=N; i++){
+	for(int i=1; i<=N; i++) {
 		add(0, i, 1);
 		add(i+N, 2*N+1, 1);
 	}
-	for(int i=0; i<M; i++){
+	for(int i=0; i<M; i++) {
 		scanf("%d %d", &u, &v);
 		u++; v++;
 		add(u, v+N, 1);

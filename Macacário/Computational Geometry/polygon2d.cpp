@@ -6,14 +6,14 @@ struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm(){
+	double norm() {
 		return hypot(x, y);
 	}
-	point normalized(){
+	point normalized() {
 		return point(x,y)*(1.0/norm());
 	}
-	double angle(){ return atan2(y, x);	}
-	double polarAngle(){
+	double angle() { return atan2(y, x); }
+	double polarAngle() {
 		double a = atan2(y, x);
 		return a < 0 ? a + 2*M_PI : a;
 	}
@@ -64,7 +64,7 @@ double angle(point a, point o, point b) {
 	return acos(inner(a-o, b-o) / (dist(o,a)*dist(o,b)));
 }
 
-point proj(point u, point v){
+point proj(point u, point v) {
 	return v*(inner(u,v)/inner(v,v));
 }
 
@@ -91,13 +91,13 @@ point lineIntersectSeg(point p, point q, point A, point B) {
 
 typedef vector<point> polygon;
 
-double perimeter(polygon & P){
+double perimeter(polygon & P) {
 	double result = 0.0;
 	for (int i = 0; i < (int)P.size()-1; i++) result += dist(P[i], P[i+1]);
 	return result;
 }
 
-double signedArea(polygon & P){
+double signedArea(polygon & P) {
 	double result = 0.0;
 	for (int i = 0; i < (int)P.size()-1; i++) {
 		result += cross(P[i], P[i+1]);
@@ -113,7 +113,7 @@ bool isConvex(polygon & P) {
 	int sz = (int)P.size();
 	if (sz <= 3) return false;
 	bool isLeft = ccw(P[0], P[1], P[2]);
-	for (int i = 1; i < sz-1; i++){
+	for (int i = 1; i < sz-1; i++) {
 		if (ccw(P[i], P[i+1], P[(i+2) == sz ? 1 : i+2]) != isLeft)
 			return false;
 	}
@@ -132,8 +132,8 @@ bool inPolygon(polygon & P, point p) {
 polygon make_polygon(vector<point> P) {
 	if (!P.empty() && !(P.back() == P.front()))
 		P.push_back(P[0]);
-	if (signedArea(P) < 0.0){
-		for(int i = 0; 2*i < (int)P.size(); i++){
+	if (signedArea(P) < 0.0) {
+		for(int i = 0; 2*i < (int)P.size(); i++) {
 			swap(P[i], P[P.size()-i-1]);
 		}
 	}
@@ -158,7 +158,7 @@ polygon cutPolygon(polygon P, point a, point b) {
  * TEST MATRIX
  */
  
-bool test(){
+bool test() {
 	int n;
 	double x, y;
 	vector<point> p1, p2, m;
@@ -176,7 +176,7 @@ bool test(){
 	}
 	/*printf("intersection:\n");
 	m = polyintersect(polygon(p1), polygon(p2)).P;
-	for(int i=0; i<(int)m.size(); i++){
+	for(int i=0; i<(int)m.size(); i++) {
 		printf("%.2f %.2f\n", m[i].x, m[i].y);
 	}*/
 	return true;

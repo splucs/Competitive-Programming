@@ -67,7 +67,7 @@ public:
 		root = 0;
 	}
 	void insert(int key) {
-		if (!root){
+		if (!root) {
 			root = new node(key);
 			return;
 		}
@@ -118,13 +118,13 @@ bool test()
 	SplayTree splay;
 	set<int> s;
 	int N = 1000000;
-	for(int t=1; t<=N; t++){
+	for(int t=1; t<=N; t++) {
 		int x = rand()%100;
-		if (s.count(x) != splay.count(x)){
+		if (s.count(x) != splay.count(x)) {
 			printf("failed on test %d\n", t);
 			return false;
 		}
-		if (s.count(x)){
+		if (s.count(x)) {
 			s.erase(x);
 			splay.erase(x);
 		}
@@ -138,7 +138,7 @@ bool test()
 
 int main()
 {
-	if (test()){
+	if (test()) {
 		printf("all tests passed\n");
 	}
 	return 0;

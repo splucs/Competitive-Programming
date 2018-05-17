@@ -59,7 +59,7 @@ void computeLCP() { //O(n)
 }
 
 //longest repeated substring is the highest LCP[i]
-int LRS(){	//O(n)
+int LRS() {	//O(n)
 	int lrs = 0;
 	for(int i=0; i<n; i++) if (LCP[i] > LCP[lrs]) lrs = i;
 	return lrs;

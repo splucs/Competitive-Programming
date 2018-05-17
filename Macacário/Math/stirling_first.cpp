@@ -131,15 +131,15 @@ T modDiv(T a, T b, T m) {
 }
 
 ll fat[MAXN];
-void preprocessfat(ll m){
+void preprocessfat(ll m) {
     fat[0] = 1;
-    for(ll i=1; i<MAXN; i++){
+    for(ll i=1; i<MAXN; i++) {
         fat[i] = (i*fat[i-1])%m;
     }
 }
 
 template<typename T>
-T pascal(int n, int k, T m){
+T pascal(int n, int k, T m) {
     return modDiv(fat[n], (fat[k]*fat[n-k])%m, m);
 }
 

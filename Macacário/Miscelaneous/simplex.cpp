@@ -28,7 +28,7 @@ using namespace std;
 #define EQUAL 0
 #define GREATEQ 1
 #define INFEASIBLE -1
-#define UNBOUNDED 666
+#define UNBOUNDED 999
 
 /***
 Problem example: https://www.hackerrank.com/contests/zenhacks/challenges/circles-1
@@ -79,20 +79,20 @@ namespace lp
     int m, n, solution_flag, minmax_flag, basis[MAXM], index[MAXN];
 
     /// nvars = number of variables, f = objective function, flag = MINIMIZE or MAXIMIZE
-    inline void init(int nvars, double* f, int flag){
+    inline void init(int nvars, double* f, int flag) {
         solution_flag = 0;
         ar[0][nvars] = 0.0;
         m = 0, n = nvars, minmax_flag = flag;
-        for (int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             ar[0][i] = f[i] * minmax_flag; /// Negating sign of objective function when minimizing
         }
     }
 
     /// C[] = co-efficients of the constraints (LHS), lim = limit in RHS
     /// cmp = EQUAL for C[] = lim, LESSEQ for C[] <= lim, GREATEQ for C[] >= lim
-    inline void add_constraint(double* C, double lim, int cmp){
+    inline void add_constraint(double* C, double lim, int cmp) {
         m++, cmp *= -1;
-        if (cmp == 0){
+        if (cmp == 0) {
             for (int i = 0; i < n; i++) ar[m][i] = C[i];
             ar[m++][n] = lim;
             for (int i = 0; i < n; i++) ar[m][i] = -C[i];
@@ -104,28 +104,28 @@ namespace lp
         }
     }
 
-    inline void init(){ /// Initialization
+    inline void init() { /// Initialization
         for (int i = 0; i <= m; i++) basis[i] = -i;
-        for (int j = 0; j <= n; j++){
+        for (int j = 0; j <= n; j++) {
             ar[0][j] = -ar[0][j], index[j] = j, val[j] = 0;
         }
     }
 
-    inline void pivot(int m, int n, int a, int b){ /// Pivoting and exchanging a non-basic variable with a basic variable
-        for (int i = 0; i <= m; i++){
-            if (i != a){
-                for (int j = 0; j <= n; j++){
-                    if (j != b){
+    inline void pivot(int m, int n, int a, int b) { /// Pivoting and exchanging a non-basic variable with a basic variable
+        for (int i = 0; i <= m; i++) {
+            if (i != a) {
+                for (int j = 0; j <= n; j++) {
+                    if (j != b) {
                         ar[i][j] -= (ar[i][b] * ar[a][j]) / ar[a][b];
                     }
                 }
             }
         }
 
-        for (int j = 0; j <= n; j++){
+        for (int j = 0; j <= n; j++) {
             if (j != b) ar[a][j] /= ar[a][b];
         }
-        for (int i = 0; i <= m; i++){
+        for (int i = 0; i <= m; i++) {
             if (i != a) ar[i][b] = -ar[i][b] / ar[a][b];
         }
 
@@ -133,47 +133,47 @@ namespace lp
         swap(basis[a], index[b]);
     }
 
-    inline double solve(){ /// simplex core
+    inline double solve() { /// simplex core
         init();
         int i, j, k, l;
         
         
-        for (; ;){
-            for (i = 1, k = 1; i <= m; i++){
+        for (; ;) {
+            for (i = 1, k = 1; i <= m; i++) {
                 if ((ar[i][n] < ar[k][n]) || (ar[i][n] == ar[k][n] && basis[i] < basis[k] && (rand() & 1))) k = i;
             }
             if (ar[k][n] >= -EPS) break;
 
-            for (j = 0, l = 0; j < n; j++){
-                if ((ar[k][j] < (ar[k][l] - EPS)) || (ar[k][j] < (ar[k][l] - EPS) && index[i] < index[j] && (rand() & 1))){
+            for (j = 0, l = 0; j < n; j++) {
+                if ((ar[k][j] < (ar[k][l] - EPS)) || (ar[k][j] < (ar[k][l] - EPS) && index[i] < index[j] && (rand() & 1))) {
                     l = j;
                 }
             }
-            if (ar[k][l] >= -EPS){
+            if (ar[k][l] >= -EPS) {
                 solution_flag = INFEASIBLE; /// No solution is possible
                 return -1.0;
             }
             pivot(m, n, k, l);
         }
-        for (; ;){
-            for (j = 0, l = 0; j < n; j++){
+        for (; ;) {
+            for (j = 0, l = 0; j < n; j++) {
                 if ((ar[0][j] < ar[0][l]) || (ar[0][j] == ar[0][l] && index[j] < index[l] && (rand() & 1))) l = j;
             }
             if (ar[0][l] > -EPS) break;
 
-            for (i = 1, k = 0; i <= m; i++){
-                if (ar[i][l] > EPS && (!k || ar[i][n] / ar[i][l] < ar[k][n] / ar[k][l] - EPS || (ar[i][n] / ar[i][l] < ar[k][n] / ar[k][l] + EPS && basis[i] < basis[k]))){
+            for (i = 1, k = 0; i <= m; i++) {
+                if (ar[i][l] > EPS && (!k || ar[i][n] / ar[i][l] < ar[k][n] / ar[k][l] - EPS || (ar[i][n] / ar[i][l] < ar[k][n] / ar[k][l] + EPS && basis[i] < basis[k]))) {
                     k = i;
                 }
             }
-            if (ar[k][l] <= EPS){
+            if (ar[k][l] <= EPS) {
                 solution_flag = UNBOUNDED; /// Solution is infinity, no finite solution exists
-                return -666.0;
+                return -999.0;
             }
             pivot(m, n, k, l);
         }
 
-        for (i = 1; i <= m; i++){
+        for (i = 1; i <= m; i++) {
             if (basis[i] >= 0) val[basis[i]] = ar[i][n];
         }
         solution_flag = 1; /// Successful completion

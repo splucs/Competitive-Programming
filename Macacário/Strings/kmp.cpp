@@ -10,7 +10,7 @@ private:
 	char P[MAXN];
 	int m, n, b[MAXN];
 public:
-	KMP(const char* _P){
+	KMP(const char* _P) {
 		strcpy(P, _P);
 		b[0] = -1;
 		m = strlen(P);
@@ -20,7 +20,7 @@ public:
 			b[i] = j;
 		}
 	}
-	vector<int> match(const char* T){
+	vector<int> match(const char* T) {
 		n = strlen(T);
 		vector<int> ans;
 		for (int i=0, j=0; i < n;) {
@@ -35,18 +35,18 @@ public:
 	}
 };
 
-void test(){
+void test() {
 	string P = "ababa";
 	string T = "abababababababa";
 	KMP kmp(P.c_str());
 	vector<int> index = kmp.match(T.c_str());
-	for(int i=0; i<(int)index.size(); i++){
+	for(int i=0; i<(int)index.size(); i++) {
 		printf("%d ", index[i]);
 	}
 	printf("\n");
 }
 
-int main(){
+int main() {
 	test();
 	return 0;
 }

@@ -7,10 +7,11 @@ using namespace std;
 /*
  * Split-merge segment tree
  */
+
+class SegmentTree {
 	int root[MAXN], sz, n;
 	int s[MAXS], ls[MAXS], rs[MAXS];
 
-class SegmentTree {
 	#define getsize(t) (t == -1 ? 0 : s[t])
 	void print(int p) {
 		if (p == -1) return;
@@ -21,50 +22,28 @@ class SegmentTree {
 		s[sz++] = _s;
 		return sz-1;
 	}
-	int build(int t, int i, int l, int r) {
-		if (i < l || i > r) return t;
-		printf("build %d-%d, t = %d\n", l, r, t);
-		if (t == -1) t = newnode(0);
-		s[t]++;
-		if (l < r) {
-			int m = (l + r) >> 1;
-			ls[t] = build(ls[t], i, l, m);
-			rs[t] = build(rs[t], i, m+1, r);
-		}
-		print(t);
-		return t;
+	int build(int l, int r, int i) {
+		int p = newnode(1);
+		if (l == r) return p;
+		int m = (l + r) / 2;
+		if (i <= m) ls[p] = build(l, m, i);
+		else rs[p] = build(m + 1, r, i);
 	}
-	void split(int t, int &t1, int &t2, int i, int l, int r) {
-		if (t == -1 || l == r) {
-			t2 = t; t1 = -1; return;
-		}
-		int m = (l + r) >> 1, lt, rt;
-		t1 = newnode(0); t2 = newnode(0);
-		if (i > m) {
-			split(rs[t], lt, rt, i, m+1, r);
-			rs[t1] = lt; rs[t2] = rt;
-			ls[t1] = ls[t];
-		}
-		else {
-			split(ls[t], lt, rt, i, l, m);
-			ls[t1] = lt; ls[t2] = rt;
-			rs[t2] = rs[t];
-		}
-		s[t1] = getsize(ls[t1]) + getsize(rs[t1]);
-		s[t2] = getsize(ls[t2]) + getsize(rs[t2]);
-		print(t1);
-		print(t2);
-		printf("split %d/%d s1=%d, s2=%d\n", l, r, s[t1], s[t2]);
+	int split(int t1, int k) {
+		if (t1 == -1) return t1;
+		int t2 = newnode(s[t1] - k);
+		s[t1] = k;
+		int sl = ls[t1] == -1 ? 0 : s[ls[t1]];
+		if (k > sl) rs[t2] = split(rs[t1], k - sl);
+		else swap(rs[t1], rs[t2]);
+		if (k < sl) ls[t2] = split(ls[t1], k);
 	}
 	int merge(int t1, int t2) {
-		if (t1 == -1 && t2 == -1) return -1;
-		if (t1 == -1) return t2;
-		if (t2 == -1) return t1;
-		int t = newnode(s[t1] + s[t2]);
-		rs[t] = merge(rs[t1], rs[t2]);
-		ls[t] = merge(ls[t1], ls[t2]);
-		print(t);
-		return t;
+		if(t1 == -1 || t2 == -1) return t1+t2+1;
+		ls[t1] = merge(ls[t1], ls[t1]);
+		rs[t1] = merge(rs[t1], rs[t1]);
+		s[t1] += s[t2];
+		return t1;
 	}
 public:
 	SegmentTree() { }

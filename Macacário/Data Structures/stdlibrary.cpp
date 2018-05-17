@@ -10,7 +10,7 @@ struct type{
 	type( int _n ) { n = _n; }
 };
 
-bool isvalid(type & a){
+bool isvalid(type & a) {
 	return a.n>0;
 }
 
@@ -124,7 +124,7 @@ int main()
 	l.pop_back();		//Delete last element
 	l.insert(lit, type(a));		//Insert elements before lit
 	l.erase(lit);		//Erase elements, lit receives next
-	l1.swap(l2);		//Swap content of list l1 and l2, O(n)
+	l1.swap(l2);		//Swap content of list l1 and l2, O(1)
 	l.resize(a);		//Change size, adds zeros, O(n)
 	l.clear();			//Clear list
 	l1.splice(lit, l2);	//Transfer elements from list l2 to list l1 behind lit, O(n)

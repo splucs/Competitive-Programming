@@ -16,7 +16,7 @@ void twopointer() {
 			dp[i][j] = INF;
 			for(int k=A[i-1][j]; k<=i; k++) {
 				int cur = 1 + max(dp[k-1][j-1], dp[i-k][j]);
-				if (dp[i][j] > cur){
+				if (dp[i][j] > cur) {
 					dp[i][j] = cur;
 					A[i][j] = k;
 				}

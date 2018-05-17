@@ -45,12 +45,12 @@ private:
     }
     node* balance(node* p) {
         fixheight(p);
-        if(bfactor(p)==2){
+        if(bfactor(p)==2) {
             if(bfactor(p->right)<0)
                 p->right = rotateright(p->right);
             return rotateleft(p);
         }
-        if(bfactor(p)==-2){
+        if(bfactor(p)==-2) {
             if(bfactor(p->left)>0)
                 p->left = rotateleft(p->left);
             return rotateright(p);
@@ -88,19 +88,19 @@ private:
         }
         return balance(p);
     }
-    bool find(node* p, int k){
+    bool find(node* p, int k) {
         if (!p) return false;
         if (p->key == k) return true;
         else if(k<p->key) return find(p->left, k);
         else return find(p->right, k);
     }
-    void del(node* p){
+    void del(node* p) {
         if (!p) return;
         del(p->left);
         del(p->right);
         delete p;
     }
-    node* nth(node* p, int n){
+    node* nth(node* p, int n) {
         if (!p) return p;
         if (size(p->left)+1 > n) return nth(p->left, n);
         if (size(p->left)+1 < n) return nth(p->right, n - size(p->left) - 1);
@@ -108,27 +108,27 @@ private:
     }
 
 public:
-    AVLtree(){ root = 0; size_ = 0; }
-    ~AVLtree(){ del(root); }
+    AVLtree() { root = 0; size_ = 0; }
+    ~AVLtree() { del(root); }
     bool empty() { return size_ == 0; }
     int size() { return size_; }
-    void clear(){
+    void clear() {
         size_ = 0;
         del(root);
         root = 0;
     }
-    void insert(int key){
+    void insert(int key) {
         size_++;
         root = build(root, key);
     }
-    void erase(int key){
+    void erase(int key) {
         size_--;
         root = remove(root, key);
     }
-    bool count(int key){
+    bool count(int key) {
         return find(root, key);
     }
-    int nth_element(int n){
+    int nth_element(int n) {
         node* p = nth(root, n);
         if (p) return p->key;
         else return -1;
@@ -148,13 +148,13 @@ bool test()
 	AVLtree tree;
 	set<int> s;
 	int N = 1000000;
-	for(int t=1; t<=N; t++){
+	for(int t=1; t<=N; t++) {
 		int x = rand()%100;
-		if (s.count(x) != tree.count(x)){
+		if (s.count(x) != tree.count(x)) {
 			printf("failed on test %d\n", t);
 			return false;
 		}
-		if (s.count(x)){
+		if (s.count(x)) {
 			s.erase(x);
 			tree.erase(x);
 		}
@@ -168,7 +168,7 @@ bool test()
 
 int main()
 {
-	if (test()){
+	if (test()) {
 		printf("all tests passed\n");
 	}
 	return 0;

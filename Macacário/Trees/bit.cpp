@@ -3,7 +3,7 @@
 using namespace std;
 
 const int neutral = 0;
-int comp(int a, int b){
+int comp(int a, int b) {
 	return a+b;
 }
 
@@ -16,13 +16,13 @@ public:
 	}
 	int rsq(int i) { // returns RSQ(1, i)
 		int sum = neutral;
-		while(i > 0){
+		while(i > 0) {
 			sum = comp(sum, ft[i]);
 			i -= (i & -i);
 		}
 		return sum;
 	}
-	int rsq(int i, int j){
+	int rsq(int i, int j) {
 		return rsq(j) - rsq(i - 1);
 	}
 	void update(int i, int v) {

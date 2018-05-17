@@ -27,7 +27,7 @@ bool bfs() {
         if (dist[u] < dist[0]) {
             for (int i=0; i<(int)adjU[u].size(); ++i) {
                 v = adjU[u][i];
-                if (dist[pairV[v]] == INF){
+                if (dist[pairV[v]] == INF) {
                     dist[pairV[v]] = dist[u] + 1;
                     q.push(pairV[v]);
                 }
@@ -70,16 +70,16 @@ int hopcroftKarp() {
 int main() {
     int T, lu[MAXN], lv[MAXN];
     scanf("%d", &T);
-    for(int caseNo=1; caseNo <= T; caseNo++){
+    for(int caseNo=1; caseNo <= T; caseNo++) {
         scanf("%d", &m);
-        for(int i=1; i<=m; i++){
+        for(int i=1; i<=m; i++) {
             scanf("%d", lu+i);
             adjU[i].clear();
         }
         scanf("%d", &n);
-        for(int i=1; i<=n; i++){
+        for(int i=1; i<=n; i++) {
             scanf("%d", lv+i);
-            for(int j=1; j<=m; j++){
+            for(int j=1; j<=m; j++) {
                 if (lu[j] != 0 && lv[i]%lu[j] == 0) adjU[j].push_back(i);
                 if (lu[j] == 0 && lv[i] == 0) adjU[j].push_back(i);
             }

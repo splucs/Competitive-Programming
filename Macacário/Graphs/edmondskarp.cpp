@@ -70,26 +70,26 @@ int edmondskarp(int s, int t) {
  */
 #include <cstdio>
 
-int main(){
+int main() {
 	int N, M, R, C, A, B, pos[60][60];
 	char c;
 	scanf("%d %d %d %d", &R, &C, &A, &B);
 	init();
 	memset(&cap, 0, sizeof cap);
 	N = R*C+2;
-	for(int i=0, k=1; i<R; i++){
+	for(int i=0, k=1; i<R; i++) {
 		for(int j=0; j<C; j++) pos[i][j] = k++;
 	}
-	for(int i=0; i<R; i++){
-		for(int j=0; j<C; j++){
+	for(int i=0; i<R; i++) {
+		for(int j=0; j<C; j++) {
 			scanf(" %c", &c);
 			if (c == '.') add(0, pos[i][j], B);
 			else add(pos[i][j], N-1, B);
-			if (i < R-1){
+			if (i < R-1) {
 				add(pos[i][j], pos[i+1][j], A);
 				add(pos[i+1][j], pos[i][j], A);
 			}
-			if (j < C-1){
+			if (j < C-1) {
 				add(pos[i][j], pos[i][j+1], A);
 				add(pos[i][j+1], pos[i][j], A);
 			}

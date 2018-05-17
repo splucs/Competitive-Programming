@@ -20,12 +20,12 @@ double dist(point p1, point p2) {
 
 typedef pair<point, point> pp;
 
-bool compx(point a, point b){
+bool compx(point a, point b) {
     if (fabs(a.x - b.x)<EPS) return a.y < b.y;
     else return a.x < b.x;
 }
 
-bool compy(point a, point b){
+bool compy(point a, point b) {
     if (fabs(a.y - b.y)<EPS) return a.x < b.x;
     else return a.y < b.y;
 }
@@ -42,18 +42,18 @@ pp closestPair(point* points, point* aux, int a, int b) {
     double midx = 0.5*(points[mid].x + points[mid+1].x);
     int kl=0, kr;
     point * s = lower_bound(&points[a], &points[mid+1], point(midx-d-EPS, 0.0), &compx);
-    for(int i= a + (s-&points[a])/sizeof(point); i<=mid; i++){
+    for(int i= a + (s-&points[a])/sizeof(point); i<=mid; i++) {
         if (points[i].x >= midx - d - EPS) aux[kl++] = points[i];
     }
     kr = kl;
-    for(int i=mid+1; i<=b; i++){
+    for(int i=mid+1; i<=b; i++) {
         if (points[i].x <= midx + d + EPS) aux[kr++] = points[i];
         else break;
     }
     sort(aux, aux+kl, &compy);
     sort(aux+kl, aux+kr, &compy);
-    for(int i=0, k=kl; i<kl; i++){
-        for(int j=k; j<kr; j++){
+    for(int i=0, k=kl; i<kl; i++) {
+        for(int j=k; j<kr; j++) {
             if (aux[i].y - aux[j].y > d + EPS) k=j+1;
             else if (aux[j].y - aux[i].y > d + EPS) break;
             else if (dist(ans.first, ans.second) > dist(aux[i], aux[j])) ans = make_pair(aux[i], aux[j]);
@@ -66,13 +66,13 @@ pp closestPair(point* points, point* aux, int a, int b) {
 
 typedef pair<int, int> ii;
 
-ii closestPair(point* points, int n){
+ii closestPair(point* points, int n) {
     point aux[n], copy[n];
     for(int i=0; i<n; i++) copy[i] = points[i];
     sort(copy, copy+n, &compx);
     int pa, pb;
     pp ans = closestPair(copy, aux, 0, n-1);
-    for(int i=0; i<n; i++){
+    for(int i=0; i<n; i++) {
         if (dist(ans.first, points[i]) < EPS) pa = i;
         if (dist(ans.second, points[i]) < EPS) pb = i;
     }
@@ -80,13 +80,13 @@ ii closestPair(point* points, int n){
     return ii(pa, pb);
 }
 
-int main(){
+int main() {
     int N;
     point points[MAXN];
     ii ans;
     double dans;
-    while(scanf("%d", &N) != EOF){
-        for(int i=0; i<N; i++){
+    while(scanf("%d", &N) != EOF) {
+        for(int i=0; i<N; i++) {
             scanf("%lf %lf", &points[i].x, &points[i].y);
         }
         ans = closestPair(points, N);

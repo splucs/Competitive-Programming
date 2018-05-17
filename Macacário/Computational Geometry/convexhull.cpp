@@ -6,10 +6,10 @@ struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm(){
+	double norm() {
 		return hypot(x, y);
 	}
-	point normalized(){
+	point normalized() {
 		return point(x,y)*(1.0/norm());
 	}
 	bool operator < (point other) const {
@@ -50,9 +50,9 @@ bool collinear(point p, point q, point r) {
 	return fabs(cross(p-q, r-p)) < EPS;
 }
 
-int leftmostIndex(vector<point> &P){
+int leftmostIndex(vector<point> &P) {
 	int ans = 0;
-	for(int i=1; i<(int)P.size(); i++){
+	for(int i=1; i<(int)P.size(); i++) {
 		if (P[i] < P[ans]) ans = i;
 	}
 	return ans;
@@ -60,14 +60,14 @@ int leftmostIndex(vector<point> &P){
 
 point pivot(0, 0);
 
-bool angleCmp(point a, point b){
+bool angleCmp(point a, point b) {
 	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
 	return cross(a-pivot, b-pivot) >= 0;
 }
 
-vector<point> convexHull(vector<point> P){
+vector<point> convexHull(vector<point> P) {
 	int i, j, n = (int)P.size();
-	if (n <= 2){
+	if (n <= 2) {
 		if (!(P[0] == P[n-1])) P.push_back(P[0]);
 		return P;
 	}
@@ -80,7 +80,7 @@ vector<point> convexHull(vector<point> P){
 	S.push_back(P[0]);
 	S.push_back(P[1]);
 	i = 2;
-	while(i < n){
+	while(i < n) {
 		j = (int)S.size()-1;
 		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
 		else S.pop_back();

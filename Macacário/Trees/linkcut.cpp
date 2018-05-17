@@ -3,17 +3,16 @@
 using namespace std;
 #define INF (1<<30)
 
-struct node
-{   int size, id, w;
-    node *par, *ppar, *left, *right;
-    node() {
+struct node {
+	int size, id, w;
+	node *par, *ppar, *left, *right;
+	node() {
 		par = ppar = left = right = NULL; 
 		w = size = INF;
 	}
 };
 
-class LinkCutTree
-{
+class LinkCutTree {
 	vector<node> lct;
 
 	void update(node* p) {
@@ -74,7 +73,7 @@ class LinkCutTree
 		update(p);
 	}
 
-	node* access(node* p){
+	node* access(node* p) {
 		splay(p);
 		if (p->right != NULL) {
 			p->right->ppar = p;
@@ -104,7 +103,7 @@ public:
     LinkCutTree() { }
     LinkCutTree(int n) {
 		lct.resize(n + 1);
-        for(int i = 0; i <= n; i++){
+        for(int i = 0; i <= n; i++) {
 			lct[i].id = i;
             update(&lct[i]);
         }
@@ -274,17 +273,17 @@ int main()
 	char str[10];
 	scanf("%d %d", &N, &M);
 	LinkCutTree lct(N+1);
-	for(int i=0; i<M; i++){
+	for(int i=0; i<M; i++) {
 		scanf(" %s", str);
-		if(str[1] == 'i'){
+		if(str[1] == 'i') {
 			scanf("%d %d", &u, &v);
 			lct.link(u, v);
 		}
-		if(str[1] == 'u'){
+		if(str[1] == 'u') {
 			scanf("%d", &u);
 			lct.cut(u);
 		}
-		if (str[1] == 'c'){
+		if (str[1] == 'c') {
 			scanf("%d %d", &u, &v);
 			printf("%d\n", lct.LCA(u, v));
 		}

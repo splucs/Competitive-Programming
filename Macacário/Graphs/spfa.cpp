@@ -11,7 +11,7 @@ vector<ii> adjList[MAXN];
 int dist[MAXN], vis[MAXN], N, M;
 bool inq[MAXN];
  
-int spfa(int s, int t){
+int spfa(int s, int t) {
 	for(int i=0; i<=N; i++) dist[i] = INF;
 	memset(&inq, false, sizeof inq);
 	memset(&vis, 0, sizeof vis);
@@ -19,7 +19,7 @@ int spfa(int s, int t){
 	q.push(s);
 	dist[s] = 0;
 	inq[s] = true;
-	while (!q.empty()){
+	while (!q.empty()) {
 		int u = q.front(); q.pop();
 		if (vis[u] > N) return -1;
 		inq[u] = false;
@@ -44,14 +44,14 @@ int spfa(int s, int t){
 
 #include <cstdio>
 
-int main(){
+int main() {
 	int T;
 	int u, v, w, s, t;
 	scanf("%d", &T);
-	while(T--){
+	while(T--) {
 		scanf("%d %d", &N, &M);
 		for(int i=1; i<=N; i++) adjList[i].clear();
-		for(int i=0; i<M; i++){
+		for(int i=0; i<M; i++) {
 			scanf("%d %d %d", &u, &v, &w);
 			adjList[u].push_back(ii(w, v));
 		}

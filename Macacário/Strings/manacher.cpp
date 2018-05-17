@@ -5,7 +5,7 @@
 using namespace std;
 
 //O(n), retorna o LPS ímpar para cada posição, LPS=2*L+1
-void manacher(char* str, int* L){
+void manacher(char* str, int* L) {
     int n = strlen(str), c = 0, r = 0;
     for(int i = 0; i < n; i++) {
         if(i < r && 2*c >= i) L[i] = min(L[2*c-i], r-i);
@@ -17,7 +17,7 @@ void manacher(char* str, int* L){
 }
 
 //longest palindromic substring
-int LPS(char* text){
+int LPS(char* text) {
     int n=2*strlen(text)+1;
     char temp[n+1];
     for(int i=0, k=0; text[i]; i++) {
@@ -36,7 +36,7 @@ int main()
     char text[MAXN];
     int t;
     scanf("%d", &t);
-    while(t--){
+    while(t--) {
         scanf(" %s", text);
         LPS(text);
         printf("%d %d\n", a, b);

@@ -3,7 +3,7 @@ using namespace std;
 
 typedef pair<int, int> ii;
 
-int f(int x){
+int f(int x) {
 	return (x+1)%5;
 }
 

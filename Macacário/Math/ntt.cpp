@@ -83,9 +83,9 @@ void convolution(vector<ll> a, vector<ll> b, vector<ll> & res, int m) {
  */
 
 template<typename T>
-T modMul(T a, T b, T m){
+T modMul(T a, T b, T m) {
 	T x = 0, y = a % m;
-	while (b > 0){
+	while (b > 0) {
 		if (b % 2 == 1) x = (x + y) % m;
 		y = (y * 2) % m;
 		b /= 2;
@@ -118,27 +118,27 @@ int main()
 	int n, na, nb, k;
 	vector<ll> A, B, C;
 	scanf("%d", &n);
-	for(int i=0; i<n; i++){
+	for(int i=0; i<n; i++) {
 		scanf(" %s %s", num1, num2);
 		na = strlen(num1);
 		nb = strlen(num2);
 		A.clear();
 		B.clear();
-		for(int j=na-1; j>=0; j--){
+		for(int j=na-1; j>=0; j--) {
 			A.push_back(num1[j]-'0');
 		}
-		for(int j=nb-1; j>=0; j--){
+		for(int j=nb-1; j>=0; j--) {
 			B.push_back(num2[j]-'0');
 		}
 		modConv(A, B, C);
 		while(C.size()>1 && C.back()==0) C.pop_back();
 		na = nb = k = 0;
-		for(int j=0; j<(int)C.size() || nb > 0; j++){
+		for(int j=0; j<(int)C.size() || nb > 0; j++) {
 			na = (nb + (j<(int)C.size() ? C[j] : 0))%10;
 			nb = (nb + (j<(int)C.size() ? C[j] : 0))/10;
 			num1[k++] = ((char)na) + '0';
 		}
-		for(int i=0; i<k/2; i++){
+		for(int i=0; i<k/2; i++) {
 			na = num1[i];
 			num1[i] = num1[k-i-1];
 			num1[k-i-1] = na;

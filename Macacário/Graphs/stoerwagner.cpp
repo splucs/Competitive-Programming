@@ -22,12 +22,12 @@ int mincut() {
         memset (w, 0, sizeof w);
         for (int j=0, prev; j<n-phase; ++j) {
             sel = -1;
-            for (int i=0; i<n; ++i){
+            for (int i=0; i<n; ++i) {
                 if (exist[i] && !added[i] && (sel == -1 || w[i] > w[sel]))
                     sel = i;
             }
             if (j == n-phase-1) {
-                if (w[sel] < bestCost){
+                if (w[sel] < bestCost) {
                     bestCost = w[sel];
                     bestCut = v[sel];
                 }
@@ -45,6 +45,6 @@ int mincut() {
     return bestCost;
 }
 
-int main(){
+int main() {
     return 0;
 }

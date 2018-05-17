@@ -8,14 +8,14 @@ struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm(){
+	double norm() {
 		return hypot(x, y);
 	}
-	point normalized(){
+	point normalized() {
 		return point(x,y)*(1.0/norm());
 	}
-	double angle(){ return atan2(y, x);	}
-	double polarAngle(){
+	double angle() { return atan2(y, x); }
+	double polarAngle() {
 		double a = atan2(y, x);
 		return a < 0 ? a + 2*M_PI : a;
 	}
@@ -66,7 +66,7 @@ double angle(point a, point o, point b) {
 	return acos(inner(a-o, b-o) / (dist(o,a)*dist(o,b)));
 }
 
-point proj(point u, point v){
+point proj(point u, point v) {
 	return v*(inner(u,v)/inner(v,v));
 }
 
@@ -74,9 +74,9 @@ bool between(point p, point q, point r) {
     return collinear(p, q, r) && inner(p - q, r - q) <= 0;
 }
 
-int leftmostIndex(vector<point> &P){
+int leftmostIndex(vector<point> &P) {
 	int ans = 0;
-	for(int i=1; i<(int)P.size(); i++){
+	for(int i=1; i<(int)P.size(); i++) {
 		if (P[i] < P[ans]) ans = i;
 	}
 	return ans;

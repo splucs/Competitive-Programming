@@ -15,10 +15,10 @@ struct triangle{
 	double rCircumCircle() {
 		return dist(a,b)*dist(b,c)*dist(c,a)/(4.0*area());
 	}
-	point normalVector(){
+	point normalVector() {
 		return cross(y-x, z-x).normalized();
 	}
-	int isInside(point p){
+	int isInside(point p) {
 		point n = normalVector();
 		double u = proj(cross(b-a,p-a), n).normalized()*proj(cross(b-a,c-a), n).normalized();
 		double v = proj(cross(c-b,p-b), n).normalized()*proj(cross(c-b,a-b), n).normalized();
@@ -27,7 +27,7 @@ struct triangle{
 		else if (u < 0.0 || v < 0.0 || w < 0.0) return 2;
 		else return 1;
 	} //0 = inside/ 1 = border/ 2 = outside
-	int isProjInside(point p){
+	int isProjInside(point p) {
 		return isInside(p + proj(a-p, normalVector()));
 	} //0 = inside/ 1 = border/ 2 = outside
 };
@@ -40,6 +40,6 @@ double rCircumCircle(point a, point b, point c) {
 	return triangle(a,b,c).rCircumCircle();
 }
 
-int isProjInsideTriangle(point a, point b, point c, point p){
+int isProjInsideTriangle(point a, point b, point c, point p) {
 	return triangle(a,b,c).isProjInside(p);
 } //0 = inside/ 1 = border/ 2 = outside

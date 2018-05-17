@@ -14,7 +14,7 @@ int bellmanford(int s, int t)
 	memset(&dist, 1<<20, sizeof dist);
 	dist[s] = 0;
 	bool hasNegativeWeightCycle = false;
-	for (int i = 0, v, w; i < N; i++){
+	for (int i = 0, v, w; i < N; i++) {
 		for (int u = 0; u < N; u++) {
 			for (int j = 0; j < (int)adjList[u].size(); j++) {
 				v = adjList[u][j].first;

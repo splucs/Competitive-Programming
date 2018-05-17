@@ -55,16 +55,16 @@ void computeLCP() { //O(n)
 	for (i = 0; i < n; i++) LCP[i] = PLCP[SA[i]];
 }
 
-int LCS(char* str1, char* str2){
+int LCS(char* str1, char* str2) {
 	int n1 = strlen(str1);
 	strcpy(str, str1); strcat(str, "$");
 	strcat(str, str2); strcat(str, "#");
 	n = strlen(str);
 	constructSA(); computeLCP();
 	int ans = 0;
-	for(int i=1; i<n; i++){
+	for(int i=1; i<n; i++) {
 		if (LCP[i] > LCP[ans] &&
-			((SA[i]<n1 && SA[i-1]>n1) || (SA[i]>n1 && SA[i-1]<n1))){
+			((SA[i]<n1 && SA[i-1]>n1) || (SA[i]>n1 && SA[i-1]<n1))) {
 			ans = i;
 		}
 	}

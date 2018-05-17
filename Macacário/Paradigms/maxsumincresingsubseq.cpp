@@ -5,7 +5,7 @@
 #define MAXN 100009
 using namespace std;
 
-int comp(int a, int b){
+int comp(int a, int b) {
 	return max(a, b);
 }
 
@@ -16,7 +16,7 @@ class FenwickTree {
 	}
 	int rsq(int i) { // returns RSQ(1, i)
 		int ans = 0;
-		while(i > 0){
+		while(i > 0) {
 			ans = comp(ans, ft[i]);
 			i -= (i & -i);
 		}
@@ -33,19 +33,19 @@ class FenwickTree {
 int arr[MAXN], A[MAXN];
 int rank[MAXN], invrank[MAXN], N;
 
-bool rankcomp(int a, int b){
+bool rankcomp(int a, int b) {
 	//if (arr[a] == arr[b]) return a<b;	//crescente
 	if (arr[a] == arr[b]) return a>b;	//estritamente crescente
 	else return arr[a] < arr[b];
 }
 
-int MSIS(){
+int MSIS() {
 	for(int i=1; i<=N; i++) invrank[i] = i;
 	sort(invrank+1, invrank+1+N, &rankcomp);
 	for(int i=1; i<=N; i++) rank[invrank[i]] = i;
 	memset(&A, 0, sizeof A);
 	FenwickTree ft(N);
-	for(int i=1, j; i<=N; i++){
+	for(int i=1, j; i<=N; i++) {
 		j = rank[i];
 		A[j] = arr[i] + ft.rsq(j-1);
 		ft.update(j, A[j]);
@@ -53,7 +53,7 @@ int MSIS(){
 	return ft.rsq(N);
 }
 
-int main(){
+int main() {
 	N = 3;
 	arr[1] = 2;
 	arr[2] = 3;

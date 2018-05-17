@@ -2,7 +2,7 @@
 using namespace std;
 
 const int neutral = 0;
-int comp(int a, int b){
+int comp(int a, int b) {
 	return a+b;
 }
 
@@ -48,8 +48,8 @@ vector< vector<int> > A;
 
 int rsq(int x, int y) {
 	int ans = neutral;
-	for(int i=1; i<=x; i++){
-		for(int j=1; j<=y; j++){
+	for(int i=1; i<=x; i++) {
+		for(int j=1; j<=y; j++) {
 			ans = comp(ans, A[i][j]);
 		}
 	}
@@ -60,20 +60,20 @@ void update(int x, int y, int v) {
 	A[x][y] += v;
 }
 
-bool test(){
+bool test() {
 	int N = 500, nTests = 10000;
 	int x, y, v;
 	A.resize(N+1);
 	for(int i=1; i<=N; i++) A[i].resize(N+1);
 	FenwickTree2D ft(N, N);
-	for(int i=1; i<=N; i++){
-		for(int j=1; j<=N; j++){
+	for(int i=1; i<=N; i++) {
+		for(int j=1; j<=N; j++) {
 			A[i][j] = rand() % N;
 			ft.update(i, j, A[i][j]);
 		}
 	}
 	printf("starting tests...\n");
-	for(int q=1; q<=nTests; q++){
+	for(int q=1; q<=nTests; q++) {
 		x = rand()%N + 1;
 		y = rand()%N + 1;
 		v = rand()%N;
@@ -83,7 +83,7 @@ bool test(){
 		y = rand()%N + 1;
 		int q1 = rsq(x, y);
 		int q2 = ft.rsq(x, y);
-		if (q1 != q2){
+		if (q1 != q2) {
 			printf("Failed test %d, q1 = %d, q2 = %d\n", q, q1, q2);
 			return false;
 		}

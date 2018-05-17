@@ -2,7 +2,7 @@
 #include <algorithm>
 using namespace std;
 
-void quicksort(int* arr, int l, int r){
+void quicksort(int* arr, int l, int r) {
     if (l >= r) return;
     int mid = rand()%(r-l+1) + l;
     int pivot = arr[mid];
@@ -18,9 +18,9 @@ void quicksort(int* arr, int l, int r){
     quicksort(arr, i, r);
 }
 
-void quicksort(int* arr, int l, int r){
+void quicksort(int* arr, int l, int r) {
     if (l >= r) return;
-    int i, m = rand()%(t-l+1) + l;
+    int i, m = rand()%(r-l+1) + l;
 	swap(arr[l], arr[m]);
 	for(m = l, i = l + 1; i <= r; i++) {
 		if (x[i] < x[l]) swap(arr[++m], arr[i]);
@@ -30,10 +30,10 @@ void quicksort(int* arr, int l, int r){
     quicksort(arr, i, m+1);
 }
 
-int main(){
+int main() {
     int arr[8] = {110, 5, 10, 3 ,10, 100, 1, 23};
     quicksort(arr, 0, 7);
-    for(int i=0; i<8; i++){
+    for(int i=0; i<8; i++) {
         printf("%d ", arr[i]);
     }
     printf("\n");

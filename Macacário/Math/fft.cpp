@@ -123,7 +123,7 @@ int main()
 	B.push_back(d);
 	B.push_back(c);
 	convolution(A, B, C);
-	for(int i=0; i<(int)C.size(); i++){
+	for(int i=0; i<(int)C.size(); i++) {
 		printf(" %.2f", C[i].real());
 	}
 	return 0;
