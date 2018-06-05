@@ -10,7 +10,7 @@ struct point {
 	point() { x = y = 0.0; }
 	point(ll _x, ll _y) : x(_x), y(_y) {}
 	bool operator < (point other) const {
-		if (x == other.x) return x < other.x;
+		if (x != other.x) return x < other.x;
 		else return y < other.y;
 	}
 	bool operator == (point other) const {
@@ -40,11 +40,11 @@ ll cross(point p1, point p2) {
 }
 
 bool ccw(point p, point q, point r) {
-	return cross(q-p, r-p) > 0;
+	return cross(q-p, r-p) > 0LL;
 }
 
 bool collinear(point p, point q, point r) {
-	return cross(p-q, r-p) == 0;
+	return cross(p-q, r-p) == 0LL;
 }
 
 int leftmostIndex(vector<point> &P){
@@ -56,10 +56,9 @@ int leftmostIndex(vector<point> &P){
 }
 point pivot(0, 0);
 
-bool angleCmp(point a, point b){
-  if (collinear(pivot, a, b))
-  	return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
-  return cross(a-pivot, b-pivot) >= 0;
+bool angleCmp(point a, point b) {
+	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	return cross(a-pivot, b-pivot) >= 0;
 }
 
 vector<point> convexHull(vector<point> P){
@@ -85,13 +84,28 @@ vector<point> convexHull(vector<point> P){
 	return S;
 }
 
+struct StableSum {
+	int cnt = 0;
+	vector<double> v, pref{0};
+	void operator += (double a) { // a >= 0
+		for (int s = ++cnt; s % 2 == 0; s >>= 1) {
+			a += v.back();
+			v.pop_back(), pref.pop_back();
+		}
+		v.push_back(a);
+		pref.push_back(pref.back() + a);
+	}
+	double val(int i) { return pref[i]; }
+	double val() { return pref.back(); }
+};
+
 double perimeter(vector<point> P) {
-	double ans = 0;
+	StableSum ans;
 	int n = P.size();
 	for(int i = 0; i < n; i++) {
 		ans += dist(P[i], P[(i+1)%n]);
 	}
-	return ans;
+	return ans.val();
 }
 
 ll area(vector<point> P) {
@@ -103,13 +117,17 @@ ll area(vector<point> P) {
 	return abs(ans);
 }
 
+#define MAXN 2000009
+
 int main() {
 	int n;
 	scanf("%d", &n);
-	vector<point> P(n);
+	vector<point> P;
 	for(int i = 0; i < n; i++) {
-		scanf("%I64d %I64d", &P[i].x, &P[i].y);
-		P[i].id = i+1;
+		point p;
+		scanf("%lld %lld", &p.x, &p.y);
+		p.id = i+1;
+		P.push_back(p);
 	}
 	vector<point> ch = convexHull(P);
 	ch.pop_back();
@@ -117,10 +135,8 @@ int main() {
 	for(int i = 0; i < (int)ch.size(); i++) {
 		printf("%d ", ch[i].id);
 	}
-	
-	printf("\n%.12f\n", perimeter(ch));
 	ll ar = area(ch);
-	if (ar % 2 == 0) printf("%I64d.0\n", ar/2);
-	else printf("%I64d.5\n", ar/2);
+	if (ar % 2 == 0) printf("\n%.12f\n%lld.0\n", perimeter(ch), ar/2);
+	else printf("\n%.12f\n%lld.5\n", perimeter(ch), ar/2);
 	return 0;
 }

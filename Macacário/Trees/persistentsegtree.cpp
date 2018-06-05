@@ -90,7 +90,6 @@ const int N = 500;
 int arr[N+9][N+9];
 int curver;
 PersistentSegmentTree st;
-
 bool test(int NTests) {
 	srand(time(NULL));
 	for(int nt=0; nt<NTests; nt++) {

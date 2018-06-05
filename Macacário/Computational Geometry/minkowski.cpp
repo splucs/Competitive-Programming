@@ -17,7 +17,7 @@ struct point {
 	double angle() { return atan2(y, x);	}
 	double polarAngle() {
 		double a = atan2(y, x);
-		return a < 0 ? a + 2*M_PI : a;
+		return a < 0 ? a + 2*acos(-1.0) : a;
 	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;

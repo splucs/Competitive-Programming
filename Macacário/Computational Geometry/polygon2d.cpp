@@ -15,7 +15,7 @@ struct point {
 	double angle() { return atan2(y, x); }
 	double polarAngle() {
 		double a = atan2(y, x);
-		return a < 0 ? a + 2*M_PI : a;
+		return a < 0 ? a + 2*acos(-1.0) : a;
 	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
@@ -81,12 +81,10 @@ bool between(point p, point q, point r) {
 using namespace std;
 
 point lineIntersectSeg(point p, point q, point A, point B) {
-	double a = B.y - A.y;
-	double b = A.x - B.x;
-	double c = B.x * A.y - A.x * B.y;
-	double u = fabs(a * p.x + b * p.y + c);
-	double v = fabs(a * q.x + b * q.y + c);
-	return point((p.x * v + q.x * u) / (u+v), (p.y * v + q.y * u) / (u+v));
+	double c = cross(A-B, p-q);
+	double a = cross(A, B);
+	double b = cross(p, q);
+	return ((p-q)*(a/c)) - ((A-B)*(b/c));
 }
 
 typedef vector<point> polygon;
@@ -126,7 +124,7 @@ bool inPolygon(polygon & P, point p) {
 		if (ccw(p, P[i], P[i+1])) sum += angle(P[i], p, P[i+1]);
 		else sum -= angle(P[i], p, P[i+1]);
 	}
-	return fabs(fabs(sum) - 2*M_PI) < EPS;
+	return fabs(fabs(sum) - 2*acos(-1.0)) < EPS;
 }
 
 polygon make_polygon(vector<point> P) {

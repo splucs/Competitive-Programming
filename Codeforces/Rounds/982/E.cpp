@@ -106,8 +106,8 @@ T modExp(T a, T b, T m) {
 template<typename T>
 void diophantine(T a, T b, T c, T& x, T& y) {
     T d = extGcd(a, b, x, y);
-    x *= c / d; x %= b / d;
-    y *= c / d; y %= -a / d;
+    x *= c / d;
+    y *= c / d;
 }
 
 ll n, m, x, y, vx, vy;
@@ -125,11 +125,20 @@ int main() {
 		}
 		ll a0, b0;
 		diophantine(al, bl, cl, a0, b0);
-		ll t = abs(bl/g*n/vx);
-		ll q = (a0*n-x)/vx;
-		ll k = (q%t + t)%t;
-		ll a = abs((x+k*vx)/n);
-		ll b = abs((y+k*vy)/m);
+		ll ah = bl/g;
+		ll bh = -al/g;
+		a0 %= ah;
+		b0 %= bh;
+		ll t1 = abs(ah*n/vx);
+		ll q1 = (a0*n-x)/vx;
+		ll k1 = (q1%t1 + t1)%t1;
+		ll t2 = abs(bh*m/vy);
+		ll q2 = (b0*m-y)/vy;
+		ll k2 = (q2%t2 + t2)%t2;
+		assert(k1 == k2);
+		assert(k1 > 0);
+		ll a = abs((x+k1*vx)/n);
+		ll b = abs((y+k1*vy)/m);
 		printf("%lld %lld\n", a % 2 == 0 ? 0 : n, b % 2 == 0 ? 0 : m);
 		return 0;
 	}

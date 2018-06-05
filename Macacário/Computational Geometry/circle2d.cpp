@@ -3,27 +3,16 @@
 #include <algorithm>    // std::random_shuffle
 #include <vector>       // std::vector
 using namespace std;
-#define EPS 1e-5
-#define MAXN 100009
+#define EPS 1e-9
+
+/*
+ * Point 2D
+ */
 
 struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm() {
-		return hypot(x, y);
-	}
-	point normalized() {
-		return point(x,y)*(1.0/norm());
-	}
-	double angle() { return atan2(y, x);	}
-	bool operator < (point other) const {
-		if (fabs(x - other.x) > EPS) return x < other.x;
-		else return y < other.y;
-	}
-	bool operator == (point other) const {
-		return (fabs(x - other.x) < EPS && (fabs(y - other.y) < EPS));
-	}
 	point operator +(point other) const{
 		return point(x + other.x, y + other.y);
 	}
@@ -38,21 +27,43 @@ struct point {
 double dist(point p1, point p2) {
 	return hypot(p1.x - p2.x, p1.y - p2.y);
 }
-double cross(point p1, point p2) {
-	return p1.x*p2.y - p1.y*p2.x;
-}
+
 double inner(point p1, point p2) {
 	return p1.x*p2.x + p1.y*p2.y;
 }
 
-struct circle{
+double cross(point p1, point p2) {
+	return p1.x*p2.y - p1.y*p2.x;
+}
+
+point rotate(point p, double rad) {
+	return point(p.x * cos(rad) - p.y * sin(rad),
+	p.x * sin(rad) + p.y * cos(rad));
+}
+
+point closestToLineSegment(point p, point a, point b) {
+	double u = inner(p-a, b-a) / inner(b-a, b-a);
+	if (u < 0.0) return a;
+	if (u > 1.0) return b;
+	return a + ((b-a)*u);
+}
+
+double distToLineSegment(point p, point a, point b) {
+	return dist(p, closestToLineSegment(p, a, b));
+}
+
+/*
+ * Circle 2D
+ */
+
+struct circle {
 	point c;
 	double r;
 	circle() { c = point(); r = 0; }
 	circle(point _c, double _r) : c(_c), r(_r) {}
-	double area() { return M_PI*r*r; }
+	double area() { return acos(-1.0)*r*r; }
 	double chord(double rad) { return  2*r*sin(rad/2.0); }
-	double sector(double rad) { return 0.5*rad*area()/M_PI; }
+	double sector(double rad) { return 0.5*rad*area()/acos(-1.0); }
 	bool intersects(circle other) {
 		return dist(c, other.c) < r + other.r;
 	}
@@ -113,21 +124,56 @@ circle minimumCircle(vector<point> p) {
 	return C;
 }
 
-int main()
-{
-	int n, c;
-	scanf("%d", &c);
-	vector<point> p;
-	point t;
-	while(c--) {
-		scanf("%d", &n);
-		p.clear();
-		for(int i=0; i<n; i++) {
-			scanf("%lf %lf", &t.x, &t.y);
-			p.push_back(t);
-		}
-		circle mincir = minimumCircle(p);
-		printf("%.2f\n%.2f %.2f\n", mincir.r, mincir.c.x, mincir.c.y);
+/*
+ * Codeforces 101707B
+ */
+/*
+point A, B;
+circle C;
+
+double getd2(point a, point b) {
+	double h = dist(a, b);
+	double r = C.r;
+	double alpha = asin(h/(2*r));
+	while (alpha < 0) alpha += 2*acos(-1.0);
+	return dist(a, A) + dist(b, B) + r*2*min(alpha, 2*acos(-1.0) - alpha);
+}
+
+int main() {
+	scanf("%lf %lf", &A.x, &A.y);
+	scanf("%lf %lf", &B.x, &B.y);
+	scanf("%lf %lf %lf", &C.c.x, &C.c.y, &C.r);
+	double ans;
+	if (distToLineSegment(C.c, A, B) >= C.r) {
+		ans = dist(A, B);
 	}
+	else {
+		pair<point, point> tan1 = C.getTangentPoint(A);
+		pair<point, point> tan2 = C.getTangentPoint(B);
+		ans = 1e+30;
+		ans = min(ans, getd2(tan1.first, tan2.first));
+		ans = min(ans, getd2(tan1.first, tan2.second));
+		ans = min(ans, getd2(tan1.second, tan2.first));
+		ans = min(ans, getd2(tan1.second, tan2.second));
+	}
+	printf("%.18f\n", ans);
+	return 0;
+}*/
+
+/*
+ * Codeforces 101707J
+ */
+
+vector<point> P;
+int n;
+
+int main () {
+	scanf("%d", &n);
+	P.resize(n);
+	for(int i = 0; i < n; i++) {
+		scanf("%lf %lf", &P[i].x, &P[i].y);
+	}
+	circle ans = minimumCircle(P);
+	printf("%.18f %.18f\n%.18f\n", ans.c.x, ans.c.y, ans.r);
 	return 0;
 }
