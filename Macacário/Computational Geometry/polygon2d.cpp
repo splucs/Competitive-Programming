@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cmath>
 #define EPS 1e-9
 
@@ -72,6 +71,13 @@ bool between(point p, point q, point r) {
     return collinear(p, q, r) && inner(p - q, r - q) <= 0;
 }
 
+point lineIntersectSeg(point p, point q, point A, point B) {
+	double c = cross(A-B, p-q);
+	double a = cross(A, B);
+	double b = cross(p, q);
+	return ((p-q)*(a/c)) - ((A-B)*(b/c));
+}
+
 /*
  * POLYGON 2D
  */
@@ -80,14 +86,33 @@ bool between(point p, point q, point r) {
 #include <algorithm>
 using namespace std;
 
-point lineIntersectSeg(point p, point q, point A, point B) {
-	double c = cross(A-B, p-q);
-	double a = cross(A, B);
-	double b = cross(p, q);
-	return ((p-q)*(a/c)) - ((A-B)*(b/c));
+typedef vector<point> polygon;
+
+double signedArea(polygon & P) {
+	double result = 0.0;
+	int n = P.size();
+	for (int i = 0; i < n; i++) {
+		result += cross(P[i], P[(i+1)%n]);
+	}
+	return result / 2.0;
 }
 
-typedef vector<point> polygon;
+int leftmostIndex(vector<point> & P) {
+	int ans = 0;
+	for(int i=1; i<(int)P.size(); i++) {
+		if (P[i] < P[ans]) ans = i;
+	}
+	return ans;
+}
+
+polygon make_polygon(vector<point> P) {
+	if (signedArea(P) < 0.0) reverse(P.begin(), P.end());
+	int li = leftmostIndex(P);
+	reverse(P.begin(), P.begin()+li);
+	reverse(P.begin()+li, P.end());
+	reverse(P.begin(), P.end());
+	return P;
+}
 
 double perimeter(polygon & P) {
 	double result = 0.0;
@@ -95,93 +120,74 @@ double perimeter(polygon & P) {
 	return result;
 }
 
-double signedArea(polygon & P) {
-	double result = 0.0;
-	for (int i = 0; i < (int)P.size()-1; i++) {
-		result += cross(P[i], P[i+1]);
-	}
-	return result/2.0;
-}
-
 double area(polygon & P) {
 	return fabs(signedArea(P));
 }
 
 bool isConvex(polygon & P) {
-	int sz = (int)P.size();
-	if (sz <= 3) return false;
-	bool isLeft = ccw(P[0], P[1], P[2]);
-	for (int i = 1; i < sz-1; i++) {
-		if (ccw(P[i], P[i+1], P[(i+2) == sz ? 1 : i+2]) != isLeft)
+	int n = (int)P.size();
+	if (n < 3) return false;
+	bool left = ccw(P[0], P[1], P[2]);
+	for (int i = 1; i < n; i++) {
+		if (ccw(P[i], P[(i+1)%n], P[(i+2)%n]) != left)
 			return false;
 	}
 	return true;
 }
+
 bool inPolygon(polygon & P, point p) {
 	if (P.size() == 0u) return false;
 	double sum = 0.0;
-	for (int i = 0; i < (int)P.size()-1; i++) {
-		if (ccw(p, P[i], P[i+1])) sum += angle(P[i], p, P[i+1]);
-		else sum -= angle(P[i], p, P[i+1]);
+	int n = P.size();
+	for (int i = 0; i < n; i++) {
+		if (ccw(p, P[i], P[(i+1)%n])) sum += angle(P[i], p, P[(i+1)%n]);
+		else sum -= angle(P[i], p, P[(i+1)%n]);
 	}
 	return fabs(fabs(sum) - 2*acos(-1.0)) < EPS;
 }
 
-polygon make_polygon(vector<point> P) {
-	if (!P.empty() && !(P.back() == P.front()))
-		P.push_back(P[0]);
-	if (signedArea(P) < 0.0) {
-		for(int i = 0; 2*i < (int)P.size(); i++) {
-			swap(P[i], P[P.size()-i-1]);
-		}
-	}
-	return P;
-}
-
-polygon cutPolygon(polygon P, point a, point b) {
+polygon cutPolygon(polygon & P, point a, point b) {
 	vector<point> R;
 	double left1, left2;
-	for (int i = 0; i < (int)P.size(); i++) {
+	int n = P.size();
+	for (int i = 0; i < n; i++) {
 		left1 = cross(b-a, P[i]-a);
-		if (i != (int)P.size()-1) left2 = cross(b-a, P[i+1]-a);
-		else left2 = 0;
+		left2 = cross(b-a, P[(i+1)%n]-a);
 		if (left1 > -EPS) R.push_back(P[i]);
-		if (left1 * left2 < -EPS)
-			R.push_back(lineIntersectSeg(P[i], P[i+1], a, b));
+		if (left1 * left2 < -EPS) 
+			R.push_back(lineIntersectSeg(P[i], P[(i+1)%n], a, b));
 	}
 	return make_polygon(R);
 }
 
 /*
- * TEST MATRIX
+ * UVa 11265
  */
- 
-bool test() {
-	int n;
-	double x, y;
-	vector<point> p1, p2, m;
-	printf("insert polygon 1:\n");
-	scanf("%d", &n);
-	while(n--) {
-		scanf("%lf %lf", &x, &y);
-		p1.push_back(point(x, y));
-	}
-	printf("insert polygon 2:\n");
-	scanf("%d", &n);
-	while(n--) {
-		scanf("%lf %lf", &x, &y);
-		p2.push_back(point(x, y));
-	}
-	/*printf("intersection:\n");
-	m = polyintersect(polygon(p1), polygon(p2)).P;
-	for(int i=0; i<(int)m.size(); i++) {
-		printf("%.2f %.2f\n", m[i].x, m[i].y);
-	}*/
-	return true;
-}
 
-int main()
-{
-	test();
+#include <cstdio>
+#include <cassert>
+int N;
+double W, H;
+point q;
+
+int main() {
+	int caseNo = 0;
+	while(scanf("%d %lf %lf %lf %lf", &N, &W, &H, &q.x, &q.y) != EOF) {
+		polygon P;
+		P.push_back(point(0, 0));
+		P.push_back(point(W, 0));
+		P.push_back(point(W, H));
+		P.push_back(point(0, H));
+		for(int i = 0; i < N; i++) {
+			point a, b;
+			scanf("%lf %lf %lf %lf", &a.x, &a.y, &b.x, &b.y);
+			if (ccw(a, b, q)) P = cutPolygon(P, a, b);
+			else P = cutPolygon(P, b, a);
+			assert(isConvex(P));
+			assert(inPolygon(P, q));
+
+		}
+		printf("Case #%d: %.3f\n", ++caseNo, area(P));
+	}
 	return 0;
 }

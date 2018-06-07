@@ -52,24 +52,3 @@ point projPointToLine(point u, line l) {
 double distToLine(point p, line l) {
 	return dist(p, projPointToLine(p, l));
 }
-
-point closestToLineSegment(point p, point a, point b) {
-	double u = inner(p-a, b-a) / inner(b-a, b-a);
-	if (u < 0.0) return a;
-	if (u > 1.0) return b;
-	return a + ((b-a)*u);
-}
-
-double distToLineSegment(point p, point a, point b) {
-	return dist(p, closestToLineSegment(p, a, b));
-}
-
-// verificar todas as permutacoes (a,b) e (p,q)!
-bool segIntersects(point a, point b, point p, point q) {
-    point u = b-a, v = q-p;
-    if (fabs(cross(v, u)) < EPS)
-		return between(a, p, b) || between(a, q, b);
-    double k1 = (cross(a, v) - cross(p, v)) / cross(v, u);
-    double k2 = (cross(a, u) - cross(p, u)) / cross(v, u);
-    return k1 >= 0 && k1 <= 1 && k2 >= 0 && k2 <= 1;
-}

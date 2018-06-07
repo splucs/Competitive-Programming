@@ -38,26 +38,28 @@ struct point {
 double dist(point a, point b) {
 	return hypot(a.x-b.x, a.y-b.y);
 }
+
 double inner(point a, point b) {
 	return a.x*b.x + a.y*b.y;
 }
+
 double cross(point a, point b) {
 	return a.x*b.y - a.y*b.x;
 }
+
 bool ccw(point p, point q, point r) {
 	return cross(q-p, r-p) > 0;
 }
+
 bool collinear(point p, point q, point r) {
 	return fabs(cross(p-q, r-p)) < EPS;
 }
-int leftmostIndex(vector<point> &P) {
-	int ans = 0;
-	for(int i=1; i<(int)P.size(); i++) {
-		if (P[i] < P[ans]) ans = i;
-	}
-	return ans;
-}
-struct triangle{
+
+/*
+ * Triangle 2D
+ */
+
+struct triangle {
 	point a, b, c;
 	triangle() { a = b = c = point(); }
 	triangle(point _a, point _b, point _c) : a(_a), b(_b), c(_c) {}
@@ -70,22 +72,40 @@ struct triangle{
 		else return 1;
 	} //0 = inside/ 1 = border/ 2 = outside
 };
+
 int isInsideTriangle(point a, point b, point c, point p) {
 	return triangle(a,b,c).isInside(p);
 } //0 = inside/ 1 = border/ 2 = outside
-point pivot(0,0);
-bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b)) return dist(pivot, a) < dist(pivot, b);
-	double d1x = a.x-pivot.x, d1y = a.y-pivot.y;
-	double d2x = b.x-pivot.x, d2y = b.y-pivot.y;
-	return atan2(d1y, d1x) - atan2(d2y, d2x) < 0;
-}
-vector<point> convexHull(vector<point> P) {
-	int i, j, n = (int)P.size();
-	if (n <= 3) {
-		if (!(P[0] == P[n-1])) P.push_back(P[0]);
-		return P;
+
+/*
+ * Polygon 2D
+ */
+
+typedef vector<point> polygon;
+
+int leftmostIndex(vector<point> &P) {
+	int ans = 0;
+	for(int i=1; i<(int)P.size(); i++) {
+		if (P[i] < P[ans]) ans = i;
 	}
+	return ans;
+}
+
+/*
+ * Convex Hull
+ */
+
+point pivot(0, 0);
+
+bool angleCmp(point a, point b) {
+	if (collinear(pivot, a, b))
+		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	return cross(a-pivot, b-pivot) >= 0;
+}
+
+polygon convexHull(vector<point> P) {
+	int i, j, n = (int)P.size();
+	if (n <= 2) return P;
 	int P0 = leftmostIndex(P);
 	swap(P[0], P[P0]);
 	pivot = P[0];
@@ -94,24 +114,30 @@ vector<point> convexHull(vector<point> P) {
 	S.push_back(P[n-1]);
 	S.push_back(P[0]);
 	S.push_back(P[1]);
-	i = 2;
-	while(i < n) {
+	for(i = 2; i < n;) {
 		j = (int)S.size()-1;
 		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
 		else S.pop_back();
 	}
+	reverse(S.begin(), S.end());
+	S.pop_back();
+	reverse(S.begin(), S.end());
 	return S;
 }
 
-bool query(vector<point> &CH, point q) {
-	int i = 2, j = CH.size()-1, m;
-	pivot = CH[1];
+/*
+ * Convex query
+ */
+
+bool query(polygon &P, point q) {
+	int i = 1, j = P.size()-1, m;
+	pivot = P[0];
 	while(j > i+1) {
 		int m = (i+j)/2;
-		if (angleCmp(q, CH[m])) j = m;
+		if (angleCmp(q, P[m])) j = m;
 		else i = m;
 	}
-	return isInsideTriangle(pivot, CH[i], CH[j], q) != 2;
+	return isInsideTriangle(pivot, P[i], P[j], q) != 2;
 }
 
 /*

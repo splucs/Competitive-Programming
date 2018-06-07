@@ -80,7 +80,7 @@ struct circle{
 
 struct StableSum {
 	int cnt = 0;
-	vector<double> v, pref{0};
+	vector<double> v, pref(1, 0);
 	void operator += (double a) { // a >= 0
 		for (int s = ++cnt; s % 2 == 0; s >>= 1) {
 			a += v.back();
@@ -89,7 +89,6 @@ struct StableSum {
 		v.push_back(a);
 		pref.push_back(pref.back() + a);
 	}
-	double val(int i) { return pref[i]; }
 	double val() { return pref.back(); }
 };
 

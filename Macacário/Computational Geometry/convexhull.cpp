@@ -2,6 +2,10 @@
 #define EPS 1e-5
 using namespace std;
 
+/*
+ * Point 2D
+ */
+
 struct point {
 	double x, y;
 	point() { x = y = 0.0; }
@@ -50,6 +54,12 @@ bool collinear(point p, point q, point r) {
 	return fabs(cross(p-q, r-p)) < EPS;
 }
 
+/*
+ * Polygon 2D
+ */
+
+typedef vector<point> polygon;
+
 int leftmostIndex(vector<point> &P) {
 	int ans = 0;
 	for(int i=1; i<(int)P.size(); i++) {
@@ -58,19 +68,22 @@ int leftmostIndex(vector<point> &P) {
 	return ans;
 }
 
+
+/*
+ * Convex Hull
+ */
+
 point pivot(0, 0);
 
 bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	if (collinear(pivot, a, b))
+		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
 	return cross(a-pivot, b-pivot) >= 0;
 }
 
-vector<point> convexHull(vector<point> P) {
+polygon convexHull(vector<point> P) {
 	int i, j, n = (int)P.size();
-	if (n <= 2) {
-		if (!(P[0] == P[n-1])) P.push_back(P[0]);
-		return P;
-	}
+	if (n <= 2) return P;
 	int P0 = leftmostIndex(P);
 	swap(P[0], P[P0]);
 	pivot = P[0];
@@ -79,12 +92,14 @@ vector<point> convexHull(vector<point> P) {
 	S.push_back(P[n-1]);
 	S.push_back(P[0]);
 	S.push_back(P[1]);
-	i = 2;
-	while(i < n) {
+	for(i = 2; i < n;) {
 		j = (int)S.size()-1;
 		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
 		else S.pop_back();
 	}
+	reverse(S.begin(), S.end());
+	S.pop_back();
+	reverse(S.begin(), S.end());
 	return S;
 }
 
@@ -110,11 +125,12 @@ int main() {
 		FOR(i, N) {
 			scanf("%lf %lf", &arr[i].x, &arr[i].y);
 		}
-		vector<point> ch = convexHull(arr);
+		polygon ch = convexHull(arr);
 		vector<double> h(ch.size());
-		FOR(i, int(ch.size())-1) {
+		int sz = ch.size();
+		FOR(i, sz) {
 			h[i] = 0;
-			point v = ch[i+1] - ch[i];
+			point v = ch[(i+1)%sz] - ch[i];
 			for(point& p : ch) {
 				point dp = p - ch[i];
 				point d = dp - proj(dp, v);
@@ -122,11 +138,11 @@ int main() {
 			}
 		}
 		double ans = INF;
-		FOR(i, int(ch.size())-1) {
-			FOR(j, int(ch.size())-1) {
+		FOR(i, sz) {
+			FOR(j, sz) {
 				if (i == j) continue;
-				point v1 = ch[i+1] - ch[i];
-				point v2 = ch[j+1] - ch[j];
+				point v1 = ch[(i+1)%sz] - ch[i];
+				point v2 = ch[(j+1)%sz] - ch[j];
 				double sintheta = fabs(cross(v1, v2) / (v1.norm()*v2.norm()));
 				if (fabs(sintheta) < EPS) continue;
 				ans = min(ans, h[i]*h[j]/sintheta);
