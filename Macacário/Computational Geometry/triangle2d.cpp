@@ -1,3 +1,7 @@
+/*
+ * Triangle 2D
+ */
+
 struct triangle{
 	point a, b, c;
 	triangle() { a = b = c = point(); }

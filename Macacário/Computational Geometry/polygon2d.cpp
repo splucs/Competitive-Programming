@@ -78,6 +78,10 @@ point lineIntersectSeg(point p, point q, point A, point B) {
 	return ((p-q)*(a/c)) - ((A-B)*(b/c));
 }
 
+bool parallel(point a, point b) {
+	return fabs(cross(a, b)) < EPS;
+}
+
 /*
  * POLYGON 2D
  */
@@ -160,63 +164,62 @@ polygon cutPolygon(polygon & P, point a, point b) {
 	return make_polygon(R);
 }
 
-#define INF 1e10
+#include <set>
 
-//Código levemente modificado em comparação ao presente no line2d.cpp
-point segIntersects(point a, point b, point p, point q) {
-    point u = b-a, v = q-p;
-    if (fabs(cross(v, u)) < EPS)
-		return point(-INF - 1, -INF - 1);
-    ld k1 = (cross(a, v) - cross(p, v)) / cross(v, u);
-    ld k2 = (cross(a, u) - cross(p, u)) / cross(v, u);
-    if (k1 >= 0 && k1 <= 1 && k2 >= 0 && k2 <= 1)return a + u * k1;
-    return point(-INF - 1, -INF - 1);
-}
 
 point pivot(0, 0);
 
 bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	if (collinear(pivot, a, b))
+		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
 	return cross(a-pivot, b-pivot) >= 0;
 }
 
-polygon intersects(polygon &A, polygon &B){
-	polygon P;
+#include <cstdio>
+void printpolygon(polygon P) {
+	printf("polygon intersect:");
+	for(int j = 0; j < int(P.size()); j++) printf(" (%.3f,%.3f)", P[j].x, P[j].y);
+	printf("\n");
+}
 
-	for (int i = 0; i < (int) A.size() - 1; ++i){
+polygon intersect(polygon & A, polygon & B) {
+	polygon P;
+	int n = A.size(), m = B.size();
+	for (int i = 0; i < n; i++) {
 		if (inPolygon(B, A[i])) P.push_back(A[i]);
-		for (int j = 0; j < (int) B.size() - 1; ++j){
-			point p = segIntersects(A[i], A[i + 1], B[j], B[j + 1]);
-			if (p.x > -INF) P.push_back(p);
+		for (int j = 0; j < m; j++) {
+			point a1 = A[(i+1)%n], a2 = A[i];
+			point b1 = B[(j+1)%m], b2 = B[j];
+			if (parallel(a1-a2, b1-b2)) continue;
+			point q = lineIntersectSeg(a1, a2, b1, b2);
+			if (!between(a1, q, a2)) continue;
+			if (!between(b1, q, b2)) continue;
+			P.push_back(q);
 		}
 	}
-	for (int i = 0; i < (int) B.size() - 1; ++i){
+	for (int i = 0; i < m; i++){
 		if (inPolygon(A, B[i])) P.push_back(B[i]);
 	}
-	//Remove duplicates
-	set<point> inuse;
-	
-	int u = 0;
-	for (int i = 0; i < (int) P.size(); ++i){
+	set<point> inuse; //Remove duplicates
+	int sz = 0;
+	for (int i = 0; i < (int)P.size(); ++i){
 		if (inuse.count(P[i])) continue;
 		inuse.insert(P[i]);
-		P[u++] = P[i];
+		P[sz++] = P[i];
 	}
-	while (u != P.size()) P.pop_back();
-	//End removal
-	
+	P.resize(sz);
 	if (!P.empty()){
 		pivot = P[0];
 		sort(P.begin(), P.end(), angleCmp);
-		P.push_back(P[0]);
 	}
+	//printpolygon(P);
 	return P;
 }
 
 /*
  * UVa 11265
  */
-
+/*
 #include <cstdio>
 #include <cassert>
 int N;
@@ -241,6 +244,78 @@ int main() {
 
 		}
 		printf("Case #%d: %.3f\n", ++caseNo, area(P));
+	}
+	return 0;
+}*/
+
+/*
+ * URI 1446
+ */
+#include <cstdio>
+#include <map>
+#include <queue>
+
+int na, nb, nc, cola, colb, colc, colab, colbc, colca, colabc;
+polygon a, b, c, ab, bc, ca, abc;
+
+point read() {
+	point p;
+	scanf("%lf %lf", &p.x, &p.y);
+	return p;
+}
+
+bool comp(pair<int, double> a, pair<int, double> b) {
+	if (fabs(a.second - b.second) < EPS) return a.first < b.first;
+	return a.second > b.second;
+}
+
+int main() {
+	int caseNo = 0;
+	while(true) {
+		if(scanf("%d %d", &na, &cola) == EOF || na == 0) break;
+		a.clear();
+		for(int i = 0; i < na; i++) {
+			a.push_back(read());
+		}
+		scanf("%d %d", &nb, &colb);
+		b.clear();
+		for(int i = 0; i < nb; i++) {
+			b.push_back(read());
+		}
+		scanf("%d %d", &nc, &colc);
+		c.clear();
+		for(int i = 0; i < nc; i++) {
+			c.push_back(read());
+		}
+		/*printpolygon(a);
+		printpolygon(b);
+		printpolygon(c);*/
+		ab = intersect(a, b);
+		colab = (cola + colb) % 16;
+		bc = intersect(b, c);
+		colbc = (colb + colc) % 16;
+		ca = intersect(c, a);
+		colca = (colc + cola) % 16;
+		abc = intersect(a, bc);
+		colabc = (cola + colb + colc) % 16;
+		map<int, double> ans;
+		ans[cola] += area(a) - area(ab) - area(ca) + area(abc);
+		ans[colb] += area(b) - area(ab) - area(bc) + area(abc);
+		ans[colc] += area(c) - area(bc) - area(ca) + area(abc);
+		ans[colab] += area(ab) - area(abc);
+		ans[colbc] += area(bc) - area(abc);
+		ans[colca] += area(ca) - area(abc);
+		ans[colabc] += area(abc);
+		vector<pair<int, double> > pq;
+		for(map<int, double>::iterator it = ans.begin(); it != ans.end(); it++) {
+			pq.push_back(*it);
+		}
+		sort(pq.begin(), pq.end(), comp);
+		printf("Instancia %d\n", ++caseNo);
+		for(int i = 0; i < int(pq.size()); i++){
+			if (fabs(pq[i].second) > EPS)
+				printf("%d %.2f\n", pq[i].first, pq[i].second);
+		}
 	}
 	return 0;
 }

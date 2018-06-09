@@ -128,23 +128,16 @@ int isInsideTriangle(point a, point b, point c, point p) {
  * Convex query
  */
 
-point pivot(0, 0);
-
-bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b))
-		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
-	return cross(a-pivot, b-pivot) >= 0;
-}
-
 bool query(polygon &P, point q) {
 	int i = 1, j = P.size()-1, m;
-	pivot = P[0];
-	while(j > i+1) {
+	if (cross(P[i]-P[0], P[j]-P[0]) < -EPS)
+		swap(i, j);
+	while(abs(j-i) > 1) {
 		int m = (i+j)/2;
-		if (angleCmp(q, P[m])) j = m;
+		if (cross(P[m]-P[0], q-P[0]) < 0) j = m;
 		else i = m;
 	}
-	return isInsideTriangle(pivot, P[i], P[j], q) != 2;
+	return isInsideTriangle(P[0], P[i], P[j], q) != 2;
 }
 
 /*
