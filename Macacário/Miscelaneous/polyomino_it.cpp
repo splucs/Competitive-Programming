@@ -1,85 +1,79 @@
+#define MAXN 59
 #include <cstdio>
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#define MAXN 500
-using namespace std;
 
-typedef pair<int, int> ii;
-ii coord[MAXN], path[MAXN];
-int used[MAXN][MAXN];
-int mat[MAXN][MAXN], maxsum, N, M, nused;
+/*
+ * Polyomino iteration
+ */
 
-vector<ii> neightbors(ii pos) {
-	vector<ii> v;
-	v.push_back(ii(pos.first+1, pos.second));
-	v.push_back(ii(pos.first-1, pos.second));
-	v.push_back(ii(pos.first, pos.second+1));
-	v.push_back(ii(pos.first, pos.second-1));
-	return v;
+int N, M;
+int num[MAXN][MAXN], qi[MAXN*MAXN], qj[MAXN*MAXN];
+int field[MAXN][MAXN], par[MAXN][MAXN];
+int di[4] = {0, 1, 0, -1};
+int dj[4] = {-1, 0, 1, 0};
+int cnt;
+
+void assign(int i, int j, int k) {
+	qi[k] = i; qj[k] = j; num[i][j] = k;
 }
 
-//0->unused, 1->to be used, 2->used
-void dfs(int sum, int h, int n) {
-	used[coord[n].first][coord[n].second] = 2;
-	path[h] = coord[n];
+#define valid(i, j) (i >= 0 && i < N && j >= 0 && j < M)
 
-	if (h == M) {
-		maxsum = max(maxsum, sum);
-		used[coord[n].first][coord[n].second] = 1;
-		return;
-	}
-
-	vector<ii> nei = neightbors(coord[n]);
-	ii next;
-
-	int nadded = 0;
-	for(int i=0; i<4; i++) {
-		next = nei[i];
-		if (!used[next.first][next.second]) {
-			used[next.first][next.second] = 1;
-			coord[nused] = next;
-			nadded++; nused++;
+int iterate(int k, int h) {
+	if (h == 0) return 0;
+	int i = qi[k], j = qj[k], ni, nj;
+	for(int d = 0; d < 4; d++) {
+		ni = i + di[d]; nj = j + dj[d];
+		if (!valid(ni, nj)) continue;
+		if (num[ni][nj] == 0) {
+			par[ni][nj] = k;
+			assign(ni, nj, ++cnt);
 		}
 	}
-
-	for(int i = n+1, nextsum; i<nused; i++) {
-		nextsum = mat[coord[i].first][coord[i].second];
-		dfs(sum + nextsum, h+1, i);
+	int ans = 0, cur;
+	for(int t = k+1; t <= cnt; t++) {
+		cur = iterate(t, h-1);
+		if (cur > ans) ans = cur;
 	}
-	
-	while(nadded-->0) {
-		nused--;
-		next = coord[nused];
-		used[next.first][next.second] = 0;
+	for(int d = 0; d < 4; d++) {
+		ni = i + di[d]; nj = j + dj[d];
+		if (!valid(ni, nj)) continue;
+		if (par[ni][nj] == k) {
+			par[ni][nj] = 0; cnt--;
+			assign(ni, nj, 0);
+		}
 	}
-	used[coord[n].first][coord[n].second] = 1;
+	return ans + field[i][j];
 }
+
+/*
+ * URI 1712
+ */
+
+#include <cstdio>
+#include <cstring>
 
 int main() {
-	while(scanf("%d %d", &N, &M)!=EOF) {
-		for(int i=0; i<=N+1; i++) {
-			used[i][0] = used[0][i] = 1;
-			used[i][N+1] = used[N+1][i] = 1;
-		}
-		for(int i=1; i<=N; i++) {
-			for(int j=1; j<=N; j++) {
-				scanf("%d", &mat[i][j]);
-				used[i][j] = 0;
+	int K;
+	while(scanf("%d %d", &N, &K)!=EOF) {
+		M = N;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				scanf("%d", &field[i][j]);
 			}
 		}
-		maxsum = 0;
-		for(int i=1; i<=N; i++) {
-			for(int j=1; j<=N; j++) {
-				used[i][j] = 1;
-				nused = 0;
-				coord[nused++] = ii(i, j);
-				dfs(mat[i][j], 1, 0);
+		int ans = 0;
+		memset(&num, 0, sizeof num);
+		memset(&par, 0, sizeof par);
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				cnt = 0;
+				assign(i, j, ++cnt);
+				int cur = iterate(1, K);
+				if (cur > ans) ans = cur;
+				num[i][j] = -1;
 			}
 		}
-
-		printf("%d\n", maxsum);
+		printf("%d\n", ans);
 	}
 	return 0;
 }

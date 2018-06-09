@@ -78,10 +78,6 @@ point lineIntersectSeg(point p, point q, point A, point B) {
 	return ((p-q)*(a/c)) - ((A-B)*(b/c));
 }
 
-bool parallel(point a, point b) {
-	return fabs(cross(a, b)) < EPS;
-}
-
 /*
  * POLYGON 2D
  */
@@ -164,53 +160,10 @@ polygon cutPolygon(polygon & P, point a, point b) {
 	return make_polygon(R);
 }
 
-#include <set>
-
-point pivot(0, 0);
-
-bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b))
-		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
-	return cross(a-pivot, b-pivot) >= 0;
-}
-
-polygon intersect(polygon & A, polygon & B) {
-	polygon P;
-	int n = A.size(), m = B.size();
-	for (int i = 0; i < n; i++) {
-		if (inPolygon(B, A[i])) P.push_back(A[i]);
-		for (int j = 0; j < m; j++) {
-			point a1 = A[(i+1)%n], a2 = A[i];
-			point b1 = B[(j+1)%m], b2 = B[j];
-			if (parallel(a1-a2, b1-b2)) continue;
-			point q = lineIntersectSeg(a1, a2, b1, b2);
-			if (!between(a1, q, a2)) continue;
-			if (!between(b1, q, b2)) continue;
-			P.push_back(q);
-		}
-	}
-	for (int i = 0; i < m; i++){
-		if (inPolygon(A, B[i])) P.push_back(B[i]);
-	}
-	set<point> inuse; //Remove duplicates
-	int sz = 0;
-	for (int i = 0; i < (int)P.size(); ++i){
-		if (inuse.count(P[i])) continue;
-		inuse.insert(P[i]);
-		P[sz++] = P[i];
-	}
-	P.resize(sz);
-	if (!P.empty()){
-		pivot = P[0];
-		sort(P.begin(), P.end(), angleCmp);
-	}
-	return P;
-}
-
 /*
  * UVa 11265
  */
-/*
+
 #include <cstdio>
 #include <cassert>
 int N;
@@ -235,80 +188,6 @@ int main() {
 
 		}
 		printf("Case #%d: %.3f\n", ++caseNo, area(P));
-	}
-	return 0;
-}*/
-
-/*
- * URI 1446
- */
-#include <cstdio>
-#include <map>
-#include <queue>
-
-int na, nb, nc, cola, colb, colc, colab, colbc, colca, colabc;
-polygon a, b, c, ab, bc, ca, abc;
-
-point read() {
-	point p;
-	scanf("%lf %lf", &p.x, &p.y);
-	return p;
-}
-
-bool comp(pair<int, double> a, pair<int, double> b) {
-	if (fabs(a.second - b.second) < EPS) return a.first < b.first;
-	return a.second > b.second;
-}
-
-int main() {
-	int caseNo = 0;
-	while(scanf("%d", &na), na) {
-		scanf("%d", &cola);
-		caseNo++;
-		a.clear();
-		for(int i = 0; i < na; i++) {
-			a.push_back(read());
-		}
-		scanf("%d %d", &nb, &colb);
-		b.clear();
-		for(int i = 0; i < nb; i++) {
-			b.push_back(read());
-		}
-		scanf("%d %d", &nc, &colc);
-		c.clear();
-		for(int i = 0; i < nc; i++) {
-			c.push_back(read());
-		}
-		ab = intersect(a, b);
-		colab = (cola + colb) % 16;
-		bc = intersect(b, c);
-		colbc = (colb + colc) % 16;
-		ca = intersect(c, a);
-		colca = (colc + cola) % 16;
-		abc = intersect(a, bc);
-		colabc = (cola + colb + colc) % 16;
-		map<int, double> ans;
-		ans[cola] += area(a) - area(ab) - area(ca) + area(abc);
-		ans[colb] += area(b) - area(ab) - area(bc) + area(abc);
-		ans[colc] += area(c) - area(bc) - area(ca) + area(abc);
-		ans[colab] += area(ab) - area(abc);
-		ans[colbc] += area(bc) - area(abc);
-		ans[colca] += area(ca) - area(abc);
-		ans[colabc] += area(abc);
-		vector<pair<int, double> > pq;
-		for(map<int, double>::iterator it = ans.begin(); it != ans.end(); it++) {
-			pq.push_back(*it);
-		}
-		printf("Instancia %d\n", caseNo);
-		sort(pq.begin(), pq.end(), comp);
-		if (caseNo == 19) {
-			printf("12 2550.00\n3 2450.00\n6 50.00\n13 50.00\n");
-		}
-		else for(int i = 0; i < int(pq.size()); i++){
-			if (fabs(pq[i].second) > EPS)
-				printf("%d %.2f\n", pq[i].first, pq[i].second);
-		}
-		printf("\n");
 	}
 	return 0;
 }

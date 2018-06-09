@@ -1,31 +1,12 @@
-#include <bits/stdc++.h>
-#define DEBUG false
-#define debugf if (DEBUG) printf
-#define MAXN 200309
-#define MAXM 900009
-#define MOD 1000000007
-#define INF 0x3f3f3f3f
-#define INFLL 0x3f3f3f3f3f3f3f3f
-#define EPS 1e-9
-#define PI 3.141592653589793238462643383279502884
-#define FOR(x,n) for(int x=0; (x)<int(n); (x)++)
-#define FOR1(x,n) for(int x=1; (x)<=int(n); (x)++)
-#define REP(x,n) for(int x=int(n)-1; (x)>=0; (x)--)
-#define REP1(x,n) for(int x=(n); (x)>0; (x)--)
-#define pb push_back
-#define pf push_front
-#define fi first
-#define se second
-#define mp make_pair
-#define all(x) x.begin(), x.end()
-#define mset(x,y) memset(&x, (y), sizeof(x));
+#include <cstdio>
+#include <cmath>
+#include <vector>
 using namespace std;
-typedef vector<int> vi;
-typedef pair<int, int> ii;
-typedef long long ll;
-typedef unsigned long long ull;
-typedef long double ld;
-typedef unsigned int uint;
+#define EPS 1e-9
+
+/*
+ * Point 2D
+ */
 
 struct point {
 	double x, y;
@@ -38,6 +19,10 @@ struct point {
 		return point(x,y)*(1.0/norm());
 	}
 	double angle() { return atan2(y, x); }
+	double polarAngle() {
+		double a = atan2(y, x);
+		return a < 0 ? a + 2*acos(-1.0) : a;
+	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
 		else return y < other.y;
@@ -72,10 +57,6 @@ bool ccw(point p, point q, point r) {
 	return cross(q-p, r-p) > 0;
 }
 
-bool parallel(point p, point q) {
-	return fabs(cross(p, q)) < EPS;
-}
-
 bool collinear(point p, point q, point r) {
 	return fabs(cross(p-q, r-p)) < EPS;
 }
@@ -94,7 +75,7 @@ point proj(point u, point v) {
 }
 
 bool between(point p, point q, point r) {
-    return collinear(p, q, r) && inner(p - q, r - q) <= EPS;
+	return collinear(p, q, r) && inner(p - q, r - q) <= 0;
 }
 
 point lineIntersectSeg(point p, point q, point A, point B) {
@@ -103,6 +84,59 @@ point lineIntersectSeg(point p, point q, point A, point B) {
 	double b = cross(p, q);
 	return ((p-q)*(a/c)) - ((A-B)*(b/c));
 }
+
+bool parallel(point a, point b) {
+	return fabs(cross(a, b)) < EPS;
+}
+
+bool segIntersects(point a, point b, point p, point q) {
+	if (parallel(a-b, p-q)) {
+		return between(a, p, b) || between(a, q, b)
+			|| between(p, a, q) || between(p, b, q); 
+	}
+	point i = lineIntersectSeg(a, b, p, q);
+	return between(a, i, b) && between(p, i, q);
+}
+
+point closestToLineSegment(point p, point a, point b) {
+	double u = inner(p-a, b-a) / inner(b-a, b-a);
+	if (u < 0.0) return a;
+	if (u > 1.0) return b;
+	return a + ((b-a)*u);
+}
+
+/*
+ * Codeforces 101707A
+ */
+
+#include <bits/stdc++.h>
+#define DEBUG false
+#define debugf if (DEBUG) printf
+#define MAXN 200309
+#define MAXM 900009
+#define MOD 1000000007
+#define INF 0x3f3f3f3f
+#define INFLL 0x3f3f3f3f3f3f3f3f
+#define EPS 1e-9
+#define PI 3.141592653589793238462643383279502884
+#define FOR(x,n) for(int x=0; (x)<int(n); (x)++)
+#define FOR1(x,n) for(int x=1; (x)<=int(n); (x)++)
+#define REP(x,n) for(int x=int(n)-1; (x)>=0; (x)--)
+#define REP1(x,n) for(int x=(n); (x)>0; (x)--)
+#define pb push_back
+#define pf push_front
+#define fi first
+#define se second
+#define mp make_pair
+#define all(x) x.begin(), x.end()
+#define mset(x,y) memset(&x, (y), sizeof(x));
+using namespace std;
+typedef vector<int> vi;
+typedef pair<int, int> ii;
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef unsigned int uint;
 
 point A1, A2, B1, B2, V;
 
@@ -195,6 +229,7 @@ int main() {
 		scanf("%lf %lf", &A2.x, &A2.y);
 		scanf("%lf %lf", &B1.x, &B1.y);
 		scanf("%lf %lf", &B2.x, &B2.y);
+		assert(!segIntersects(A1, A2, B1, B2));
 		point v1, v2;
 		scanf("%lf %lf %lf %lf", &v1.x, &v1.y, &v2.x, &v2.y);
 		V = v2-v1;
