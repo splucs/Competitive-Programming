@@ -12,17 +12,6 @@ struct point {
 	double x, y;
 	point() { x = y = 0.0; }
 	point(double _x, double _y) : x(_x), y(_y) {}
-	double norm() {
-		return hypot(x, y);
-	}
-	point normalized() {
-		return point(x,y)*(1.0/norm());
-	}
-	double angle() { return atan2(y, x); }
-	double polarAngle() {
-		double a = atan2(y, x);
-		return a < 0 ? a + 2*acos(-1.0) : a;
-	}
 	bool operator < (point other) const {
 		if (fabs(x - other.x) > EPS) return x < other.x;
 		else return y < other.y;
@@ -53,56 +42,8 @@ double cross(point p1, point p2) {
 	return p1.x*p2.y - p1.y*p2.x;
 }
 
-bool ccw(point p, point q, point r) {
-	return cross(q-p, r-p) > 0;
-}
-
 bool collinear(point p, point q, point r) {
 	return fabs(cross(p-q, r-p)) < EPS;
-}
-
-point rotate(point p, double rad) {
-	return point(p.x * cos(rad) - p.y * sin(rad),
-	p.x * sin(rad) + p.y * cos(rad));
-}
-
-double angle(point a, point o, point b) {
-	return acos(inner(a-o, b-o) / (dist(o,a)*dist(o,b)));
-}
-
-point proj(point u, point v) {
-	return v*(inner(u,v)/inner(v,v));
-}
-
-bool between(point p, point q, point r) {
-	return collinear(p, q, r) && inner(p - q, r - q) <= 0;
-}
-
-point lineIntersectSeg(point p, point q, point A, point B) {
-	double c = cross(A-B, p-q);
-	double a = cross(A, B);
-	double b = cross(p, q);
-	return ((p-q)*(a/c)) - ((A-B)*(b/c));
-}
-
-bool parallel(point a, point b) {
-	return fabs(cross(a, b)) < EPS;
-}
-
-bool segIntersects(point a, point b, point p, point q) {
-	if (parallel(a-b, p-q)) {
-		return between(a, p, b) || between(a, q, b)
-			|| between(p, a, q) || between(p, b, q); 
-	}
-	point i = lineIntersectSeg(a, b, p, q);
-	return between(a, i, b) && between(p, i, q);
-}
-
-point closestToLineSegment(point p, point a, point b) {
-	double u = inner(p-a, b-a) / inner(b-a, b-a);
-	if (u < 0.0) return a;
-	if (u > 1.0) return b;
-	return a + ((b-a)*u);
 }
 
 /*
@@ -127,7 +68,7 @@ circle circumcircle(point a, point b, point c) {
 }
 
 /*
- * Delaunay
+ * Delaunay Triangulation
  * http://graphics.stanford.edu/courses/cs368-06-spring/handouts/Delaunay_2.pdf
  */
 
@@ -289,43 +230,105 @@ void plot2csv(vector<point> P, vector< set<int> > adj) {
 	fclose(out);
 }
 
-bool testTriangulation(vector<point> P, vector< set<int> > adj) {
+typedef pair<int, int> ii;
+
+bool isAllCollinear(vector<point> P) {
+	int n = P.size(), id = 0;
+	while(id < n && P[0] == P[id]) id++;
+	if (id == n) return true;
+	for(int i = 0; i < n; i++) {
+		if (!collinear(P[0], P[id], P[i])) return false;
+	}
+	return true;
+}
+
+bool between(point p, point q, point r) {
+	return collinear(p, q, r) && inner(p - q, r - q) < -EPS;
+}
+
+point lineIntersectSeg(point p, point q, point A, point B) {
+	double c = cross(A-B, p-q);
+	double a = cross(A, B);
+	double b = cross(p, q);
+	return ((p-q)*(a/c)) - ((A-B)*(b/c));
+}
+
+bool parallel(point a, point b) {
+	return fabs(cross(a, b)) < EPS;
+}
+
+bool segIntersects(point a, point b, point p, point q) {
+	if (parallel(a-b, p-q)) {
+		return between(a, p, b) || between(a, q, b)
+			|| between(p, a, q) || between(p, b, q); 
+	}
+	point i = lineIntersectSeg(a, b, p, q);
+	return between(a, i, b) && between(p, i, q);
+}
+
+bool isTriangulation(vector<point> P, vector< set<int> > adj) {
+	vector< pair<point, point> > seg;
+	set<ii> edges, aux;
 	int n = P.size();
 	for(int u = 0; u < n; u++) {
-		if (adj[u].size() <= 1) continue;
 		vector<int> g(adj[u].begin(), adj[u].end());
-		point base = point(1, 0);
-		for(int i = 0; i < int(g.size()); i++) {
-			int v = g[i];
-			//printf("u = %d, candidate = %d, vec = (%.3f,%.3f)", u, v, (P[v]-P[u]).x, (P[v]-P[u]).y);
-			double co = inner(base, P[v]-P[u]);
-			//printf(", cos = %.3f", co);
-			double si = cross(base, P[v]-P[u]);
-			//printf(", sin = %.3f", si);
-			Delaunay::theta[v] = atan2(si, co);
-			//printf(", theta = %.3f\n", theta[v]);
-		}
-		sort(g.begin(), g.end(), Delaunay::comp);
-		int m = g.size();
-		int cnt = 0;
-		for(int j = 0; j < m; j++) {
-			int v = g[j], w = g[(j+1)%m];
-			if (!adj[v].count(w) || !adj[w].count(v)) {
-				//printf("edge %d-%d, %d-%d, but not %d-%d\n", u, v, u, w, v, w);
-				cnt++;
-			}
-			if (cnt > 1) {
-				printf("error, not delaunay\n");
-				return false;
+		for(int j = 0; j < (int)g.size(); j++) {
+			int v = g[j];
+			if (u < v) {
+				seg.push_back(make_pair(P[u], P[v]));
+				edges.insert(make_pair(u, v));
 			}
 		}
-		//if (cnt == 1 || g.size() == 2u) printf("vertex %d is border\n", u);
 	}
 	set<truple> tri = Delaunay::getTriangles();
 	for(set<truple>::iterator it = tri.begin(); it != tri.end(); it++) {
 		int u = it->a, v = it->b, w = it->c;
+		if (!edges.count(ii(u, v))) {
+			printf("error, not a triangulation\n");
+			return false;
+		}
+		else aux.insert(ii(u, v));
+		if (!edges.count(ii(v, w))) {
+			printf("error, not a triangulation\n");
+			return false;
+		}
+		else aux.insert(ii(v, w));
+		if (!edges.count(ii(u, w))) {
+			printf("error, not a triangulation\n");
+			return false;
+		}
+		else aux.insert(ii(u, w));
+	}
+	if (!isAllCollinear(P) && aux.size() != edges.size()) {
+		printf("error, not a triangulation\n");
+		return false;
+	}
+	for(int u = 0; u < n; u++) {
+		for(int v = 0; v < n; v++) {
+			if (u >= v || edges.count(ii(u, v))) continue;
+			bool found = false;
+			for(int j = 0; !found && j < (int)seg.size(); j++) {
+				point p = seg[j].first;
+				point q = seg[j].second;
+				if (segIntersects(p, q, P[u], P[v])) found = true;
+			}
+			if (!found) {
+				printf("error, not a triangulation\n");
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool isDelaunayTriangulation(vector<point> P, vector< set<int> > adj) {
+	int n = P.size();
+	if (!isTriangulation(P, adj)) return false;
+	set<truple> tri = Delaunay::getTriangles();
+	for(set<truple>::iterator it = tri.begin(); it != tri.end(); it++) {
+		int u = it->a, v = it->b, w = it->c;
 		circle c = circumcircle(P[u], P[v], P[w]);
-		for(int i = 0; i < P.size(); i++) {
+		for(int i = 0; i < n; i++) {
 			if (dist(c.c, P[i]) < c.r - 1e-4) {
 				printf("error, point %d = (%.3f,%.3f) is inside circumcircle:\n", i, P[i].x, P[i].y);
 				printf("%d = (%.3f,%.3f)\n", u, P[u].x, P[u].y);
@@ -348,7 +351,7 @@ bool inputTest() {
 		scanf("%lf %lf", &P[i].x, &P[i].y);
 	}
 	vector< set<int> > adj = Delaunay::compute(P);
-	if(!testTriangulation(P, adj)) return false;
+	if(!isDelaunayTriangulation(P, adj)) return false;
 	printf("input test passed\n");
 	return true;
 }
@@ -366,7 +369,7 @@ bool agnezCornerCase(int n, bool testtri) {
 	vector< set<int> > adj = Delaunay::compute(P);
 	double t = (clock() - last)*1.0/CLOCKS_PER_SEC;
 	printf("time %.3fs ", t);
-	if(testtri && !testTriangulation(P, adj)) {
+	if(testtri && !isDelaunayTriangulation(P, adj)) {
 		printf("failed\n");
 		return false;
 	}
@@ -392,23 +395,27 @@ bool test(int lowtest, int hightest, bool testtri) {
 		vector< set<int> > adj = Delaunay::compute(P);
 		double t = (clock() - last)*1.0/CLOCKS_PER_SEC;
 		printf("time %.3fs ", t);
-		if(testtri && !testTriangulation(P, adj)) {
+		if(testtri && !isDelaunayTriangulation(P, adj)) {
 			printf("failed test %d\n", suit);
 			return false;
 		}
 		printf("ok\n");
 		//plot2csv(P, adj);
 	}
-	printf("all tests passed\n");
+	if (testtri) printf("all tests passed\n");
 	return true;
+}
+
+int main() {
+	test(1, 100, true);
+	return 0;
 }
 
 /*
  * http://wcipeg.com/problem/ccc08s2p6
  */
-
+/*
 int main() {
-	//test(1000, 1000, false);
 	int n;
 	while(scanf("%d", &n) != EOF) {
 		vector<point> P(n);
@@ -427,3 +434,4 @@ int main() {
 	}
 	return 0;
 }
+*/
