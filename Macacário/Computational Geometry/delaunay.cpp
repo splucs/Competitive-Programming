@@ -408,7 +408,7 @@ bool test(int lowtest, int hightest, bool testtri) {
  */
 
 int main() {
-	test(1000, 1000, false);
+	//test(1000, 1000, false);
 	int n;
 	while(scanf("%d", &n) != EOF) {
 		vector<point> P(n);
