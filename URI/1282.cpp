@@ -19,8 +19,7 @@ public:
 		return (ln - nn) / (nm - lm);
 	}
 	void push(ll nm, ll nn, int id) {
-        //printf("push line %lldx + %lld\n", nm, nn);
-		while (!p.empty()) {
+        while (!p.empty()) {
             if (nm == m.back() && maxCH && nn <= n.back()) return;
             if (nm == m.back() && !maxCH && nn >= n.back()) return;
             double x = inter(nm, nn, m.back(), n.back());
@@ -34,7 +33,6 @@ public:
     pair<ll, int> query_q(ll x) {
         while (p[i] > x) i--;
         while(i+1 < p.size() && p[i+1] <= x) i++;
-        //printf("ans for x = %lld: %lldx + %lld = %lld\n", x, m[i], n[i], m[i] * x + n[i]);
         return make_pair(m[i] * x + n[i], ids[i]);
     }
 };
