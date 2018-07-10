@@ -112,9 +112,7 @@ int leftmostIndex(vector<point> & P) {
 polygon make_polygon(vector<point> P) {
 	if (signedArea(P) < 0.0) reverse(P.begin(), P.end());
 	int li = leftmostIndex(P);
-	reverse(P.begin(), P.begin()+li);
-	reverse(P.begin()+li, P.end());
-	reverse(P.begin(), P.end());
+	rotate(P.begin(), P.begin()+li, P.end());
 	return P;
 }
 
@@ -164,7 +162,6 @@ polygon cutPolygon(polygon & P, point a, point b) {
 	return make_polygon(R);
 }
 
-#include <set>
 
 point pivot(0, 0);
 
@@ -174,6 +171,7 @@ bool angleCmp(point a, point b) {
 	return cross(a-pivot, b-pivot) >= 0;
 }
 
+#include <set>
 polygon intersect(polygon & A, polygon & B) {
 	polygon P;
 	int n = A.size(), m = B.size();

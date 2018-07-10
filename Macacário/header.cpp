@@ -129,6 +129,7 @@
 #define debugf if (DEBUG) printf
 #define MAXN 200309
 #define MAXM 900009
+#define ALFA 256
 #define MOD 1000000007
 #define INF 0x3f3f3f3f
 #define INFLL 0x3f3f3f3f3f3f3f3f
@@ -146,9 +147,9 @@
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
-typedef vector<int> vi;
-typedef pair<int, int> ii;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
 typedef unsigned int uint;
+typedef vector<int> vi;
+typedef pair<int, int> ii;

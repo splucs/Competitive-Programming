@@ -4,27 +4,26 @@
 #include <algorithm>
 using namespace std;
 
+/*
+ * 2D BIT
+ */
+
 class FenwickTree {
 private:
 	vector<int> ft1, ft2;
 	int rsq(vector<int> & ft, int i) {
 		int sum = 0;
-		while(i > 0) {
-			sum += ft[i];
-			i -= (i & -i);
-		}
+		for(; i; i -= (i & -i)) sum += ft[i];
 		return sum;
 	}
 	void update(vector<int> & ft, int i, int v) {
-		while(i < (int)ft.size()) {
+		for(; i < (int)ft.size(); i += (i & -i))
 			ft[i] += v;
-			i += (i & -i);
-		}
 	}
 public:
 	FenwickTree(int n) {
-		ft1.assign(n + 1, 0);	//1-indexed
-		ft2.assign(n + 1, 0);	//1-indexed
+		ft1.assign(n + 1, 0); //1-indexed
+		ft2.assign(n + 1, 0); //1-indexed
 	}
 	void update(int i, int j, int v) {
 		update(ft1, i, v);
@@ -40,6 +39,9 @@ public:
 	}
 };
 
+/*
+ * TEST MATRIX
+ */
 
 int vet[10009];
 int sum(int a, int b) {

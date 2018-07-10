@@ -2,58 +2,62 @@
 #include <algorithm>
 #define INF (1<<30)
 using namespace std;
-#define MAXS 2000009
+#define MAXS 200009
+
+/*
+ * Persistent Segment Tree
+ */
 
 const int neutral = 0; //comp(x, neutral) = x
 int comp(int a, int b) {
 	return a+b;
 }
 
+int nds, st[MAXS], ls[MAXS], rs[MAXS];
+
 class PersistentSegmentTree {
 private:
-	int st[MAXS], vroot[MAXS];
-	int left[MAXS], right[MAXS];
+	int vroot[MAXS];
 	int size, nds, nv;
 	int newnode() {
-		left[nds] = right[nds] = -1;
+		ls[nds] = rs[nds] = -1;
 		st[nds++] = neutral;
 		return nds-1;
 	}
 	void build(int p, int l, int r, int* A) {
 		if (l == r) {
 			st[p] = A ? A[l] : neutral;
+			return;
 		}
-		else {
-			left[p] = newnode();
-			right[p] = newnode();
-			int m = (l + r) / 2;
-			build(left[p], l, m, A);
-			build(right[p], m+1, r, A);
-			st[p] = comp(st[left[p]], st[right[p]]);
-		}
+		ls[p] = newnode();
+		rs[p] = newnode();
+		int m = (l + r) / 2;
+		build(ls[p], l, m, A);
+		build(rs[p], m+1, r, A);
+		st[p] = comp(st[ls[p]], st[rs[p]]);
 	}
 	void update(int prv, int p, int l, int r, int i, int k) {
 		if (i > r || i < l || l > r) return;
 		int m = (l + r) / 2;
 		if (l == r) st[p] = k;
 		else if (i <= m) {
-			right[p] = right[prv];
-			left[p] = newnode();
-			update(left[prv], left[p], l, m, i, k);
-			st[p] = comp(st[left[p]], st[right[p]]);
+			rs[p] = rs[prv];
+			ls[p] = newnode();
+			update(ls[prv], ls[p], l, m, i, k);
+			st[p] = comp(st[ls[p]], st[rs[p]]);
 		}
 		else {
-			left[p] = left[prv];
-			right[p] = newnode();
-			update(right[prv], right[p], m+1, r, i, k);
-			st[p] = comp(st[left[p]], st[right[p]]);
+			ls[p] = ls[prv];
+			rs[p] = newnode();
+			update(rs[prv], rs[p], m+1, r, i, k);
+			st[p] = comp(st[ls[p]], st[rs[p]]);
 		}
 	}
 	int query(int p, int l, int r, int a, int b) {
 		if (a > r || b < l || l > r) return neutral;
 		if (l >= a && r <= b) return st[p];
-		int p1 = query(left[p], l, (l + r) / 2, a, b);
-		int p2 = query(right[p], (l + r) / 2 + 1, r, a, b);
+		int p1 = query(ls[p], l, (l + r) / 2, a, b);
+		int p2 = query(rs[p], (l + r) / 2 + 1, r, a, b);
 		return comp(p1, p2);
 	}
 public:
@@ -77,26 +81,24 @@ public:
 	int nver() { return nv; }
 };
 
-
 /*
  * TEST MATRIX
  */
 
-/*
 #include <ctime>
 #include <cstdio>
 #define DEBUG false
 const int N = 500;
 int arr[N+9][N+9];
 int curver;
-PersistentSegmentTree st;
+PersistentSegmentTree pst;
 bool test(int NTests) {
 	srand(time(NULL));
 	for(int nt=0; nt<NTests; nt++) {
 		for(int i=0; i<N; i++) arr[0][i] = rand()%N;
 		
 		if(DEBUG) printf("building seg tree...\n");
-		st = PersistentSegmentTree(&arr[0][0], &arr[0][0] + N);
+		pst = PersistentSegmentTree(&arr[0][0], &arr[0][0] + N);
 		curver = 1;
 		if(DEBUG) printf("arr[%d]:", curver-1);
 		for(int j=0; j<N; j++) {
@@ -121,7 +123,7 @@ bool test(int NTests) {
 			}
 			if(DEBUG) printf("\n");
 			
-			if (st.update(id, v, k) != curver-1) {
+			if (pst.update(id, v, k) != curver-1) {
 				printf("failed to update at test %d\n", i+1);
 				return false;
 			}
@@ -133,7 +135,7 @@ bool test(int NTests) {
 				if (a > b) swap(a, b);
 				int val1 = 0;
 				for(int j=a; j<=b; j++) val1 = comp(val1, arr[curver-1][j]);
-				int val2 = st.query(a, b, curver-1);
+				int val2 = pst.query(a, b, curver-1);
 				if(DEBUG) printf("sum[%d,%d] = %d (ver %d)\n", a, b, val1, curver-1);
 				if (val1 != val2) {
 					printf("failed at test %d, case %d (%d==%d), ver %d\n", i+1, t+1, val1, val2, curver-1);
@@ -154,7 +156,7 @@ bool test(int NTests) {
 				if (a > b) swap(a, b);
 				int val1 = 0;
 				for(int j=a; j<=b; j++) val1 = comp(val1, arr[v][j]);
-				int val2 = st.query(a, b, v);
+				int val2 = pst.query(a, b, v);
 				if(DEBUG) printf("sum[%d,%d] = %d (ver %d)\n", a, b, val1, v);
 				if (val1 != val2) {
 					printf("failed at test %d, case %d (%d==%d), ver %d\n", i+1, t+1, val1, val2, v);
@@ -171,13 +173,17 @@ bool test(int NTests) {
 	printf("all tests passed\n");
 	return true;
 }
-*/
+
+int main() {
+	test(10);
+	return 0;
+}
 
 /*
  * SPOJ DQUERY
  */
 
-#define MAXN 100009
+/*#define MAXN 100009
 #include <cstdio>
 #include <map>
 
@@ -187,7 +193,7 @@ bool cmp(int i, int j) {
 	return a[i] < a[j];
 }
 
-PersistentSegmentTree st(MAXN);
+PersistentSegmentTree pst(MAXN);
 
 int main() {
 	int N, Q, u, v, x;
@@ -201,10 +207,10 @@ int main() {
 		id[i] = i;
 	}
 	sort(id, id+N, cmp);
-	st = PersistentSegmentTree(N);
+	pst = PersistentSegmentTree(N);
 	for(int it=0, i; it<N; it++) {
 		i = id[it];
-		ver[it] = st.update(i, st.nver()-1, st.query(i, i, st.nver()-1) + 1);
+		ver[it] = pst.update(i, pst.nver()-1, pst.query(i, i, pst.nver()-1) + 1);
 	}
 	scanf("%d", &Q);
 	while(Q-->0) {
@@ -217,7 +223,7 @@ int main() {
 			else hi = m;
 		}
 		if (lo < 0) printf("0\n");
-		else printf("%d\n", st.query(u-1, v-1, ver[lo]));
+		else printf("%d\n", pst.query(u-1, v-1, ver[lo]));
 	}
 	return 0;
-}
+}*/

@@ -7,10 +7,9 @@ bool less(int i) { return i <= Lcmp; }
 
 class WaveletTree {
 private:
-	vector<vector<int> > ml;
-	vector<int> mt, arr; 
+	vector< vector<int> > ml;
+	vector<int> arr; 
 	int sig, size;
-#define parent(p) (p >> 1)
 #define left(p) (p << 1)
 #define right(p) ((p << 1) + 1)
 	
@@ -92,7 +91,7 @@ public:
  * TEST MATRIX
  */
 
-/*#include <cstdio>
+#include <cstdio>
 #define DEBUG false
 int testarr[100009];
 WaveletTree wt;
@@ -185,7 +184,7 @@ bool test(int N, int sig, int nTest) {
 int main() {
 	test(1000, 25, 100);
 	return 0;
-}*/
+}
 
 /*
  * SPOJ ILKQUERY
@@ -239,7 +238,7 @@ int main() {
  * SPOJ ILKQUERYIII
  */
 
-#define MAXN 1000009
+/*#define MAXN 1000009
 #include <map>
 #include <cstdio>
 map<int, int> x2id;
@@ -288,5 +287,5 @@ int main() {
 		}
 	}
 	return 0;
-}
+}*/
 

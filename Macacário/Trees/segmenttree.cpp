@@ -4,6 +4,10 @@
 #define INF (1<<30)
 using namespace std;
 
+/*
+ * Segment Tree
+ */
+
 const int neutral = 0;
 int comp(int a, int b) {
 	return a+b;
@@ -35,6 +39,10 @@ public:
 		return ans;
 	}
 };
+
+/*
+ * TEST MATRIX
+ */
 
 int vet[16];
 

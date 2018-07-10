@@ -3,6 +3,10 @@
 using namespace std;
 #define INF (1<<30)
 
+/*
+ * 2D Segment Tree
+ */
+
 const int neutral = 0;
 int comp(int a, int b) {
 	return a+b;

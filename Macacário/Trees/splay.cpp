@@ -1,71 +1,71 @@
 #include <cstdio>
+
+/*
+ * Splay Tree
+ */
+
 struct node {
 	int key;
-	node *left, *right;
-	node(int k) {
-		key = k; left = right = 0;
-	}
+	node *ls, *rs;
+	node(int k) : key(k), ls(NULL), rs(NULL) {}
 };
 
 class SplayTree {
 private:
 	node* root;
 	node* rotateright(node* p) {
-		node* q = p->left;
-		p->left = q->right;
-		q->right = p;
+		node* q = p->ls;
+		p->ls = q->rs;
+		q->rs = p;
 		return q;
 	}
 	node* rotateleft(node* q) {
-		node* p = q->right;
-		q->right = p->left;
-		p->left = q;
+		node* p = q->rs;
+		q->rs = p->ls;
+		p->ls = q;
 		return p;
 	}
 	node* splay(node* p, int key) {
-		if (p == NULL || p->key == key) return p;
+		if (!p || p->key == key) return p;
 		if (p->key > key) {
-			if (!p->left) return p;
-			if (p->left->key > key)	{
-				p->left->left = splay(p->left->left, key);
+			if (!p->ls) return p;
+			if (p->ls->key > key)	{
+				p->ls->ls = splay(p->ls->ls, key);
 				p = rotateright(p);
 			}
-			else if (p->left->key < key) {
-				p->left->right = splay(p->left->right, key);
-				if (p->left->right)
-					p->left = rotateleft(p->left);
+			else if (p->ls->key < key) {
+				p->ls->rs = splay(p->ls->rs, key);
+				if (p->ls->rs)
+					p->ls = rotateleft(p->ls);
 			}
-			return (p->left == NULL) ? p : rotateright(p);
+			return (!p->ls) ? p : rotateright(p);
 		}
 		else {
-			if (!p->right) return p;
-			if (p->right->key > key) {
-				p->right->left = splay(p->right->left, key);
-				if (p->right->left)
-					p->right = rotateright(p->right);
+			if (!p->rs) return p;
+			if (p->rs->key > key) {
+				p->rs->ls = splay(p->rs->ls, key);
+				if (p->rs->ls)
+					p->rs = rotateright(p->rs);
 			}
-			else if (p->right->key < key) {
-				p->right->right = splay(p->right->right, key);
+			else if (p->rs->key < key) {
+				p->rs->rs = splay(p->rs->rs, key);
 				p = rotateleft(p);
 			}
-			return (p->right == NULL) ? p : rotateleft(p);
+			return (!p->rs) ? p : rotateleft(p);
 		}
 	}
-	void del(node* p) {
+	void del(node* &p) {
 		if (!p) return;
-		del(p->left);
-		del(p->right);
+		del(p->ls); del(p->rs);
 		delete p;
+		p = NULL;
 	}
 
 public:
-	SplayTree() { root = 0; }
+	SplayTree() : root(NULL) { }
 	~SplayTree() { del(root); }
 	bool empty() { return root == NULL; }
-	void clear() {
-		del(root);
-		root = 0;
-	}
+	void clear() { del(root); }
 	void insert(int key) {
 		if (!root) {
 			root = new node(key);
@@ -75,26 +75,26 @@ public:
 		if (p->key == key) return;
 		root = new node(key);
 		if (p->key > key) {
-			root->right = p;
-			root->left = p->left;
-			p->left = NULL;
+			root->rs = p;
+			root->ls = p->ls;
+			p->ls = NULL;
 		}
 		else {
-			root->left = p;
-			root->right = p->right;
-			p->right = NULL;
+			root->ls = p;
+			root->rs = p->rs;
+			p->rs = NULL;
 		}
 	}
 	void erase(int key) {
 		node* p = splay(root, key);
-		if (p != NULL && p->key != key) return;
-		if (!p->right) {
-			root = p->left;
+		if (!p || p->key != key) return;
+		if (!p->rs) {
+			root = p->ls;
 			delete p;
 			return;
 		}
-		node* q = splay(p->right, key);
-		q->left = p->left;
+		node* q = splay(p->rs, key);
+		q->ls = p->ls;
 		root = q;
 		delete p;
 	}

@@ -105,6 +105,14 @@ point closestToLineSegment(point p, point a, point b) {
 	return a + ((b-a)*u);
 }
 
+//works for int coordinates
+bool polarCmp(point a, point b) {
+	if (b.y*a.y > 0) return cross(a, b) > 0;
+	else if (b.y == 0 && b.x > 0) return false;
+	else if (a.y == 0 && a.x > 0) return true;
+	else return b.y < a.y;
+}
+
 /*
  * Codeforces 101707A
  */

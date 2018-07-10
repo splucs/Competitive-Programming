@@ -2,10 +2,6 @@
 using namespace std;
 typedef long long ll;
 
-/*
- * Dynamic Convex Hull Trick
- */
-
 ll nu, de;
 struct line {
 	ll m, b; bool is_query;
@@ -20,7 +16,7 @@ struct line {
 	}
 };
  
-struct HullDynamic : public multiset<line> {
+struct DynamicHull : public multiset<line> {
 	bool bad(iterator y) {
 		auto z = next(y);
 		if (y == begin()) {
@@ -48,7 +44,7 @@ struct HullDynamic : public multiset<line> {
 };
 
 /*
- * Codeforces 101707I
+ * Codeforces 101707H
  */
 
 #define MAXN 200309
@@ -77,52 +73,51 @@ typedef unsigned long long ull;
 typedef long double ld;
 typedef unsigned int uint;
 
-char op[6];
+int n, m;
+ll a[MAXN], b[MAXN], c[MAXN];
+ll x[MAXN], y[MAXN];
+ll minx = INF, maxx = -INF;
+DynamicHull maxhull, minhull;
+
+ll query(ll a, ll b) {
+	if (b == 0) {
+		if (a > 0) return maxx*a;
+		else return minx*a;
+	}
+	else if (b > 0) {
+		line l = maxhull.query(a, b);
+		return l.m*a + l.b*b;
+	}
+	else {
+		line l = minhull.query(a, b);
+		return -a*l.m + -b*l.b;
+	}
+}
 
 int main() {
-	int n, q;
-	scanf("%d", &n);
-	HullDynamic minhull, maxhull;
-	ll minx = INF, maxx = -INF;
+	scanf("%d %d", &n, &m);
+	FOR(i, n) scanf("%lld %lld %lld", &a[i], &b[i], &c[i]);
+	FOR(i, m) {
+		scanf("%lld %lld", &x[i], &y[i]);
+		minx = min(x[i], minx);
+		maxx = max(x[i], maxx);
+		maxhull.insert_line(x[i], y[i]);
+		minhull.insert_line(-x[i], -y[i]);
+	}
+	vi ans;
 	FOR(i, n) {
-		ll x, y;
-		scanf("%lld %lld", &x, &y);
-		minx = min(x, minx);
-		maxx = max(x, maxx);
-		maxhull.insert_line(x, y);
-		minhull.insert_line(-x, -y);
+		ll c1, c2;
+		c[i] = -c[i];
+		c1 = query(a[i], b[i]);
+		c2 = -query(-a[i], -b[i]);
+		bool ok = false;
+		if (c1 == c[i] || c2 == c[i]) ok = true;
+		if (c1 < c[i] && c2 > c[i]) ok = true;
+		if (c1 > c[i] && c2 < c[i]) ok = true;
+		if (ok) ans.pb(i+1);
 	}
-	scanf("%d", &q);
-	while(q --> 0) {
-		ll x, y, a, b;
-		scanf(" %s", op);
-		if (!strcmp(op, "add")) {
-			scanf("%lld %lld", &x, &y);
-			minx = min(x, minx);
-			maxx = max(x, maxx);
-			maxhull.insert_line(x, y);
-			minhull.insert_line(-x, -y);
-		}
-		if (!strcmp(op, "get")) {
-			scanf("%lld %lld", &a, &b);
-			ll ans;
-			if (b == 0) {
-				if (a > 0) ans = maxx*a;
-				else ans = minx*a;
-			}
-			else {
-				line l(0, 0);
-				if (b > 0) {
-					l = maxhull.query(a, b);
-					ans = a*l.m + b*l.b;
-				}
-				else {
-					l = minhull.query(a, b);
-					ans = -a*l.m + -b*l.b;
-				}
-			}
-			printf("%lld\n", ans);
-		}
-	}
+	printf("%u\n", ans.size());
+	for(int i : ans) printf("%d ", i);
+	printf("\n");
 	return 0;
 }
