@@ -2,7 +2,7 @@
  * Mo's Algorithm O(n^(3/2))
  */
 
-#include <alhorithm>
+#include <algorithm>
 using namespace std;
 #define SQ 500
 
@@ -32,3 +32,9 @@ void mo(int v[], query qs[], int Q) {
 	}
 	sort(qs, qs + Q, icomp);
 }
+
+/*
+ * COMPILATION TEST
+ */
+
+int main() {}

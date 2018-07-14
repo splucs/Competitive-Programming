@@ -130,7 +130,7 @@
 #define MAXN 5009
 #define MAXM 900009
 #define MOD 1000000007
-#define INF 0x3f3f3f3f3f3f3f3f
+#define INF 0x3fffffffffffffff
 #define EPS 1e-9
 #define PI 3.141592653589793238462643383279502884
 #define FOR(x,n) for(int x=0; (x)<int(n); (x)++)
@@ -205,16 +205,13 @@ ll area(point a, point b, point c) {
 }
 
 bool angleCmp(point a, point b) {
-	if (collinear(pivot, a, b)) return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	if (collinear(pivot, a, b))
+		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
 	return cross(a-pivot, b-pivot) >= 0;
 }
 
 vector<point> convexHull(vector<point> P) {
 	int i, j, n = (int)P.size();
-	if (n <= 2) {
-		if (!(P[0] == P[n-1])) P.push_back(P[0]);
-		return P;
-	}
 	int P0 = leftmostIndex(P);
 	swap(P[0], P[P0]);
 	pivot = P[0];
@@ -229,6 +226,9 @@ vector<point> convexHull(vector<point> P) {
 		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
 		else S.pop_back();
 	}
+	reverse(all(S));
+	S.pop_back();
+	reverse(all(S));
 	return S;
 }
 
@@ -236,7 +236,8 @@ int n;
 vector<point> ch, P;
 
 ll dp[MAXN][MAXN];
-short A[MAXN][MAXN];
+
+#define nxt(i) ((i+1)%n)
 
 int main() {
 	scanf("%d", &n);
@@ -253,9 +254,7 @@ int main() {
 		return 0;
 	}
 	ch = convexHull(P);
-	ch.pop_back();
 	n = ch.size();
-	//printf("n = %d\n", n);
 	ll ans = 0;
 	if (n == 3) {
 		ans = area(ch[0], ch[1], ch[2]);
@@ -264,7 +263,6 @@ int main() {
 			if (P[i] == ch[0]) continue;
 			if (P[i] == ch[1]) continue;
 			if (P[i] == ch[2]) continue;
-			//printf("P[%d] = (%lld,%lld)\n", i, P[i].x,P[i].y);
 			d = min(d, area(ch[0], ch[1], P[i]));
 			d = min(d, area(ch[1], ch[2], P[i]));
 			d = min(d, area(ch[2], ch[0], P[i]));
@@ -272,29 +270,21 @@ int main() {
 		ans -= d;
 	}
 	else {
-		FOR(s, n) FOR(i, n) {
-			int j = (i + s)%n;
-			if (s <= 1) {
-				dp[s][i] = -INF;
-				A[s][i] = -1;
-			}
-			else if (s == 2) {
-				dp[s][i] = area(ch[i], ch[(i+1)%n], ch[(i+2)%n]);
-				A[s][i] = i+1;
-			}
-			else {
-				dp[s][i] = -INF;
-				for(short k = A[s-1][i]; k <= A[s-1][i+1]; k++) {
-					ll a = area(ch[i], ch[k%n], ch[j%n]);
-					if (a > dp[s][i]) {
-						dp[s][i] = a; A[s][i] = k;
+		mset(dp, -1);
+		FOR(i, n) {
+			int k = nxt(i);
+			for (int j = nxt(i); nxt(j) != i; j = nxt(j)) {
+				if (k == j) k = nxt(k);
+				while(nxt(k) != i &&
+					area(ch[i], ch[j], ch[nxt(k)]) > area(ch[i], ch[j], ch[k])) {
+						k = nxt(k);
 					}
-				}
+				dp[i][j] = area(ch[i], ch[j], ch[k]);
 			}
 		}
-		for(int s = 2; s+2 <= n; s++) FOR(i, n) {
-			int j = (i + s)%n;
-			ans = max(ans, dp[s][i] + dp[n-s][j]);
+		FOR(i, n) FOR(j, n) {
+			if (dp[i][j] < 0 || dp[j][i] < 0) continue;
+			ans = max(ans, dp[i][j] + dp[j][i]);
 		}
 	}
 	printf("%lld%s\n", ans/2, ans % 2 ? ".5" : ".0");

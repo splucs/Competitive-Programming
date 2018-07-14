@@ -162,6 +162,9 @@ polygon cutPolygon(polygon & P, point a, point b) {
 	return make_polygon(R);
 }
 
+/*
+ * Polygon Intersection
+ */
 
 point pivot(0, 0);
 

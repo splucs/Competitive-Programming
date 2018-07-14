@@ -8,21 +8,20 @@ typedef pair<int, int> ii;
  */
 
 class MaxQueue {
-	queue<ii> q;
-	list<ii> l;
+	list<ii> q, l;
 	int cnt = 0;
 public:
 	MaxQueue() : cnt(0) {}
 	void push(int x) {
 		ii cur = ii(x, cnt++);
 		while(!l.empty() && l.back() <= cur) l.pop_back();
-		q.push(cur);
+		q.push_back(cur);
 		l.push_back(cur);
 	}
 	int front() { return q.front().first; }
 	void pop() {
 		if (q.front().second == l.front().second) l.pop_front();
-		q.pop();
+		q.pop_front();
 	}
 	int max() { return l.front().first; }
 	int size() { return q.size(); }

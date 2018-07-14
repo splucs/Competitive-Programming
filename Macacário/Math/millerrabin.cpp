@@ -26,7 +26,7 @@ T modExp(T a, T b, T m) {
 
 bool miller(long long n) {
 	const int pn = 9;
-    const int p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
+	const int p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
 	for (int i = 0; i < pn; i++)
 		if (n % p[i] == 0) return n == p[i];
 	if (n < p[pn - 1]) return false;
@@ -67,13 +67,18 @@ bool test(int ntest) {
 			printf("failed on test %lld, prime = %d\n", n, brutePrime(n));
 			return false;
 		}
+		n = t;
+		if (brutePrime(n) != miller(n)) {
+			printf("failed on test %lld, prime = %d\n", n, brutePrime(n));
+			return false;
+		}
 	}
 	printf("all tests passed\n");
 	return true;
 }
 
 int main() {
-	test(100000);
+	test(10000000);
 	long long n;
 	while(scanf("%lld", &n) != EOF) {
 		printf("%lld is %sprime\n", n, miller(n) ? "" : "not ");

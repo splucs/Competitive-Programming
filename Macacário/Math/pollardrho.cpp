@@ -18,6 +18,11 @@ T modMul(T a, T b, T m) {
 	return x % m;
 }
 
+/*
+ * Pollard-Rho factorization
+ * use only for n > 9*10^13
+ */
+
 template<typename T>
 T pollard(T n) {
 	int i = 0, k = 2, d;
@@ -31,7 +36,9 @@ T pollard(T n) {
 	}
 }
 
-/*TEST MATRIX*/
+/*
+ *TEST MATRIX
+ */
 #include <cstdlib>
 
 int main()

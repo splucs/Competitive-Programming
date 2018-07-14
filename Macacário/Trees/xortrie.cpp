@@ -27,9 +27,8 @@ class XorTrie {
 		return false;
 	}
 public:
-	XorTrie(int _digits = 20) {
+	XorTrie(int _digits = 20) : digits(_digits) {
 		root = newnode();
-		digits = _digits;
 	}
 	void insert(int num) {
 		int u = root;

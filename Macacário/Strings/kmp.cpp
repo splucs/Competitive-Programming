@@ -1,29 +1,27 @@
-#include <cstdio>
 #include <string>
 #include <vector>
 #include <cstring>
 using namespace std;
-#define MAXN 100009
 
-class KMP{
-private:
-	char P[MAXN];
-	int m, n, b[MAXN];
+/*
+ * Knuth-Morris-Pratt's Algorithm
+ */
+
+class KMP {
+	string P;
+	vector<int> b;
+	int m;
 public:
-	KMP(const char* _P) {
-		strcpy(P, _P);
-		b[0] = -1;
-		m = strlen(P);
+	KMP(const char* _P) : P(_P) {
+		m = P.size(); b.assign(m+1, -1);
 		for(int i = 0, j = -1; i < m;) {
 			while (j >= 0 && P[i] != P[j]) j = b[j];
-			i++; j++;
-			b[i] = j;
+			b[++i] = ++j;
 		}
 	}
 	vector<int> match(const char* T) {
-		n = strlen(T);
 		vector<int> ans;
-		for (int i=0, j=0; i < n;) {
+		for (int i=0, j=0, n=strlen(T); i < n;) {
 			while (j >= 0 && T[i] != P[j]) j = b[j];
 			i++; j++;
 			if (j == m) {
@@ -34,6 +32,12 @@ public:
 		return ans;
 	}
 };
+
+/*
+ * TEST MATRIX
+ */
+
+#include <cstdio>
 
 void test() {
 	string P = "ababa";

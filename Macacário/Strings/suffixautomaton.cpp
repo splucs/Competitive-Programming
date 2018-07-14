@@ -1,7 +1,7 @@
 #include <cstring>
 #include <queue>
 using namespace std;
-#define MAXS 200009 // 2*MAXN
+#define MAXS 500009 // 2*MAXN
 #define ALFA 26
 
 /*
@@ -40,7 +40,8 @@ public:
 			else {
 				int clone = newnode();
 				len[clone] = len[p] + 1;
-				memcpy(nxt[clone], nxt[q], ALFA*sizeof(int));
+				for(int i = 0; i < ALFA; i++)
+					nxt[clone][i] = nxt[q][i];
 				link[clone] = link[q];
 				cnt[clone] = 0;
 				while(p != -1 && nxt[p][c] == q) {
@@ -53,7 +54,7 @@ public:
 		last = cur;
 	}
 	bool contains(const char *s) {
-		for(int i = 0, p = 0; s[i]; i++) {
+		for(int i = 0, p = root; s[i]; i++) {
 			int c = reduce(s[i]);
 			if (!nxt[p][c]) return false;
 			p = nxt[p][c];

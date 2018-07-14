@@ -79,7 +79,7 @@ bool operator < (node a, node b) {
 class IntervalTree {
 	set<node> tree;
 	void split(int i) {
-		auto it = --tree.upper_bound(node(i, 0));
+		set<node>::iterator it = --tree.upper_bound(node(i, 0));
 		node t = *it;
 		if (t.l == i) return;
 		tree.erase(it);
@@ -90,7 +90,7 @@ public:
 	IntervalTree() { tree.insert(node(0, MAXN, 0)); }
 	vector<node> get(int l, int r, bool update, int dx) {
 		split(l); split(r+1);
-		auto it = tree.lower_bound(node(l, 0));
+		set<node>::iterator it = tree.lower_bound(node(l, 0));
 		vector<node> q;
 		while(it != tree.end() && it->l <= r) {
 			node t = *it;

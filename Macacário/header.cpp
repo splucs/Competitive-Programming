@@ -153,3 +153,5 @@ typedef long double ld;
 typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
+
+int main() {}

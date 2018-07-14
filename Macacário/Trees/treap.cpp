@@ -9,7 +9,7 @@ using namespace std;
  * split separates between k-1 and k
  */
 
-struct node{
+struct node {
 	int x, y, size;
 	node *l, *r;
 	node(int _x) : x(_x), y(rand()), size(1), l(NULL), r(NULL) {}	
@@ -95,7 +95,6 @@ public:
 		node* ans = nth(root, n);
 		return ans ? ans->x : -1;
 	}
-
 };
 
 /*

@@ -18,11 +18,10 @@ int repetend(char* s) {
     return n;
 }
 
+char s[MAXN];
 
 int main() {
-	char P[MAXN] = {'A','B','c','A','B','c','A','B','c','A','B','c','\0'};
-	char T[1600] = {'A','C','A','B','A','A','B','A','B','D','A','B','A','B','A','B','A','B','A','B','A','B','A','B','A','B','A', '\0'};
-	int b[10];
-	printf("%d\n", repetend(P));
+    while(scanf(" %s", s) != EOF)
+	    printf("%d\n", repetend(s));
 	return 0;
 }

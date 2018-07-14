@@ -2,8 +2,8 @@
 #include <queue>
 #include <vector>
 using namespace std;
-#define ALFA 26
-#define MAXS 100009
+#define ALFA 62
+#define MAXS 2000009
 
 typedef pair<int, int> ii;
 
@@ -23,7 +23,12 @@ private:
 		for(int c = 0; c < ALFA; c++) nxt[x][c] = 0;
 		return x;
 	}
-	inline int reduce(char c) { return c - 'a'; }
+	inline int reduce(char c) {
+		if (c >= 'a' && c <= 'z') return c - 'a';
+		if (c >= 'A' && c <= 'Z') return c - 'A' + ('z'-'a'+1);
+		if (c >= '0' && c <= '9') return c - '0' + 2*('z'-'a'+1);
+		return -1;
+	}
 public:
 	AhoCorasick() { root = newnode(); }
 	void setfails() {

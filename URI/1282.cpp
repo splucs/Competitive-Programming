@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <vector>
-#define INF (1<<30)
+#define INF 0x3f3f3f3f
+#define INFLL 0x3f3f3f3f3f3f3f3f
 #define MAXN 1009
 using namespace std;
 
@@ -62,7 +63,7 @@ int computeDp(ll C) {
 
 ll computeC() {
 	ll lo = 0;
-	ll hi = 0x3f3f3f3f3f3f3f3f;
+	ll hi = INFLL;
 	while(hi > lo + 1) {
 		ll C = (hi + lo) / 2;
 		int k = computeDp(C);
