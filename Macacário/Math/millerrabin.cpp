@@ -20,28 +20,28 @@ T modExp(T a, T b, T m) {
 
 /*
  * Miller-Rabin primality test
- * O(k*logn*logn*logn)
+ * O(k*log^2n), k = 9
+ * probabilistic, but proven correct for n < 2^64
  */
 
-typedef long long ll;
-
-bool miller(ll n, ll a) {
-	if (a >= n) return 1;
-	ll s = 0, d = n-1;
-	while (d%2 == 0 and d) d >>= 1, s++;
-	ll x = modExp(a, d, n);
-	if (x == 1 or x == n-1) return 1;
-	for (int r = 0; r < s; r++, x = modMul(x,x,n)) {
-		if (x == 1) return 0;
-		if (x == n-1) return 1;
+bool miller(long long n) {
+	const int pn = 9;
+    const int p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
+	for (int i = 0; i < pn; i++)
+		if (n % p[i] == 0) return n == p[i];
+	if (n < p[pn - 1]) return false;
+	long long s = 0, t = n - 1;
+	while (~t & 1) t >>= 1, ++s;
+	for (int i = 0; i < pn; ++i) {
+		long long pt = modExp((long long)p[i], t, n);
+		if (pt == 1) continue;
+		bool ok = false;
+		for (int j = 0; j < s && !ok; j++) {
+			if (pt == n - 1) ok = true;
+			pt = modMul(pt, pt, n);
+		}
+		if (!ok) return false;
 	}
-	return 0;
-}
-
-bool isPrime(ll n) {
-	int base[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47};
-	for (int i = 0; i < 15; ++i)
-		if (!miller(base[i], n)) return false;
 	return true;
 }
 
@@ -52,9 +52,9 @@ bool isPrime(ll n) {
 #include <cstdio>
 #include <cstdlib>
 
-bool brutePrime(ll n) {
+bool brutePrime(long long n) {
 	if (n <= 1) return false;
-	for(ll i = 2; i*i <= n; i++) {
+	for(long long i = 2; i*i <= n; i++) {
 		if (n % i == 0) return false;
 	}
 	return true;
@@ -62,8 +62,8 @@ bool brutePrime(ll n) {
 
 bool test(int ntest) {
 	for(int t = 1; t <= ntest; t++) {
-		ll n = rand();
-		if (brutePrime(n) != isPrime(n)) {
+		long long n = rand();
+		if (brutePrime(n) != miller(n)) {
 			printf("failed on test %lld, prime = %d\n", n, brutePrime(n));
 			return false;
 		}
@@ -73,6 +73,10 @@ bool test(int ntest) {
 }
 
 int main() {
-	test(10000);
+	test(100000);
+	long long n;
+	while(scanf("%lld", &n) != EOF) {
+		printf("%lld is %sprime\n", n, miller(n) ? "" : "not ");
+	}
 	return 0;
 }

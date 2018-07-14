@@ -1,10 +1,9 @@
-#include <cstdio>
-#include <algorithm>
 #include <vector>
-#include <ctime>
-#include <cmath>
-#define EPS 1e-5
 using namespace std;
+
+/*
+ * Matrix operations
+ */
 
 typedef long long ll;
 typedef vector< vector< double > > matrix;
@@ -16,27 +15,23 @@ matrix operator +(matrix a, matrix b) {
 	c.resize(n);
 	for(int i=0; i<n; i++) {
 		c[i].resize(m);
-		for(int j=0; j<m; j++) {
+		for(int j=0; j<m; j++)
 			c[i][j] = a[i][j] + b[i][j];
-		}
 	}
 	return c;
 }
 
 matrix operator *(matrix a, matrix b) {
 	int n = (int)a.size();
-	if (a[0].size() != b.size()) printf("fail\n");
+	//assert(a[0].size() == b.size());
 	int m = (int)b.size();
 	int p = (int)b[0].size();
 	matrix c;
 	c.resize(n);
 	for(int i=0; i<n; i++) {
 		c[i].assign(p, 0);
-		for(int j=0; j<p; j++) {
-			for(int k=0; k<m; k++) {
-				c[i][j] += a[i][k]*b[k][j];
-			}
-		}
+		for(int j=0; j<p; j++) for(int k=0; k<m; k++)
+			c[i][j] += a[i][k]*b[k][j];
 	}
 	return c;
 }
@@ -44,11 +39,8 @@ matrix operator *(matrix a, matrix b) {
 matrix operator *(double k, matrix a) {
 	int n = (int)a.size();
 	int m = (int)a[0].size();
-	for(int i=0; i<n; i++) {
-		for(int j=0; j<m; j++) {
-			a[i][j] *= k;
-		}
-	}
+	for(int i=0; i<n; i++) for(int j=0; j<m; j++)
+		a[i][j] *= k;
 	return a;
 }
 
@@ -65,6 +57,7 @@ matrix id(int n) {
 	return c;
 }
 
+#include <cstdio>
 void printmatrix(matrix & a) {
 	int n = (int)a.size();
 	int m = (int)a[0].size();
@@ -75,3 +68,9 @@ void printmatrix(matrix & a) {
 		printf("\n");
 	}
 }
+
+/*
+ * COMPILATION TEST
+ */
+
+int main() {}

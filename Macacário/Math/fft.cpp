@@ -7,7 +7,7 @@ using namespace std;
  * Fast complex
  */
 
-struct base {
+struct base { // faster than complex<double>
 	double x, y;
 	base() : x(0), y(0) {}
 	base(double a, double b=0) : x(a), y(b) {}

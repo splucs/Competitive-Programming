@@ -71,16 +71,16 @@ vector<ii> primeFactors(ll N) {
 ll numDiv(ll N) {
 	ll i = 0, p = primes[i], ans = 1;
 	while (p * p <= N) {
-		ll power = 0;
-		while (N % p == 0) { N /= p; power++; }
-		ans *= (power + 1);
+		ll pw = 0;
+		while (N % p == 0) { N /= p; pw++; }
+		ans *= (pw + 1);
 		p = primes[++i];
 	}
 	if (N != 1) ans *= 2;
 	return ans;
 }
 
-ll EulerPhi(ll N) {
+ll eulerPhi(ll N) {
 	ll i = 0, p = primes[i], ans = N;
 	while (p * p <= N) {
 		if (N % p == 0) ans -= ans / p;
