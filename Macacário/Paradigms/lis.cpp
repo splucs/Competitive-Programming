@@ -6,7 +6,8 @@ int LIS(int* arr, int n) {
 	int M[n+1], L=1, l, h, m;
 	M[1]=0;
 	for(int i=1; i<n; i++) {
-		if (arr[i]<arr[M[1]]) {		//estritamente crescente ou crescente
+		if (arr[i]<=arr[M[1]]) {		//estritamente crescente
+		// if (arr[i] < arr[M[1]]) { // crescente
 			M[1]=i; continue;
 		}
 		l = 1; h = L+1;
