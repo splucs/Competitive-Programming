@@ -175,6 +175,8 @@ struct base { // faster than complex<double>
 		x = tx; y = ty;
 		return (*this);
 	}
+	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
+	base operator=(ld a) { x=a; y=0; return (*this); }
 	base operator+(base a) const { return base(x+a.x, y+a.y); }
 	base operator-(base a) const { return base(x-a.x, y-a.y); }
 	ld real() { return x; }
@@ -183,111 +185,85 @@ struct base { // faster than complex<double>
 
 //typedef complex<ld> base;
  
-void fft (base a[], int n, bool invert) {
-	for(int i=1, j=0; i<n; ++i) {
+void fft(vector<base> &a, bool invert) {
+	int n = (int)a.size();
+	for(int i = 1, j = 0; i < n; i++) {
 		int bit = n >> 1;
-		for(; j>=bit; bit>>=1)
-			j -= bit;
+		for(; j >= bit; bit >>= 1) j -= bit;
 		j += bit;
 		if (i < j) swap(a[i], a[j]);
 	}
- 
-	for(int len=2; len<=n; len<<=1) {
-		ld ang = 2*acos(-1.0)/len * (invert ? -1 : 1);
-		base wlen(cos(ang), sin(ang)), u, v;
-		for(int i=0; i<n; i+=len) {
+	for(int len = 2; len <= n; len <<= 1) {
+		double ang = 2*acos(-1.0)/len * (invert ? -1 : 1);
+		base wlen(cos(ang), sin(ang));
+		for(int i = 0; i < n; i += len) {
 			base w(1);
-			for(int j=0, len2 = (len>>1); j<len2; ++j) {
-				u = a[i+j]; v = a[i+j+len2] * w;
-				a[i+j] = u + v;
-				a[i+j+len2] = u - v;
+			for(int j = 0; j < len/2; j++) {
+				base u = a[i+j], v = a[i+j+len/2] * w;
+				a[i + j] = u + v;
+				a[i + j + len/2] = u - v;
 				w *= wlen;
 			}
 		}
 	}
-	if(invert)
-		for (int i=0; i<n; ++i)
-			a[i] /= n;
+	for (int i = 0; invert && i < n; i++) a[i] /= n;
 }
 
-base P[4*MAXN], Q[4*MAXN], R[4*MAXN];
-inline void circularconvolution(int a[], int b[], int res[], int p) {
+void convolution(vector<base> a, vector<base> b, vector<base> &res) {
 	int n = 1;
-	while(n < p) n <<= 1;
+	while(n < max(a.size(), b.size())) n <<= 1;
 	n <<= 1;
-	for(int i = 0; i < n; i++) {
-		P[i] = base(i < p ? a[i] : 0);
-		Q[i] = base(i < p ? b[i] : 0);
-	}
-	fft(P, n, false); fft(Q, n, false);
-	for(int i = 0; i < n; i++) R[i] = P[i]*Q[i];
-	fft(R, n, true);
-	for(int i = 0; i < p; i++) {
-		if (i+p < n) res[i] = ll(R[i].real()+R[i+p].real()+0.5) % MOD;
-		else res[i] = ll(R[i].real()+0.5) % MOD;
-	}
+	a.resize(n), b.resize(n);
+	fft(a, false); fft(b, false);
+	res.resize(n);
+	for(int i=0; i<n; ++i) res[i] = a[i]*b[i];
+	fft(res, true);
 }
 
-#define LIMIT 64
-int dp[70+LIMIT][MAXN], aux[MAXN];
-bool computed[40+LIMIT];
 
-map<int, int> n2i;
-int cnt = 0;
-int reduce(int n) {
-	if (!n2i.count(n)) {
-		n2i[n] = cnt++;
-	}
-	return n2i[n];
+void circularConv(vector<base> &a, vector<base> &b, vector<base> &res) {
+	assert(a.size() == b.size());
+	int n = a.size();
+	convolution(a, b, res);
+	for(int i = n; i < (int)res.size(); i++)
+		res[i%n] += res[i];
+	res.resize(n);
 }
 
-void compute(int n, int p) {
-	int r = reduce(n);
-	if (computed[r]) return;
-	if (n == 0) {
-		FOR(i, p) dp[r][i] = 0;
-		dp[r][0] = 1;
-		computed[r] = true;
-		return;
+map<int, vector<int> > dp;
+
+vector<int>& compute(const int n, int p) {
+	if (dp.count(n)) return dp[n];
+	vector<int> d(p, 0);
+	if (n == 0) d[0] = 1;
+	else if (n == 1) d[1] = d[2] = d[3] = d[5] = d[7] = 1;
+	else {
+		int m = n/2;
+		vector<int> &d1 = compute(m, p);
+		vector<int> &d2 = compute(n-m, p);
+		vector<int> aux(p, 0); 
+		ll offset = modExp(10LL, (ll)m, (ll)p);
+		vector<base> a(p), b(p), c;
+		FOR(i, p) b[i] = d1[i];
+		FOR(i, p) aux[(i*offset)%p] = (aux[(i*offset)%p] + d2[i])%MOD;
+		FOR(i, p) a[i] = aux[i];
+		circularConv(a, b, c);
+		FOR(i, p) d[i] = ll(c[i].real() + 0.5)%MOD;
 	}
-	if (n < LIMIT || n % 2 != 0) {
-		compute(n-1, p);
-		FOR(i, p) dp[r][i] = 0;
-		int r1 = reduce(n-1);
-		FOR(i, p) {
-			dp[r][(10*i+1)%p] = (dp[r][(10*i+1)%p]+dp[r1][i])%MOD;
-			dp[r][(10*i+2)%p] = (dp[r][(10*i+2)%p]+dp[r1][i])%MOD;
-			dp[r][(10*i+3)%p] = (dp[r][(10*i+3)%p]+dp[r1][i])%MOD;
-			dp[r][(10*i+5)%p] = (dp[r][(10*i+5)%p]+dp[r1][i])%MOD;
-			dp[r][(10*i+7)%p] = (dp[r][(10*i+7)%p]+dp[r1][i])%MOD;
-		}
-		computed[r] = true;
-		return;
-	}
-	int m = n/2;
-	compute(m, p);
-	int r1 = reduce(m);
-	ll offset = modExp(10LL, (ll)m, (ll)p);
-	FOR(i, p) aux[i] = 0;
-	FOR(i, p) aux[(i*offset)%p] = (aux[(i*offset)%p] + dp[r1][i])%MOD;
-	circularconvolution(dp[r1], aux, dp[r], p);
-	computed[r] = true;
-	return;
+	dp[n] = d;
+	return dp[n];
 }
 
 int ans[MAXN][10];
 void solve(int n, int p) {
-	mset(computed, false);
-	n2i.clear(); cnt = 0;
-	compute(n-1, p);
-	int r = reduce(n-1);
+	vector<int> &d = compute(n-1, p);
 	FOR(i, p) FOR(j, 10) ans[i][j] = 0;
 	FOR(i, p) {
-		ans[(10*i + 1)%p][1] = (ans[(10*i + 1)%p][1] + dp[r][i])%MOD;
-		ans[(10*i + 2)%p][2] = (ans[(10*i + 2)%p][2] + dp[r][i])%MOD;
-		ans[(10*i + 3)%p][3] = (ans[(10*i + 3)%p][3] + dp[r][i])%MOD;
-		ans[(10*i + 5)%p][5] = (ans[(10*i + 5)%p][5] + dp[r][i])%MOD;
-		ans[(10*i + 7)%p][7] = (ans[(10*i + 7)%p][7] + dp[r][i])%MOD;
+		ans[(10*i + 1)%p][1] = (ans[(10*i + 1)%p][1] + d[i])%MOD;
+		ans[(10*i + 2)%p][2] = (ans[(10*i + 2)%p][2] + d[i])%MOD;
+		ans[(10*i + 3)%p][3] = (ans[(10*i + 3)%p][3] + d[i])%MOD;
+		ans[(10*i + 5)%p][5] = (ans[(10*i + 5)%p][5] + d[i])%MOD;
+		ans[(10*i + 7)%p][7] = (ans[(10*i + 7)%p][7] + d[i])%MOD;
 	}
 }
 
