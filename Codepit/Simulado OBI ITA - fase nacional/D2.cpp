@@ -155,6 +155,7 @@ typedef vector<int> vi;
 typedef pair<int, int> ii;
 
 //Binary Indexed Tree / Fenwick Tree
+//IMPORTANTE: eh indexada em 1!!!!
 int bit[MAXN];
 
 //a[i] += v; O(log n)

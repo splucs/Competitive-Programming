@@ -154,6 +154,7 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
+//Segment Tree
 int st[4*MAXN]; // 1 eh a raiz
 #define left(u) (2*(u)) // 2*u eh o filho esquerdo de u
 #define right(u) (2*(u)+1) // 2*u+1 eh o filho direito de u
