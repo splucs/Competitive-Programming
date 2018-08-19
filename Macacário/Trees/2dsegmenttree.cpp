@@ -1,95 +1,62 @@
 #include <algorithm>
 #include <vector>
 using namespace std;
-#define INF (1<<30)
+#define MAXM 100000009 //1e8+9
+#define INF 0x3f3f3f3f
 
 /*
  * 2D Segment Tree
  */
 
-const int neutral = 0;
-int comp(int a, int b) {
-	return a+b;
-}
+int rs[MAXM], ls[MAXM], st[MAXM], cnt = 0;
 
 class SegmentTree2D {
-	int sizex, sizey, ix, jx, iy, jy, x, y, v;
-	vector< vector<int> > st;
-#define parent(p) (p >> 1)
-#define left(p) (p << 1)
-#define right(p) ((p << 1) + 1)
-	void buildx(int px, int lx, int rx, vector< vector<int> > & A) {
-		if(lx != rx) {
-			int mx = (lx + rx) / 2;
-			buildx(left(px), lx, mx, A);
-			buildx(right(px), mx+1, rx, A);
-		}
-		buildy(px, lx, rx, 1, 0, sizey-1, A);
-	}
-	void buildy(int px, int lx, int rx, int py, int ly, int ry, vector< vector<int> > & A) {
-		if(ly == ry) {
-			if(lx == rx) st[px][py] = A[lx][ly];
-			else st[px][py] = comp(st[left(px)][py], st[right(px)][py]);
-		}
-		else {
-			int my = (ly + ry) / 2;
-			buildy(px, lx, rx, left(py), ly, my, A);
-			buildy(px, lx, rx, right(py), my+1, ry, A);
-			st[px][py] = comp(st[px][left(py)], st[px][right(py)]);
-		}
-	}
-	int queryx(int px, int lx, int rx) {
-		if(lx > jx || rx < ix) return neutral;
-		if(lx >= ix && rx <= jx) return queryy(px, 1, 0, sizey-1);
+	int sizex, sizey, v, root;
+	int x, y, ix, jx, iy, jy;
+	void updatex(int p, int lx, int rx) {
+		if (x < lx || rx < x) return;
+		st[p] += v;
+		if (lx == rx) return;
+		if (!rs[p]) rs[p] = ++cnt, ls[p] = ++cnt;
 		int mx = (lx + rx) / 2;
-		int p1x = queryx(left(px), lx, mx);
-		int p2x = queryx(right(px), mx+1, rx);
-		return comp(p1x, p2x);
+		updatex(ls[p], lx, mx);
+		updatex(rs[p], mx + 1, rx);
 	}
-	int queryy(int px, int py, int ly, int ry) {
-		if(ly > jy || ry < iy) return neutral;
-		if(ly >= iy && ry <= jy) return st[px][py];
+	void updatey(int p, int ly, int ry) {
+		if (y < ly || ry < y) return;
+		if (!st[p]) st[p] = ++cnt;
+		updatex(st[p], 0, sizex);
+		if (ly == ry) return;
+		if (!rs[p]) rs[p] = ++cnt, ls[p] = ++cnt;
 		int my = (ly + ry) / 2;
-		int p1y = queryy(px, left(py), ly, my);
-		int p2y = queryy(px, right(py), my+1, ry);
-		return comp(p1y, p2y);
+		updatey(ls[p], ly, my);
+		updatey(rs[p], my + 1, ry);
 	}
-	void updatex(int px, int lx, int rx) {
-		if(lx > x || rx < x) return;
-		if(lx < rx) {
-			int mx = (lx + rx) / 2;
-			updatex(left(px), lx, mx);
-			updatex(right(px), mx+1, rx);
-		}
-		updatey(px, lx, rx, 1, 0, sizey-1);
+	int queryx(int p, int lx, int rx) {
+		if (!p || jx < lx || ix > rx) return 0;
+		if (ix <= lx && rx <= jx) return st[p];
+		int mx = (lx + rx) / 2;
+		return queryx(ls[p], lx, mx) +
+			queryx(rs[p], mx + 1, rx);
 	}
-	void updatey(int px, int lx, int rx, int py, int ly, int ry) {
-		if(ly > y || ry < y) return;
-		if(ly == ry) {
-			if(lx == rx) st[px][py] = v;
-			else st[px][py] = comp(st[left(px)][py],st[right(px)][py]);
-		}
-		else {
-			int my = (ly + ry) / 2;
-			updatey(px, lx, rx, left(py),ly,my);
-			updatey(px, lx, rx, right(py), my+1,ry);
-			st[px][py] = comp(st[px][left(py)], st[px][right(py)]);
-		}
+	int queryy(int p, int ly, int ry) {
+		if (!p || jy < ly || iy > ry) return 0;
+		if (iy <= ly && ry <= jy) return queryx(st[p], 0, sizex);
+		int my = (ly + ry) / 2;
+		return queryy(ls[p], ly, my) +
+			queryy(rs[p], my + 1, ry);
 	}
 public:
-	SegmentTree2D(vector< vector<int> > & A) {
-		sizex = A.size();
-		sizey = A[0].size();
-		st.assign(4*sizex+9, vector<int>(4*sizey+9));
-		buildx(1, 0, sizex-1, A);
+	SegmentTree2D(int nx, int ny) : sizex(nx), sizey(ny) {
+		root = ++cnt;
 	}
 	void update(int _x, int _y, int _v) {
 		x = _x; y = _y; v = _v;
-		updatex(1, 0, sizex - 1);
+		updatey(root, 0, sizey);
 	}
-	int query(int lx, int rx, int ly, int ry) {
-		ix = lx; jx = rx; iy = ly; jy = ry;
-		return queryx(1, 0, sizex - 1);
+	int query(int _ix, int _jx, int _iy, int _jy) {
+		ix = _ix; jx = _jx; iy = _iy; jy = _jy;
+		return queryy(root, 0, sizey);
 	}
 };
 
@@ -101,17 +68,17 @@ public:
 vector< vector<int> > A;
 
 int query(int lx, int rx, int ly, int ry) {
-	int ans = neutral;
+	int ans = 0;
 	for(int i=lx; i<=rx; i++) {
 		for(int j=ly; j<=ry; j++) {
-			ans = comp(ans, A[i][j]);
+			ans += A[i][j];
 		}
 	}
 	return ans;
 }
 
 void update(int x, int y, int v) {
-	A[x][y] = v;
+	A[x][y] += v;
 }
 
 bool test() {
@@ -119,12 +86,9 @@ bool test() {
 	int lx, rx, ly, ry, x, y, v;
 	A.resize(N);
 	for(int i=0; i<N; i++) {
-		A[i].resize(N);
-		for(int j=0; j<N; j++) {
-			A[i][j] = rand() % N;
-		}
+		A[i].assign(N, 0);
 	}
-	SegmentTree2D st(A);
+	SegmentTree2D st(N, N);
 	printf("starting tests...\n");
 	for(int q=1; q<=nTests; q++) {
 		x = rand()%N;

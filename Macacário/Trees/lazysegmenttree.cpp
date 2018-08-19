@@ -55,11 +55,11 @@ private:
 		return comp(p1, p2);
 	}
 public:
-	SegmentTree(int* st, int* en) {
-		size = (int)(en - st);
+	SegmentTree(int* bg, int* en) {
+		size = (int)(en - bg);
 		st.assign(4 * size, neutral);
 		lazy.assign(4 * size, 0);
-		build(1, 0, size - 1, st);
+		build(1, 0, size - 1, bg);
 	}
 	int query(int a, int b) { return query(1, 0, size - 1, a, b); }
 	void update(int a, int b, int k) { update(1, 0, size - 1, a, b, k); }
