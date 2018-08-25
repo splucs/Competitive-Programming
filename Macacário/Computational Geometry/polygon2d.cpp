@@ -118,7 +118,8 @@ polygon make_polygon(vector<point> P) {
 
 double perimeter(polygon & P) {
 	double result = 0.0;
-	for (int i = 0; i < (int)P.size()-1; i++) result += dist(P[i], P[i+1]);
+	int n = P.size();
+	for (int i = 0; i < n; i++) result += dist(P[i], P[(i+1)%n]);
 	return result;
 }
 
