@@ -143,6 +143,7 @@ bool inPolygon(polygon & P, point p) {
 	double sum = 0.0;
 	int n = P.size();
 	for (int i = 0; i < n; i++) {
+		if (P[i] == p || between(P[i], p, P[(i+1)%n])) return true;
 		if (ccw(p, P[i], P[(i+1)%n])) sum += angle(P[i], p, P[(i+1)%n]);
 		else sum -= angle(P[i], p, P[(i+1)%n]);
 	}
