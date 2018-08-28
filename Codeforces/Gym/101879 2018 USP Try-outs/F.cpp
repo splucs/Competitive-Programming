@@ -153,103 +153,107 @@ typedef unsigned long long ull;
 typedef long double ld;
 typedef unsigned int uint;
 typedef vector<int> vi;
-typedef pair<int, int> ii;
+typedef pair<ll, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
+vector<ii> g[MAXN];
+int nxt[MAXN], nxti[MAXN], prv[MAXN], prvi[MAXN];
+ll ds[MAXN], dt[MAXN];
+int n;
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
-	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
+void dijkstra(int s, ll dist[]) {
+	FOR1(i, n) dist[i] = INFLL;
+	mset(prv, -1);
+	mset(prvi, -1);
+	set<ii> pq;
+	dist[s] = 0;
+	pq.insert({dist[s], s});
+	while(!pq.empty()) {
+		int u = pq.begin()->second;
+		pq.erase(pq.begin());
+		FOR(i, sz(g[u])){
+			int w = g[u][i].fi;
+			int v = g[u][i].se;
+			if (dist[v] > dist[u] + w) {
+				pq.erase({dist[v], v});
+				dist[v] = dist[u] + w;
+				prv[v] = u; prvi[v] = i;
+				pq.insert({dist[v], v});
 			}
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
 	}
-	return dp[n];
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+void getnxt(int t) {
+	mset(nxti, -1);
+	mset(nxt, -1);
+	//FOR1(i, n) printf("prv[%d] = %d\n", i, prv[i]);
+	for(int u = t; prv[u] != -1; u = prv[u]) {
+		nxti[prv[u]] = prvi[u];
+		nxt[prv[u]] = u;
+		//printf("nxt[%d] = %d, %d\n", prv[u], u, prvi[u]);
+	}
+}
+
+bool ins[MAXN];
+priority_queue<ii> pq;
+
+void remsubtree(int u) {
+	ins[u] = false;
+	//printf("%d erased\n", u);
+	FOR(i, sz(g[u])){
+		ll w = g[u][i].fi;
+		int v = g[u][i].se;
+		if (i != nxti[u]) pq.push({-ds[u]-dt[v]-w, v});
+		if (prv[v] != u || nxt[u] == v) continue;
+		remsubtree(v);
+	}
+}
+
+ll ans;
+void solve(int u) {
+	if (nxt[u] == -1) return;
+	//printf("solving %d\n", u);
+	remsubtree(u);
+	while(!pq.empty() && !ins[pq.top().se]) {
+		pq.pop();
+	}
+	if (pq.empty()) ans = INFLL;
+	else ans = max(ans, -pq.top().fi);
+	solve(nxt[u]);
+}
+
+int m, s, t;
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
+	while(scanf("%d %d %d %d", &n, &m, &s, &t) != EOF) {
+		FOR1(u, n) {
+			g[u].clear();
+			ins[u] = true;
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
+		FOR(j, m) {
+			int u, v;
+			ll w;
+			scanf("%d %d %lld", &u, &v, &w);
+			g[u].pb({w, v});
+			g[v].pb({w, u});
+			//printf("edge %d,%d\n", u, v);
 		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
+		if (s == t) {
+			printf("0\n");
+			continue;
 		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
+		dijkstra(t, dt);
+		dijkstra(s, ds);
+		if (ds[t] >= INFLL) {
+			printf("-1\n");
+			continue;
 		}
-		printf("%d\n", ans);
+		getnxt(t);
+		pq = priority_queue<ii>();
+		ans = -INFLL;
+		solve(s);
+		if (ans == INFLL) ans = -1;
+		printf("%lld\n", ans);
 	}
 	return 0;
 }

@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -153,103 +152,120 @@ typedef unsigned long long ull;
 typedef long double ld;
 typedef unsigned int uint;
 typedef vector<int> vi;
-typedef pair<int, int> ii;
+typedef pair<ll, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
-
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+vector<ii> decompose(ll N) {
+	vector<ii> ans;
+	for(ll i = 2; i*i <= N; i++) {
+		if (N%i == 0) {
+			int cnt = 0;
+			while(N%i == 0) {
+				N /= i;
+				cnt++;
+			}
+			ans.pb({i, cnt});
+		}
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+	if (N > 1) ans.pb({N, 1});
+	/*printf("K = ");
+	for(ii pp : ans) {
+		printf("(%lld^%d)", pp.fi, pp.se);
 	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
+	printf("\n");*/
+	return ans;
 }
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
+ll K, R;
+int N;
+vector<ii> facK;
+set<ll> ans;
 
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
+bool getSmallestLcm() {
+	vector<ll> maxfac;
+	int nused = 0;
+	for(ii fac : facK) {
+		ll cur = 1;
+		FOR(i, fac.se) cur *= fac.fi;
+		maxfac.pb(cur);
+		if (cur > R) return false;
+	}
+	sort(all(maxfac));
+	bool found = false;
+	do {
+		int cnt = 0;
+		ll cur = 1;
+		for(ll i : maxfac) {
+			if (cur*i <= R) cur *= i;
+			else {
+				cnt++;
+				cur = i;
 			}
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+		cnt++;
+		cur = 1;
+		if (cnt <= N) found = true;
+	} while(!found && next_permutation(all(maxfac)));
+	//printf("no permutation found\n");
+	if (!found) return false;
+	ll cur = 1;
+	for(ll i : maxfac) {
+		if (cur*i <= R) cur *= i;
+		else {
+			ans.insert(cur);
+			cur = i;
+		}
 	}
-	return dp[n];
+	ans.insert(cur);
+	return true;
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+void bt(int i, ll cur) {
+	if (ans.size() == N) return;
+	if (i == (int)facK.size()) {
+		ans.insert(cur);
+		return;
+	}
+	bt(i+1, cur);
+	FOR(j, facK[i].se) {
+		cur *= facK[i].fi;
+		if (cur > R) break;
+		bt(i+1, cur);
+	}
+}
+
+ll gcd(ll x, ll y) {
+	if (y == 0) return x;
+	return gcd(y, x%y);
+}
+
+ll lcm(ll x, ll y) {
+	return x/gcd(x, y)*y;
+}
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
+	while(scanf("%d %lld %lld", &N, &R, &K) != EOF) {
+	//while(N = 1+rand()%100) {
+		//R = 1 + rand()%100000;
+		//K = 1 + rand()%100000;
+		ans.clear();
+		facK = decompose(K);
+		bool ok = getSmallestLcm();
+		if (ok) {
+			bt(0, 1);
+			ok = (N == (int)ans.size());
+		}
+		if (!ok) printf("-1\n");
+		else {
+			ll g = 1;
+			for(ll i : ans) {
+				g = lcm(g, i);
+				assert(i >= 1 && i <= R);
+				printf("%d ", i);
 			}
+			//if (g != K) printf("%d %lld %lld\n", N, R, K);
+			assert(g == K);
+			printf("\n");
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
 	}
 	return 0;
 }

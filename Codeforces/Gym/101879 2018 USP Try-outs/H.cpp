@@ -2,7 +2,7 @@
 using namespace std;
 
 #define FOR(i, N) for (int i = 0; i < N; ++i)
-#define MAXN 20009
+#define MAXN 30009
 #define pb push_back
 typedef long long int ll;
 typedef pair<int, int> ii;

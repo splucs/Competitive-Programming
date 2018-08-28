@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 200309
+#define MAXN 209
 #define MAXM 900009
 #define ALFA 256
 #define MOD 1000000007
@@ -155,101 +155,171 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
-
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+struct point {
+	double x, y;
+	point() { x = y = 0.0; }
+	point(double _x, double _y) : x(_x), y(_y) {}
+	double norm() {
+		return hypot(x, y);
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+	point normalized() {
+		return point(x,y)*(1.0/norm());
 	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
+	double angle() { return atan2(y, x); }
+	double polarAngle() {
+		double a = atan2(y, x);
+		return a < 0 ? a + 2*acos(-1.0) : a;
+	}
+	bool operator < (point other) const {
+		if (fabs(x - other.x) > EPS) return x < other.x;
+		if (fabs(y - other.y) > EPS) return y < other.y;
+		return false;
+	}
+	bool operator == (point other) const {
+		return (fabs(x - other.x) < EPS && (fabs(y - other.y) < EPS));
+	}
+	point operator +(point other) const {
+		return point(x + other.x, y + other.y);
+	}
+	point operator -(point other) const {
+		return point(x - other.x, y - other.y);
+	}
+	point operator *(double k) const {
+		return point(x*k, y*k);
+	}
+};
+
+double dist(point p1, point p2) {
+	return hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
+double inner(point p1, point p2) {
+	return p1.x*p2.x + p1.y*p2.y;
 }
 
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
+double cross(point p1, point p2) {
+	return p1.x*p2.y - p1.y*p2.x;
+}
 
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
+bool ccw(point p, point q, point r) {
+	return cross(q-p, r-p) > 0;
+}
+
+bool collinear(point p, point q, point r) {
+	return fabs(cross(p-q, r-p)) < EPS;
+}
+
+point rotate(point p, double rad) {
+	return point(p.x * cos(rad) - p.y * sin(rad),
+	p.x * sin(rad) + p.y * cos(rad));
+}
+
+double angle(point a, point o, point b) {
+	return acos(inner(a-o, b-o) / (dist(o,a)*dist(o,b)));
+}
+
+point proj(point u, point v) {
+	return v*(inner(u,v)/inner(v,v));
+}
+
+bool between(point p, point q, point r) {
+	return collinear(p, q, r) && inner(p - q, r - q) <= 0;
+}
+
+int n;
+double r[MAXN];
+double d[MAXN][MAXN], t[MAXN][MAXN];
+point c[MAXN];
+
+point getDir(int i, int j) {
+	point dc = c[j] - c[i];
+	assert(fabs((r[i]-r[j])/dc.norm()) <= 1.001);
+	double as = (r[i]-r[j])/dc.norm();
+	if (as > 1.0) as = 1.0;
+	if (as < -1.0) as = -1.0;
+	double theta = asin(as);
+	dc = rotate(dc, theta);
+	return dc;
+}
+
+double getDist(int i, int j) {
+	double d = dist(c[i], c[j]);
+	double dr = fabs(r[i]-r[j]);
+	double delta = d*d - dr*dr;
+	assert(delta > -EPS);
+	return delta < 0 ? 0 : sqrt(delta);
+}
+
+double arc(point d1, point d2, double R) {
+	double si = cross(d1, d2);
+	double co = inner(d1, d2);
+	double theta = atan2(si, co);
+	while(theta < -EPS) theta += 2*acos(-1.0);
+	return R*theta;
+}
+
+bool vis[MAXN][MAXN];
+double pot[MAXN][MAXN];
+double go(int i, int j, double cur) {
+	point indir = getDir(i, j);
+	//printf("go (%d,%d), indir = (%.3f,%.3f)\n", i, j, indir.x, indir.y);
+	if (vis[i][j]) {
+		return cur - pot[i][j];
+	}
+	double mint = 1e+30;
+	int k = -1;
+	FOR(kt, n) {
+		if (c[j] == c[kt]) continue;
+		point outdir = getDir(j, kt);
+		if (mint > arc(indir, outdir, r[i])) {
+			k = kt;
+			mint = arc(indir, outdir, r[i]);
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
 	}
-	return dp[n];
+	point outdir = getDir(j, k);
+	pot[i][j] = cur;
+	vis[i][j] = true;
+	cur += arc(indir, outdir, r[j]) + getDist(i, j);
+	return go(j, k, cur);
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+bool contained[MAXN];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
+	while(scanf("%d", &n) != EOF) {
+		mset(contained, false);
+		FOR(i, n) {
+			scanf("%lf %lf %lf", &c[i].x, &c[i].y, &r[i]);
+			r[i] += 10;
+		}
+		mset(vis, 0);
+		FOR(i, n) FOR(j, n) {
+			if (i == j) continue;
+			if (!(c[i] == c[j]) && dist(c[i], c[j]) + r[j] <= r[i] + EPS) {
+				contained[j] = true;
+				//printf("%d is contained\n", j);
+			}
+			else if (c[i] == c[j] && fabs(r[j] - r[i]) < EPS) {
+				if (j > i) contained[j] = true;
+				//printf("%d is contained\n", j);
+			}
+			else if (c[i] == c[j] && r[j] < r[i]) {
+				contained[j] = true;
+				//printf("%d is contained\n", j);
 			}
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
+		int aux = 0;
+		FOR(i, n) {
+			if (!contained[i]) {
+				c[aux] = c[i];
+				r[aux] = r[i];
+				aux++;
 			}
-			cnt[m]++;
 		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
+		n = aux;
+		double ans;
+		if (n > 1) ans = go(0, 1, 0);
+		else ans = 2*acos(-1.0)*r[0];
+		printf("%.20f\n", ans);
 	}
-	return 0;
 }

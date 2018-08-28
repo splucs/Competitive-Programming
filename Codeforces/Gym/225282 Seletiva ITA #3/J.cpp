@@ -155,101 +155,32 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
+int u[10], r[10], t[10];
+int du[10], dr[10];
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+int trymachine(int curt, int i) {
+	if (curt < t[i]) {
+		curt += du[i];
+		if (curt > t[i]) t[i] = curt;
+		curt += dr[i];
+		return curt;
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
+	int elapsed = curt - t[i];
+	elapsed %= (u[i]+r[i]);
+	t[i] = curt - elapsed;
+	if (curt < t[i]+u[i]) curt = t[i]+u[i];
+	t[i] += u[i]+r[i];
+	curt += du[i];
+	if (curt > t[i]) t[i] = curt;
+	curt += dr[i];
+	return curt;
 }
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
-		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
-	}
-	return dp[n];
-}
-
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
-		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
-	}
+	FOR(i, 10) scanf("%d %d", &du[i], &dr[i]);
+	FOR(j, 10) scanf("%d %d %d", &u[j], &r[j], &t[j]);
+	int t = 0;
+	FOR(k, 3) FOR(i, 10) t = trymachine(t, i);
+	printf("%d\n", t-dr[9]);
 	return 0;
 }

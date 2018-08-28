@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 200309
+#define MAXN 100009
 #define MAXM 900009
 #define ALFA 256
 #define MOD 1000000007
@@ -155,100 +155,123 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
+int N, K;
+vector<ii> cnt[MAXN];
+vi g[MAXN];
+int ans;
+
+inline void refresh(int u, int i) {
+	if (i < 0 || i >= sz(cnt[u])) return;
+	cnt[u][i].fi += cnt[u][i].se;
+	if (i+1 < sz(cnt[u])) cnt[u][i+1].se += cnt[u][i].se;
+	cnt[u][i].se = 0;
+	ans = max(ans, cnt[u][i].fi);
 }
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+void checkpos(int u, int i) {
+	assert(i >= 0 && i < sz(cnt[u]));
+}
+
+void merge(int u, int v) {
+	//printf("merging %d into %d\n", v, u);
+	if (cnt[u].size() < cnt[v].size()) {
+		cnt[u].swap(cnt[v]);
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+	int sv = sz(cnt[v]);
+	int su = sz(cnt[u]);
+	FOR(it, sv) refresh(v, it);
+	REP(it, sv) {
+		int i = sv-it-1;
+		int j = K-i;
+		if (j >= su) j = su-1;
+		if (j < 0) continue;
+		int jt = su-j-1;
+		refresh(u, jt);
+		ans = max(ans, cnt[v][it].fi + cnt[u][jt].fi);
+	}
+	/*int en = min(K/2, sv-1);
+	for(int j = en; j >= 0; j--) {
+		int it = sv-1-j;
+		int jt = su-1-j;
+		cnt[u][jt].fi += cnt[v][it].fi;
+	}
+	FOR(i, sv-1) {
+		int it = sv-1-i;
+		int j = K-i;
+		int jt = su-1-j;
+		if (j >= su) continue;
+		if (j <= en) break;
+		cnt[u][jt].fi += cnt[v][it].fi;
+	}
+	int i = sv-1;
+	int j = K-i;
+	int st = min(j, su-1);
+	//printf("st = %d, en = %d\n", st, en);
+	if (en <= st) {
+		//printf("cnt[u][%d,%d) += %d\n", st, en, cnt[v][0].fi);
+		cnt[u][su-1-st].se += cnt[v][0].fi;
+		cnt[u][su-1-en].se -= cnt[v][0].fi;
+	}
+	for(int j = min(K, su-1); j >= st; j--) {
+		int jt = su-1-j;
+		refresh(u, jt);
+	}
+	for(int j = st; j <= min(K, su-1); j++) {
+		int jt = su-1-j;
+		if (j > 0) cnt[u][jt] = max(cnt[u][jt], cnt[u][jt+1]);
+	}*/
+
+	FOR(j, su) {
+		int i = K-j;
+		if (i > j) i = j;
+		if (i >= sv) i = sv-1;
+		if (i < 0) break;
+		int it = sv-1-i;
+		int jt = su-1-j;
+		checkpos(u, jt);
+		checkpos(v, it);
+		cnt[u][jt].fi += cnt[v][it].fi;
+		if (j > 0) cnt[u][jt].fi = max(cnt[u][jt].fi, cnt[u][jt+1].fi);
 	}
 }
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
-		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+void print(int u) {
+	printf("node %d:", u);
+	FOR(it, sz(cnt[u])) refresh(u, it);
+	REP(it, sz(cnt[u])) {
+		int i = sz(cnt[u])-1-it;
+		printf(" %d:%d", i, cnt[u][it].fi);
 	}
-	return dp[n];
+	printf("\n");
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+void dfs(int u, int p) {
+	cnt[u].clear();
+	cnt[u].pb({1, 0});
+	//print(u);
+	for(int v : g[u]) {
+		if (v == p) continue;
+		dfs(v, u);
+		cnt[v].pb({0, 0});
+		merge(u, v);
+		//print(u);
+	}
+	//printf("final ");
+	//print(u);
+	ans = max(ans, cnt[u][0].fi);
+}
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
+	while(scanf("%d %d", &N, &K) != EOF) {
+		FOR1(u, N) g[u].clear();
+		FOR(j, N-1) {
+			int u, v;
+			scanf("%d %d", &u, &v);
+			g[u].pb(v);
+			g[v].pb(u);
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
+		ans = 0;
+		dfs(1, -1);
 		printf("%d\n", ans);
 	}
 	return 0;

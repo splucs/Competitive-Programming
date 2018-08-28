@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,101 +154,56 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
+bool vis[2][MAXN];
+int n, m;
+
+void dfs(int i, int j) {
+	vis[i][j] = true;
+	if (!vis[1-i][j]) dfs(1-i, j);
+	else if (j+1 < n && !vis[i][j+1]) dfs(i, j+1);
 }
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
-	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
-		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
-	}
-	return dp[n];
-}
-
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+map<int, int> reduce;
+int x[MAXN], y[MAXN];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
+	while(scanf("%d %d", &n, &m) != EOF) {
+		mset(vis, false);
+		reduce.clear();
+		FOR(j, m) {
+			scanf("%d %d", &x[j], &y[j]);
+			x[j]--; y[j]--;
+			reduce[y[j]] = 0;
+		}
+		reduce[n] = 0;
+		int last = -1, lastp;
+		for(auto & u : reduce) {
+			if (last == -1) {
+				u.second = 2 + (u.first % 2);
 			}
-		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
+			else if (u.first == last+1) {
+				u.second = lastp + 1;
 			}
-			cnt[m]++;
+			else if ((u.first - last) % 2 == 0) {
+				u.second = lastp + 2;
+			}
+			else u.second = lastp + 3;
+
+			last = u.first;
+			lastp = u.second;
 		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
+		FOR(j, m) {
+			y[j] = reduce[y[j]];
+			vis[x[j]][y[j]] = true;
 		}
-		printf("%d\n", ans);
+		n = reduce[n];
+		dfs(0, 0);
+		bool ok = true;
+		FOR(i, n) {
+			if (!vis[0][i] || !vis[1][i]) ok = false;
+		}
+		if (ok) printf("Yes\n");
+		else printf("No\n");
 	}
 	return 0;
 }

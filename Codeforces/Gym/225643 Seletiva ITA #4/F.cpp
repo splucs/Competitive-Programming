@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,101 +154,44 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
+int m1, d1, m2, d2;
+int mnt[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+bool leap(int y) {
+	return y%400 == 0 || (y%4 == 0 && y%100 != 0);
 }
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
-	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
+int month(int m, int y) {
+	if (m == 2 && leap(y)) return 29;
+	else return mnt[m];
 }
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
+int solve(int d, int m, int y) {
+	int m0 = m, d0 = d;
+	int ans = 0;
+	FOR1(cnt, 2048) {
+		d++;
+		if (d > month(m, y)) {
+			d = 1; m++;
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+		if (m == 13) {
+			m = 1; y++;
+		}
+		bool special = false;
+		if (cnt % 100 == 0) special = true;
+		if (m == m0 && d == d0) special = true;
+		if (m == m1 && d == d1) special = true;
+		if (m == m2 && d == d2) special = true;
+		if (special) ans++;
 	}
-	return dp[n];
+	return ans;
 }
-
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
-		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
+	int d, m, y;
+	while(scanf("%d/%d/%d", &d, &m, &y) != EOF) {
+		scanf("%d/%d %d/%d", &d1, &m1, &d2, &m2);
+		printf("%d\n", solve(d, m, y));
 	}
 	return 0;
 }

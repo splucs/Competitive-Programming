@@ -155,101 +155,150 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
+int num[4];
+vector<string> dp[4][4];
+char op[4] = {'+', '-', '*', '/'};
+
+inline bool isOp(char c) {
+	return c=='+' || c=='-' || c=='*' || c=='/' || c=='^';
 }
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+inline bool isCarac(char c) {
+	return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
+}
+
+void paren2polish(const char* paren, vector< pair<int, char> > & polish, int & numpar) {
+	map<char, int> prec;
+	prec['('] = 0;
+	prec['+'] = prec['-'] = 1;
+	prec['*'] = prec['/'] = 2;
+	prec['^'] = 3;
+	int len = 0;
+	stack<char> op;
+	numpar = 0;
+	polish.clear();
+	for (int i = 0; paren[i]; i++) {
+		if (isOp(paren[i])) {
+			while (!op.empty() && prec[op.top()] >= prec[paren[i]]) {
+				polish.pb({1, op.top()}); op.pop();
+			}
+			op.push(paren[i]);
+		}
+		else if (paren[i]=='(') {
+			op.push('(');
+			numpar++;
+		}
+		else if (paren[i]==')') {
+			for (; op.top()!='('; op.pop())
+				polish.pb({1, op.top()});
+			op.pop();
+		}
+		else if (isCarac(paren[i])) {
+			char atom = paren[i] - '0';
+			if (i > 0 && isCarac(paren[i-1])) {
+				atom += 10*polish.back().se;
+				polish.pop_back();
+			}
+			polish.pb({0, atom});
+		}
+	}
+	for(; !op.empty(); op.pop())
+		polish.pb({1, op.top()});
+}
+
+vector<string> & generate(int i, int j) {
+	if (!dp[i][j].empty()) return dp[i][j];
+	vector<string> & ans = dp[i][j];
+	if (i == j) {
+		char buf[6];
+		sprintf(buf, "%d", num[i]);
+		ans.pb(string(buf));
 	}
 	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
+		string cur;
+		for(int k = i; k < j; k++) {
+			vector<string> & v1 = generate(i, k);
+			vector<string> & v2 = generate(k+1, j);
+			for(string s1 : v1) for(string s2 : v2) FOR(o, 4) {
+				cur = s1 + op[o] + s2;
+				ans.pb(cur);
+				if (j-i < 3) {
+					cur = "(" + cur + ")";
+					ans.pb(cur);
+				}
 			}
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
 	}
-	return dp[n];
+	/*printf("expression [%d,%d]:", i, j);
+	for(string str : ans) {
+		printf(" %s", str.c_str());
+	}
+	printf("\n");*/
+	//if (j-i == 3) printf("ans has %u exp\n", ans.size());
+	return ans;
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+vector< pair<int, char> > polish;
+
+int evaluate(const char *ex) {
+	int numpar;
+	paren2polish(ex, polish, numpar);
+	stack<int> st;
+	FOR(i, sz(polish)) {
+		if (polish[i].fi == 0) {
+			st.push(polish[i].se);
+		}
+		else {
+			char op = polish[i].se;
+			int v = st.top(); st.pop();
+			int u = st.top(); st.pop();
+			if (op == '+') st.push(u+v);
+			if (op == '-') st.push(u-v);
+			if (op == '*') st.push(u*v);
+			if (op == '/') {
+				if (v == 0 || u % v != 0) return INF;
+				st.push(u/v);
+			}
+		}
+	}
+	assert(st.size() == 1u);
+	if (st.top() == 24) return numpar;
+	return INF;
+}
+
+int testPermutation(vector< ii > & per) {
+	FOR(i, 4) FOR(j, 4) dp[i][j].clear();
+	FOR(i, 4) num[i] = per[i].se;
+	vector<string> & strs = generate(0, 3);
+	int ans = INF;
+	for(string & str : strs) {
+		ans = min(ans, evaluate(str.c_str()));
+	}
+	return ans;
+}
+
+int permute(vector< ii > & per) {
+	sort(all(per));
+	int ans = INF;
+	do {
+		int cost = 0;
+		FOR(j, 4) FOR(i, j) {
+			if (per[i].fi > per[j].fi) cost += 2;
+		}
+		//printf("trying permutation %c %c %c %c, cost %d\n", per[0].se, per[1].se, per[2].se, per[3].se, cost);
+		cost += testPermutation(per);
+		ans = min(ans, cost);
+	} while(next_permutation(all(per)));
+	return ans;
+}
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
-		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
+	vector< ii > per(4);
+	while(scanf(" %d %d %d %d", &per[0].se, &per[1].se, &per[2].se, &per[3].se) != EOF) {
+		FOR(i, 4) per[i].fi = i;
+		int ans = permute(per);
+		if (ans >= INF) printf("impossible\n");
+		else printf("%d\n", ans);
 	}
 	return 0;
 }

@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,101 +154,98 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
+int ned, first[MAXN], work[MAXN];
+int cap[MAXM], to[MAXM], nxt[MAXM], dist[MAXN];
+
+void init() {
+   memset(first, -1, sizeof first);
+   ned = 0;
 }
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
-	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
+void add(int u, int v, int f) {
+    to[ned] = v, cap[ned] = f;
+    nxt[ned] = first[u];
+    first[u] = ned++;
+    
+    to[ned] = u, cap[ned] = 0;
+    nxt[ned] = first[v];
+    first[v] = ned++;
 }
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
+int dfs(int u, int f, int s, int t) {
+	if (u == t) return f;
+	int v, df;
+	for(int & e = work[u]; e!=-1; e = nxt[e]) {
+        v = to[e];
+		if (dist[v] == dist[u] + 1 && cap[e] > 0) {
+			df = dfs(v, min(f, cap[e]), s, t);
+			if (df > 0) {
+				cap[e] -= df;
+				cap[e^1] += df;
+				return df;
 			}
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
 	}
-	return dp[n];
+	return 0;
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+bool bfs(int s, int t) {
+	int u, v;
+	memset(&dist, -1, sizeof dist);
+	dist[s] = 0;
+	queue<int> q; q.push(s);
+	while (!q.empty()) {
+		u = q.front(); q.pop();
+		for(int e = first[u]; e!=-1; e = nxt[e]) {
+			v = to[e];
+			if (dist[v] < 0 && cap[e] > 0) {
+				dist[v] = dist[u] + 1;
+				q.push(v);
+			}
+		}
+	}
+	return dist[t] >= 0;
+}
+
+int dinic(int s, int t, int g) {
+	int result = 0, f;
+	while (result < g && bfs(s, t)) {
+		memcpy(work, first, sizeof work);
+		while (f = dfs(s, INF, s, t)) result += f;
+	}
+	return min(result, g);
+}
+
+int pos[1009][109];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
+	int T;
+	scanf("%d", &T);
+	FOR1(caseNo, T) {
+		init();
+		int n, su, g, mt;
+		scanf("%d %d %d %d", &n, &su, &g, &mt);
+		int cnt = 0;
+		int en = ++cnt;
+		FOR1(u, n) FOR(t, mt+1) {
+			pos[u][t] = ++cnt;
+			if (t > 0) add(pos[u][t-1], pos[u][t], INF);
+		}
+		int m; scanf("%d", &m);
+		FOR(j, m) {
+			int v; scanf("%d", &v);
+			add(pos[v][mt], en, INF);
+		}
+		int r; scanf("%d", &r);
+		FOR(j, r) {
+			int u, v, p, ct;
+			scanf("%d %d %d %d", &u, &v, &p, &ct);
+			FOR(t, mt+1) {
+				if (t+ct > mt) break;
+				add(pos[u][t], pos[v][t+ct], p);
 			}
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
-		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
+		printf("%d\n", dinic(pos[su][0], en, g));
 	}
 	return 0;
 }

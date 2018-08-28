@@ -128,7 +128,7 @@
 #define DEBUG false
 #define debugf if (DEBUG) printf
 #define MAXN 200309
-#define MAXM 900009
+#define MAXM 20000009
 #define ALFA 256
 #define MOD 1000000007
 #define INF 0x3f3f3f3f
@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,99 +154,86 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
+int rs[MAXM], ls[MAXM], st[MAXM], cnt = 0;
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+class SegmentTree2D {
+	int sizex, sizey, v, root;
+	int x, y, ix, jx, iy, jy;
+	void updatex(int p, int lx, int rx) {
+		if (x < lx || rx < x) return;
+		st[p] += v;
+		if (lx == rx) return;
+		if (!rs[p]) rs[p] = ++cnt, ls[p] = ++cnt;
+		int mx = (lx + rx) / 2;
+		updatex(ls[p], lx, mx);
+		updatex(rs[p], mx + 1, rx);
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+	void updatey(int p, int ly, int ry) {
+		if (y < ly || ry < y) return;
+		if (!st[p]) st[p] = ++cnt;
+		updatex(st[p], 0, sizex);
+		if (ly == ry) return;
+		if (!rs[p]) rs[p] = ++cnt, ls[p] = ++cnt;
+		int my = (ly + ry) / 2;
+		updatey(ls[p], ly, my);
+		updatey(rs[p], my + 1, ry);
 	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
-		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+	int queryx(int p, int lx, int rx) {
+		if (!p || jx < lx || ix > rx) return 0;
+		if (ix <= lx && rx <= jx) return st[p];
+		int mx = (lx + rx) / 2;
+		return queryx(ls[p], lx, mx) +
+			queryx(rs[p], mx + 1, rx);
 	}
-	return dp[n];
-}
+	int queryy(int p, int ly, int ry) {
+		if (!p || jy < ly || iy > ry) return 0;
+		if (iy <= ly && ry <= jy) return queryx(st[p], 0, sizex);
+		int my = (ly + ry) / 2;
+		return queryy(ls[p], ly, my) +
+			queryy(rs[p], my + 1, ry);
+	}
+public:
+	SegmentTree2D(int nx, int ny) : sizex(nx), sizey(ny) {
+		root = ++cnt;
+	}
+	void update(int _x, int _y, int _v) {
+		x = _x; y = _y; v = _v;
+		updatey(root, 0, sizey);
+	}
+	int query(int _ix, int _jx, int _iy, int _jy) {
+		ix = _ix; jx = _jx; iy = _iy; jy = _jy;
+		return queryy(root, 0, sizey);
+	}
+};
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+SegmentTree2D St(1,1);
+
+struct employee {
+	int x, y, z;
+} emp[MAXN];
+
+bool operator < (employee a, employee b) {
+	return a.z < b.z;
+}
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
-		}
-		sort(all(divk));
+	int T, n;
+	scanf("%d", &T);
+	FOR1(caseNo, T) {
+		FOR1(p, cnt) st[p] = ls[p] = rs[p] = 0;
+		cnt = 0;
+		scanf("%d", &n);
+		St = SegmentTree2D(n+1, n+1);
 		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
+			scanf("%d %d %d", &emp[i].x, &emp[i].y, &emp[i].z);
 		}
+		sort(emp+1, emp+1+n);
+		int ans = 0;
 		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
+			if (St.query(0, emp[i].x, 0, emp[i].y) == 0) {
+				ans++;
+				St.update(emp[i].x, emp[i].y, 1);
 			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
 		}
 		printf("%d\n", ans);
 	}

@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,101 +154,83 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
+int n, m;
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+struct state {
+	bool path[30];
+	int am[12], cnt;
+	state() {
+		mset(am, 0);
+		cnt = 0;
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+};
+
+bool operator < (state a, state b) {
+	FOR(i, n) {
+		if (a.am[i] != b.am[i]) return a.am[i] < b.am[i];
 	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
+	return false;
 }
 
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
+map<state, int> st;
+int correct[12];
+char ans[12][35];
+int nans;
+vector<bool> example;
 
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
+void bt(int j, state & cur, bool first) {
+	if (first && j == 1+m/2) {
+		st[cur]++;
+		return;
+	}
+	if (!first && j == m) {
+		state inv = cur;
+		FOR(i, n) inv.am[i] = correct[i] - inv.am[i];
+		auto it = st.find(inv);
+		if (it == st.end() || it->second == 0) return;
+		nans += it->second;
+		if (nans == 1) {
+			example.clear();
+			FOR(k, it->first.cnt) example.pb(it->first.path[k]);
+			FOR(k, cur.cnt) example.pb(cur.path[k]);
 		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+		return;
 	}
-	return dp[n];
-}
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+	//ans for j is 0
+	cur.path[cur.cnt++] = false;
+	FOR(i, n) if (ans[i][j] == '0') cur.am[i]++;
+	bt(j+1, cur, first);
+	cur.cnt--;
+	FOR(i, n) if (ans[i][j] == '0') cur.am[i]--;
+
+	//ans for j is 1
+	cur.path[cur.cnt++] = true;
+	FOR(i, n) if (ans[i][j] == '1') cur.am[i]++;
+	bt(j+1, cur, first);
+	cur.cnt--;
+	FOR(i, n) if (ans[i][j] == '1') cur.am[i]--;
+}
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
-			}
+	int T;
+	scanf("%d", &T);
+	FOR1(caseNo, T) {
+		scanf("%d %d", &n, &m);
+		FOR(i, n) scanf(" %s %d", ans[i], &correct[i]);
+		st.clear();
+		nans = 0;
+		state ini;
+		bt(0, ini, true);
+		ini = state();
+		bt(1+m/2, ini, false);
+		if (nans != 1) {
+			printf("%d solutions\n", nans);
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
+		else {
+			for(bool i : example) printf("%d", i);
+			printf("\n");
 		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
 	}
 	return 0;
 }

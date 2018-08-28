@@ -14,34 +14,19 @@ typedef long long ll;
 
 int H, W, cnt;
 int pos[MAXN][MAXN][300], num[MAXM];
-bool vis[MAXM];
 char endpoint[MAXM], neigh[300];
 vector<int> g[MAXM];
 
 int dfs(int u, int p) {
-	if (vis[u]) return -1;
-	printf("dfs %d\n", u);
-	vis[u] = true;
-	if (p != -1 && g[u].size() == 1u) return u;
 	for(int v : g[u]) {
 		if (v == p) continue;
+		//printf("%d%c -> %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
 		return dfs(v, u);
 	}
-	printf("error\n");
+	return u;
 }
 
-vector<ii> getedges() {
-	memset(&vis, false, sizeof vis);
-	vector<ii> ans;
-	FOR1(u, cnt) {
-		if (!vis[u]) {
-			int p1 = u;
-			int p2 = dfs(u, -1);
-			if (p2 != -1) ans.push_back(ii(p1, p2));
-		}
-	}
-	return ans;
-}
+char buffer[10009];
 
 int main() {
 
@@ -55,7 +40,7 @@ int main() {
 	neigh['H'] = 'C';
 
 	int bcount = 0;
-	while(scanf("%d %d", &H, &W), H || W) {
+	while(scanf(" %d %d ", &H, &W), H || W) {
 		cnt = 0;
 		int k = 0;
 		FOR(i, H) FOR(j, W) {
@@ -67,22 +52,33 @@ int main() {
 				g[cnt].clear();
 			}
 		}
-		FOR(i, H) FOR(j, W) {
-			int c;
-			scanf("%d", &c);
-			while(c--) {
-				char c1, c2;
-				scanf(" %c %c", &c1, &c2);
-				int u = pos[i][j][c1];
-				int v = pos[i][j][c2];
-				g[u].push_back(v);
-				g[v].push_back(u);
+		while(true) {
+			int n;
+			scanf("%d ", &n);
+			if (n == 0) break;
+			int i = (n-1)/W;
+			int j = (n-1)%W;
+			gets(buffer);
+			//printf("description for square %d: |%s|\n", n, buffer);
+			scanf("\n");
+			int len = strlen(buffer);
+			FOR(it, len) {
+				if (buffer[it] != ' ' && (it == 0 || buffer[it-1] == ' ')) {
+					char c1, c2;
+					sscanf(buffer+it, " %c %c", &c1, &c2);
+					int u = pos[i][j][c1];
+					int v = pos[i][j][c2];
+					//printf("wire (internal) %d%c - %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
+					g[u].push_back(v);
+					g[v].push_back(u);
+				}
 			}
 		}
 		FOR(i, H) FOR(j, W-1) {
 			for(char c = 'C'; c <= 'D'; c++) {
 				int u = pos[i][j][c];
 				int v = pos[i][j+1][neigh[c]];
+				//printf("wire (horizontal) %d%c - %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
 				g[u].push_back(v);
 				g[v].push_back(u);
 			}
@@ -91,17 +87,28 @@ int main() {
 			for(char c = 'E'; c <= 'F'; c++) {
 				int u = pos[i][j][c];
 				int v = pos[i+1][j][neigh[c]];
+				//printf("wire (vertical) %d%c - %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
 				g[u].push_back(v);
 				g[v].push_back(u);
 			}
 		}
-		vector<ii> ans = getedges();
 		if (bcount > 0) printf("\n");
 		printf("Board %d:\n", ++bcount);
-		for(ii &cur : ans) {
-			int u = cur.first;
-			int v = cur.second;
-			printf("%d%c is connected to %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
+		gets(buffer);
+		scanf("\n");
+		int len = strlen(buffer);
+		FOR(it, len) {
+			if (buffer[it] != ' ' && (it == 0 || buffer[it-1] == ' ')) {
+				char c;
+				int n;
+				sscanf(buffer+it, "%d%c", &n, &c);
+				int i = (n-1)/W;
+				int j = (n-1)%W;
+				int u = pos[i][j][c];
+				int v = dfs(u, -1);
+				printf("%d%c is connected to %d%c\n", num[u], endpoint[u], num[v], endpoint[v]);
+		
+			}
 		}
 	}
 	return 0;

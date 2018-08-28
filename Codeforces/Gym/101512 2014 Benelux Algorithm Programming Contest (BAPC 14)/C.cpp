@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 200309
+#define MAXN 1009
 #define MAXM 900009
 #define ALFA 256
 #define MOD 1000000007
@@ -144,7 +144,6 @@
 #define fi first
 #define se second
 #define mp make_pair
-#define sz(x) int(x.size())
 #define all(x) x.begin(), x.end()
 #define mset(x,y) memset(&x, (y), sizeof(x));
 using namespace std;
@@ -155,101 +154,134 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-template <typename T>
-T gcd(T a, T b) {
-	return b == 0 ? a : gcd(b, a % b);
-}
+#include <cstdio>
+#include <cmath>
+#include <vector>
+using namespace std;
+#define EPS 1e-9
 
-template <typename T>
-T extGcd(T a, T b, T& x, T& y) {
-	if (b == 0) {
-		x = 1; y = 0;
-		return a;
+/*
+ * Point 2D
+ */
+
+struct point {
+	int x, y;
+	point() { x = y = 0.0; }
+	point(int _x, int _y) : x(_x), y(_y) {}
+	bool operator < (point other) const {
+		if (fabs(x - other.x) > EPS) return x < other.x;
+		else return y < other.y;
 	}
-	else {
-		T g = extGcd(b, a % b, y, x);
-		y -= a / b * x;
-		return g;
+	bool operator == (point other) const {
+		return x == other.x && y == other.y;
 	}
-}
- 
-template <typename T>
-T modInv(T a, T m) {
-	T x, y;
-	extGcd(a, m, x, y);
-	return (x % m + m) % m;
-}
- 
-template <typename T>
-T modDiv(T a, T b, T m) {
-	return ((a % m) * modInv(b, m)) % m;
-}
-
-template<typename T>
-T modExp(T a, T b, T m) {
-	if (b == 0) return (T)1;
-	T c = modExp(a, b / 2, m);
-	c = (c * c) % m;
-	if (b % 2 != 0) c = (c*a) % m;
-	return c;
-}
-
-int dp[MAXN];
-ll fat[MAXN];
-vector<int> divk;
-
-int solve(int n, int m, int k) { //n cycles of size m
-	//printf("%d cycles of size %d\n", n, m);
-	FOR(i, n+1) {
-		if (i == 0) dp[i] = 1;
-		else {
-			dp[i] = 0;
-			for(int j : divk) {
-				if (j > i) break;
-				if (j != gcd(k, j*m)) continue;
-				ll cur = (modDiv(fat[i-1], fat[i-j], (ll)MOD)*modExp((ll)m, j-1LL, (ll)MOD))%MOD;
-				dp[i] = (dp[i] + cur*dp[i-j])%MOD;	
-			}
-		}
-		//printf("dp[%d] = %d\n", i, dp[i]);
+	point operator +(point other) const {
+		return point(x + other.x, y + other.y);
 	}
-	return dp[n];
+	point operator -(point other) const {
+		return point(x - other.x, y - other.y);
+	}
+	point operator *(int k) const {
+		return point(x*k, y*k);
+	}
+};
+
+int inner(point p1, point p2) {
+	return p1.x*p2.x + p1.y*p2.y;
 }
 
-int p[MAXN], cnt[MAXN];
-bool vis[MAXN];
+int cross(point p1, point p2) {
+	return p1.x*p2.y - p1.y*p2.x;
+}
+
+bool ccw(point p, point q, point r) {
+	return cross(q-p, r-p) > 0;
+}
+
+bool collinear(point p, point q, point r) {
+	return cross(p-q, r-p) == 0;
+}
+
+bool parallel(point a, point b) {
+	return cross(a, b) == 0;
+}
+
+typedef vector<point> polygon;
+
+int leftmostIndex(vector<point> &P) {
+	int ans = 0;
+	for(int i=1; i<(int)P.size(); i++) {
+		if (P[i] < P[ans]) ans = i;
+	}
+	return ans;
+}
+
+point pivot(0, 0);
+
+bool angleCmp(point a, point b) {
+	if (collinear(pivot, a, b))
+		return inner(pivot-a, pivot-a) < inner(pivot-b, pivot-b);
+	return cross(a-pivot, b-pivot) >= 0;
+}
+
+polygon convexHull(vector<point> P) {
+	int i, j, n = (int)P.size();
+	if (n <= 2) return P;
+	int P0 = leftmostIndex(P);
+	swap(P[0], P[P0]);
+	pivot = P[0];
+	sort(++P.begin(), P.end(), angleCmp);
+	vector<point> S;
+	S.push_back(P[n-1]);
+	S.push_back(P[0]);
+	S.push_back(P[1]);
+	for(i = 2; i < n;) {
+		j = (int)S.size()-1;
+		if (ccw(S[j-1], S[j], P[i])) S.push_back(P[i++]);
+		else S.pop_back();
+	}
+	reverse(S.begin(), S.end());
+	S.pop_back();
+	reverse(S.begin(), S.end());
+	return S;
+}
+
+int area[MAXN][MAXN];
 
 int main() {
-	int n, k;
-	fat[0] = 1;
-	FOR1(i, MAXN-1) fat[i] = (i*fat[i-1])%MOD;
-	while(scanf("%d %d", &n, &k) != EOF) {
-		divk.clear();
-		for(int i = 1; i*1ll*i <= k; i++) {
-			if (k % i == 0) {
-				divk.pb(i);
-				if (i*1ll*i < k) divk.pb(k/i);
+	int T;
+	scanf("%d", &T);
+	FOR(caseNo, T) {
+		int n;
+		scanf("%d", &n);
+		vector<point> P;
+		FOR(i, n) {
+			int x, y;
+			scanf("%d %d", &x, &y);
+			P.pb(point(x, y));
+		}
+		P = convexHull(P);
+		n = P.size();
+		FOR(i, n) {
+			int k = (i+1)%n;
+			for(int j = (i+1)%n; j != i; j = (j+1)%n) {
+				if ((j+1)%n == i) area[i][j] = 0;
+				else {
+					if (k == j) k = (k+1)%n;
+					int kn = (k+1)%n;
+					while(kn != i && cross(P[j]-P[i], P[k]-P[i]) < cross(P[j]-P[i], P[kn]-P[i])) {
+						k = kn; kn = (k+1)%n;
+					}
+					area[i][j] = cross(P[j]-P[i], P[k]-P[i]);
+				}
 			}
 		}
-		sort(all(divk));
-		FOR1(i, n) {
-			scanf("%d", &p[i]);
-			vis[i] = false;
-			cnt[i] = 0;
+		int ans = 0;
+		FOR(i, n) FOR(j, n) {
+			if (i == j) continue;
+			ans = max(ans, area[i][j]+area[j][i]);
 		}
-		FOR1(i, n) {
-			int m = 0;
-			for(int j = i; !vis[j]; j = p[j]) {
-				m++;
-				vis[j] = true;
-			}
-			cnt[m]++;
-		}
-		int ans = 1;
-		FOR1(m, n) {
-			ans = (ans*1ll*solve(cnt[m], m, k)) % MOD;
-		}
-		printf("%d\n", ans);
+		printf("%d%s\n", ans/2, ans%2 == 0 ? "" : ".5");
 	}
 	return 0;
 }
