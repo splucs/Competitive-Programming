@@ -7,10 +7,10 @@
 #include <cstring>
 #include <iostream>
 using namespace std;
-#define MAXN 100009
-#define INF (1<<30)
+const int MAXN = 100009;
+const int INF = 1e9;
  
-typedef pair<int, int> ii;
+using ii = pair<int, int>;
 vector<ii> adjList[MAXN];
 int dist[MAXN], n, m;
  
@@ -23,7 +23,7 @@ int dijkstra(int s, int t)
 	while(!nodes.empty()) {
 		int u = nodes.begin()->second;
 		nodes.erase(nodes.begin());
-		for(int i=0; i<(int)adjList[u].size(); i++) {
+		for(unsigned i=0; i<adjList[u].size(); i++) {
 			int v = adjList[u][i].second;
 			int w = adjList[u][i].first;
 			if (dist[v] > dist[u] + w) {
