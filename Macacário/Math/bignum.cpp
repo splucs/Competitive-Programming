@@ -116,11 +116,12 @@ void shiftR(bignum & a, int b, bignum & c) {
 
 //Multiplica bignum b por int a<base
 void multiply(int a, bignum & b, bignum & c) {
-	int carry = 0;
+	int carry = 0, bi;
 	c.resize(b.size());
-	for (int i=0; i<(int)b.size() || carry; i++) {
+	for (int i=0, bi; i<(int)b.size() || carry; i++) {
 		if (i == (int)b.size()) c.push_back(0);
-		long long cur = carry + a * 1ll * b[i];
+		bi = i < (int)b.size() ? b[i] : 0;
+		long long cur = carry + a * 1ll * bi;
 		c[i] = int(cur % base);
 		carry = int(cur / base);
 	}

@@ -71,6 +71,12 @@ void printmatrix(matrix & a) {
  * Matrix Exp and fast Fibonacci
  */
 
+matrix id(int n) {
+	matrix c(n, vector<double>(n));
+	for(int i = 0; i < n; i++) c[i][i] = 1;
+	return c;
+}
+
 matrix matrixExp(matrix a, int n) {
 	if (n == 0) return id(a.size());
 	matrix c = matrixExp(a, n/2);
@@ -80,9 +86,7 @@ matrix matrixExp(matrix a, int n) {
 }
 
 matrix fibo() {
-	matrix c; c.resize(2);
-	c[0].assign(2, 1);
-	c[1].assign(2, 1);
+	matrix c(2, vector<double>(2, 1));
 	c[1][1] = 0;
 	return c;
 }
@@ -90,4 +94,16 @@ matrix fibo() {
 double fibo(int n) {
 	matrix f = matrixExp(fibo(), n);
 	return f[0][1];
+}
+
+/*
+ * TEST MATRIX
+ */
+
+int main() {
+	int n;
+	while(scanf("%d", &n) != EOF) {
+		printf("%f\n", fibo(n));
+	}
+	return 0;
 }

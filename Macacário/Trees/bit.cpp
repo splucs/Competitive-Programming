@@ -3,9 +3,7 @@
 using namespace std;
 
 const int neutral = 0;
-int comp(int a, int b) {
-	return a+b;
-}
+#define comp(a, b) ((a)+(b))
 
 class FenwickTree {
 private:

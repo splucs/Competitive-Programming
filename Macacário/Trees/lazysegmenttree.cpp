@@ -9,9 +9,7 @@ using namespace std;
  */
 
 const int neutral = 0; //comp(x, neutral) = x
-int comp(int a, int b) {
-	return a + b;
-}
+#define comp(a, b) ((a)+(b))
 
 class SegmentTree {
 private:
@@ -41,8 +39,9 @@ private:
 		else if (l >= a && r <= b) {
 			lazy[p] = k; push(p, l, r); return;
 		}
-		update(left(p), l, (l + r) / 2, a, b, k);
-		update(right(p), (l + r) / 2 + 1, r, a, b, k);
+		int m = (l + r) / 2;
+		update(left(p), l, m, a, b, k);
+		update(right(p), m+1, r, a, b, k);
 		st[p] = comp(st[left(p)], st[right(p)]);
 	}
 	int query(int p, int l, int r, int a, int b) {

@@ -41,18 +41,18 @@ const ll root_pw[3] = {1LL<<21, 1LL<<21, 1LL<<23};
 
 void ntt(vector<ll> & a, bool invert, int m) {
 	ll n = (ll)a.size();
-	for(ll i=1, j=0; i<n; ++i) {
+	for(ll i = 1, j = 0; i < n; i++) {
 		ll bit = n >> 1;
-		for (; j>=bit; bit>>=1) j -= bit;
+		for (; j >= bit; bit >>= 1) j -= bit;
 		j += bit;
 		if (i < j) swap(a[i], a[j]);
 	}
-	for(ll len=2, wlen; len<=n; len<<=1) {
+	for(ll len = 2, wlen; len <= n; len <<= 1) {
 		wlen = invert ? root_1[m] : root[m];
-		for (ll i=len; i<root_pw[m]; i<<=1)
+		for (ll i = len; i < root_pw[m]; i <<= 1)
 			wlen = (wlen * wlen % mod[m]);
-		for(ll i=0; i<n; i+=len) {
-			for(ll j=0, w=1; j<len/2; ++j) {
+		for(ll i = 0; i < n; i += len) {
+			for(ll j = 0, w = 1; j < len/2; j++) {
 				ll u = a[i+j],  v = a[i+j+len/2] * w % mod[m];
 				a[i+j] = (u+v < mod[m] ? u+v : u+v-mod[m]);
 				a[i+j+len/2] = (u-v >= 0 ? u-v : u-v+mod[m]);
@@ -60,7 +60,7 @@ void ntt(vector<ll> & a, bool invert, int m) {
 			}
 		}
 	}
-	if(invert) {
+	if (invert) {
 		ll nrev = modInv(n, mod[m]);
 		for (ll i=0; i<n; ++i)
 			a[i] = a[i] * nrev % mod[m];
@@ -76,6 +76,15 @@ void convolution(vector<ll> a, vector<ll> b, vector<ll> & res, int m) {
 	res.resize(n);
 	for(int i=0; i<n; ++i) res[i] = (a[i]*b[i])%mod[m];
 	ntt(res, true, m);
+}
+
+void circularConv(vector<ll> &a, vector<ll> &b, vector<ll> &res, int m) {
+	//assert(a.size() == b.size());
+	int n = a.size();
+	convolution(a, b, res, m);
+	for(int i = n; i < (int)res.size(); i++)
+		res[i%n] = (res[i%n]+res[i])%mod[m];
+	res.resize(n);
 }
 
 /*

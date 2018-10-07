@@ -11,13 +11,11 @@ using namespace std;
  */
 
 const int neutral = 0;
-int comp(int a, int b) {
-	return a+b;
-}
+#define comp(a, b) ((a)+(b))
 
 typedef pair<int, int> ii;
 vector<ii> adjList[MAXN];
-int level[MAXN], N;
+int level[MAXN];
 int P[MAXN][MAXLOGN], D[MAXN][MAXLOGN];
 
 void depthdfs(int u) {
@@ -31,12 +29,12 @@ void depthdfs(int u) {
 	}
 }
 
-void computeP(int root) {
+void computeP(int root, int n) {
 	level[root] = 0;
 	P[root][0] = root; D[root][0] = neutral;
 	depthdfs(root);
 	for(int j = 1; j < MAXLOGN; j++)
-		for(int i = 1; i <= N; i++) {
+		for(int i = 1; i <= n; i++) {
 			P[i][j] = P[P[i][j-1]][j-1];
 			D[i][j] = comp(D[P[i][j-1]][j-1], D[i][j-1]);
 		}
@@ -69,6 +67,7 @@ ii LCA(int u, int v) {
  */
 #include <cstdlib>
 #include <ctime>
+int N;
 
 void generateRandTree(int _N) {
 	N = _N;
@@ -102,7 +101,7 @@ bool test(int nTest) {
 	clock_t naive=0, lca=0, last;
 	for(int t=1; t<=nTest; t++) {
 		generateRandTree(t);
-		computeP(1);
+		computeP(1, t);
 
 		for(int it=0; it<t; it++) {
 			int u = 1 + (rand()%t);
@@ -135,7 +134,7 @@ bool usertest() {
 		adjList[b].push_back(ii(a, c));
 	}
 	int root = 1;
-	computeP(root);
+	computeP(root, N);
 	while(scanf("%d %d", &a, &b)!=EOF) {
 		printf("LCA(%d, %d) = %d, ", a, b, LCA(a,b).first);
 	}

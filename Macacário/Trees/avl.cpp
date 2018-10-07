@@ -1,5 +1,5 @@
 #include <cstdio>
-struct node{
+struct node {
     int key, height, size;
     node *left, *right;
     node(int k) {
@@ -8,16 +8,12 @@ struct node{
     }
 };
 
-class AVLtree{
+class AVLtree {
 private:
     node* root;
     int size_;
-    int height(node* p) {
-        return p?p->height:0;
-    }
-    int size(node* p) {
-        return p?p->size:0;
-    }
+    int height(node* p) { return p ? p->height : 0; }
+    int size(node* p) { return p ? p->size : 0; }
     int bfactor(node* p) {
         return height(p->right)-height(p->left);
     }

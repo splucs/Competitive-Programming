@@ -1,36 +1,39 @@
-#include <cstdio>
-#define MAXN 100009
-//O(nlogn), M[i] o índice do menor elemento que existe
-//uma sequência de tamanho i que termina nele
-int LIS(int* arr, int n) {
-	int M[n+1], L=1, l, h, m;
-	M[1]=0;
-	for(int i=1; i<n; i++) {
-		if (arr[i]<=arr[M[1]]) {		//estritamente crescente
-		// if (arr[i] < arr[M[1]]) { // crescente
-			M[1]=i; continue;
-		}
-		l = 1; h = L+1;
-		while(h>l+1) {
-			m = (l+h)/2;
-			if (arr[M[m]]<arr[i]) l = m;	//estritamente crescente
-			//if (arr[M[m]]<=arr[i]) l = m;	//crescente
-			else h = m;
-		}
-		if (h>L) L=h;
-		M[h] = i;
+#include <set>
+using namespace std;
+
+/*
+ * Longest Increasing Subsequence O(nlogn)
+ * At a given iteration i, k-th element (1-indexed) in set is the
+ * smallest element that has a size k increasing subsequence ending in it
+ */
+
+int lis(int arr[], int n) {
+	multiset<int> s;
+	multiset<int>::iterator it;
+	for(int i = 0; i < n; i++) {
+		s.insert(arr[i]);
+		it = s.upper_bound(arr[i]); //non-decreasing
+		//it = ++s.lower_bound(arr[i]); //strictly increasing
+		if (it != s.end()) s.erase(it);
 	}
-	return L;
+	return s.size();
 }
 
-int main()
-{
-	int N, vet[MAXN], L;
-	scanf("%d", &N);
-	for(int i=0; i<N; i++) {
-		scanf("%d", vet+i);
+/*
+ * TEST MATRIX
+ */
+
+#include <cstdio>
+#define MAXN 500009
+
+int a[MAXN], n;
+
+int main() {
+	while(scanf("%d", &n) != EOF) {
+		for(int i = 0; i < n; i++) {
+			scanf("%d", &a[i]);
+		}
+		printf("%d\n", lis(a, n));
 	}
-	L = LIS(vet, vet+N);
-	printf("LIS length = %d\n", L);
 	return 0;
 }

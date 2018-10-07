@@ -49,11 +49,8 @@ matrix operator -(matrix a, matrix b) {
 }
 
 matrix id(int n) {
-	matrix c; c.resize(n);
-	for(int i=0; i<n; i++) {
-		c[i].assign(n, 0);
-		c[i][i] = 1;
-	}
+	matrix c(n, vector<double>(n));
+	for(int i = 0; i < n; i++) c[i][i] = 1;
 	return c;
 }
 

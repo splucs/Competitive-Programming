@@ -1,35 +1,38 @@
 #include <cstdio>
 #define MAXN 100009
 
-long long int inv;
 
-void mergesort(int* vet, int* aux, int a, int b) {
-	if (a==b) return;
-	int med = (a+b)/2;
-	mergesort(vet, aux, a, med);
-	mergesort(vet, aux, med+1, b);
-	int p=a, q=med+1, k=a;
-	while(p<=med && q<=b) {
-		if (vet[p]>vet[q]) {
-			aux[k++]=vet[q++];
-			inv += (long long int)(q-k);
+int aux[MAXN];
+long long mergesort(int arr[], int l, int r) {
+	if (l == r) return 0;
+	int mid = (l + r)/2;
+	long long inv = 0;
+	inv += mergesort(arr, l, mid);
+	inv += mergesort(arr, mid+1, r);
+	int i = l, j = mid + 1, k = l;
+	while(i <= mid && j <= r) {
+		if (arr[i] > arr[j]) {
+			aux[k++] = arr[j++];
+			inv += j - k;
 		}
-		else aux[k++]=vet[p++];
+		else aux[k++] = arr[i++];
 	}
-	while(p<=med) aux[k++]=vet[p++];
-	while(q<=b) aux[k++]=vet[q++];
-	for(int i=a; i<=b; i++) vet[i]=aux[i];
+	while(i <= mid) aux[k++] = arr[i++];
+	for(i = l; i < k; i++) arr[i] = aux[i];
+	return inv;
 }
+
+long long int inv;
 
 int main()
 {
-	int N, vet[MAXN], aux[MAXN];
+	int N, vet[MAXN];
 	inv=0;
 	scanf("%d", &N);
 	for(int i=0; i<N; i++) {
 		scanf("%d", vet+i);
 	}
-	mergesort(vet, aux, 0, N-1);
+	inv = mergesort(vet, 0, N-1);
 	printf("inv = %lld:", inv);
 	for(int i=0; i<N; i++) {
 		printf(" %d", vet[i]);

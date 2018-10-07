@@ -2,22 +2,21 @@
 #include <algorithm>
 #define INF (1<<30)
 using namespace std;
-#define MAXS 200009
+#define MAXS 2000009
+#define MAXN 200009
 
 /*
  * Persistent Segment Tree
  */
 
 const int neutral = 0; //comp(x, neutral) = x
-int comp(int a, int b) {
-	return a+b;
-}
+#define comp(a, b) ((a)+(b))
 
 int nds, st[MAXS], ls[MAXS], rs[MAXS];
 
 class PersistentSegmentTree {
 private:
-	int vroot[MAXS];
+	int vroot[MAXN];
 	int size, nds, nv;
 	int newnode() {
 		ls[nds] = rs[nds] = -1;
@@ -29,50 +28,50 @@ private:
 			st[p] = A ? A[l] : neutral;
 			return;
 		}
-		ls[p] = newnode();
-		rs[p] = newnode();
 		int m = (l + r) / 2;
-		build(ls[p], l, m, A);
-		build(rs[p], m+1, r, A);
+		build(ls[p] = newnode(), l, m, A);
+		build(rs[p] = newnode(), m+1, r, A);
 		st[p] = comp(st[ls[p]], st[rs[p]]);
 	}
 	void update(int prv, int p, int l, int r, int i, int k) {
-		if (i > r || i < l || l > r) return;
+		if (l == r) {
+			st[p] = k; //substitui
+			//st[p] = st[prv] + k; //agrega
+			return;
+		}
 		int m = (l + r) / 2;
-		if (l == r) st[p] = k;
-		else if (i <= m) {
+		if (i <= m) {
 			rs[p] = rs[prv];
-			ls[p] = newnode();
-			update(ls[prv], ls[p], l, m, i, k);
-			st[p] = comp(st[ls[p]], st[rs[p]]);
+			update(ls[prv], ls[p] = newnode(), l, m, i, k);
 		}
 		else {
 			ls[p] = ls[prv];
-			rs[p] = newnode();
-			update(rs[prv], rs[p], m+1, r, i, k);
-			st[p] = comp(st[ls[p]], st[rs[p]]);
+			update(rs[prv], rs[p] = newnode(), m+1, r, i, k);
 		}
+		st[p] = comp(st[ls[p]], st[rs[p]]);
 	}
 	int query(int p, int l, int r, int a, int b) {
-		if (a > r || b < l || l > r) return neutral;
+		if (a > r || b < l) return neutral;
 		if (l >= a && r <= b) return st[p];
-		int p1 = query(ls[p], l, (l + r) / 2, a, b);
-		int p2 = query(rs[p], (l + r) / 2 + 1, r, a, b);
+		int m = (l + r) / 2;
+		int p1 = query(ls[p], l, m, a, b);
+		int p2 = query(rs[p], m + 1, r, a, b);
 		return comp(p1, p2);
 	}
 public:
-	PersistentSegmentTree() { size = nds = nv = 0; }
 	PersistentSegmentTree(int* begin, int* end) {
 		nds = nv = 0; size = (int)(end-begin);
 		vroot[nv++] = newnode();
 		build(vroot[0], 0, size-1, begin);
 	}
-	PersistentSegmentTree(int _size) {
+	PersistentSegmentTree(int _size = 1) {
 		nds = nv = 0; size = _size;
 		vroot[nv++] = newnode();
 		build(vroot[0], 0, size-1, NULL);
 	}
-	int query(int a, int b, int v) { return query(vroot[v], 0, size-1, a, b); }
+	int query(int a, int b, int v) {
+		return query(vroot[v], 0, size-1, a, b);
+	}
 	int update(int i, int v, int k) {
 		vroot[nv++] = newnode();
 		update(vroot[v], vroot[nv-1], 0, size-1, i, k);

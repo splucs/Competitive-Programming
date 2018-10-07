@@ -19,6 +19,8 @@ struct base { // faster than complex<double>
 		x = tx; y = ty;
 		return (*this);
 	}
+	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
+	base operator=(double a) { x=a; y=0; return (*this); }
 	base operator+(base a) const { return base(x+a.x, y+a.y); }
 	base operator-(base a) const { return base(x-a.x, y-a.y); }
 	double real() { return x; }
@@ -31,35 +33,31 @@ struct base { // faster than complex<double>
 
 //typedef complex<double> base;
  
-void fft (vector<base> & a, bool invert) {
+void fft(vector<base> &a, bool invert) {
 	int n = (int)a.size();
-	for(int i=1, j=0; i<n; ++i) {
+	for(int i = 1, j = 0; i < n; i++) {
 		int bit = n >> 1;
-		for(; j>=bit; bit>>=1)
-			j -= bit;
+		for(; j >= bit; bit >>= 1) j -= bit;
 		j += bit;
 		if (i < j) swap(a[i], a[j]);
 	}
- 
-	for(int len=2; len<=n; len<<=1) {
-		double ang = 2*M_PI/len * (invert ? -1 : 1);
+	for(int len = 2; len <= n; len <<= 1) {
+		double ang = 2*acos(-1.0)/len * (invert ? -1 : 1);
 		base wlen(cos(ang), sin(ang));
-		for(int i=0; i<n; i+=len) {
+		for(int i = 0; i < n; i += len) {
 			base w(1);
-			for(int j=0; j<len/2; ++j) {
-				base u = a[i+j],  v = a[i+j+len/2] * w;
-				a[i+j] = u + v;
-				a[i+j+len/2] = u - v;
+			for(int j = 0; j < len/2; j++) {
+				base u = a[i+j], v = a[i+j+len/2] * w;
+				a[i + j] = u + v;
+				a[i + j + len/2] = u - v;
 				w *= wlen;
 			}
 		}
 	}
-	if(invert)
-		for (int i=0; i<n; ++i)
-			a[i] /= n;
+	for (int i = 0; invert && i < n; i++) a[i] /= n;
 }
 
-void convolution(vector<base> a, vector<base> b, vector<base> & res) {
+void convolution(vector<base> a, vector<base> b, vector<base> &res) {
 	int n = 1;
 	while(n < max(a.size(), b.size())) n <<= 1;
 	n <<= 1;
@@ -68,6 +66,15 @@ void convolution(vector<base> a, vector<base> b, vector<base> & res) {
 	res.resize(n);
 	for(int i=0; i<n; ++i) res[i] = a[i]*b[i];
 	fft(res, true);
+}
+
+void circularConv(vector<base> &a, vector<base> &b, vector<base> &res) {
+	//assert(a.size() == b.size());
+	int n = a.size();
+	convolution(a, b, res);
+	for(int i = n; i < (int)res.size(); i++)
+		res[i%n] += res[i];
+	res.resize(n);
 }
 
 /*
