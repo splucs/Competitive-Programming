@@ -164,26 +164,26 @@ T modExp(T a, T b, T m) {
 }
 
 struct base { // faster than complex<double>
-	ld x, y;
+	double x, y;
 	base() : x(0), y(0) {}
-	base(ld a, ld b=0) : x(a), y(b) {}
-	base operator/=(ld k) { x/=k; y/=k; return (*this); }
+	base(double a, double b=0) : x(a), y(b) {}
+	base operator/=(double k) { x/=k; y/=k; return (*this); }
 	base operator*(base a) const { return base(x*a.x - y*a.y, x*a.y + y*a.x); }
 	base operator*=(base a) {
-		ld tx = x*a.x - y*a.y;
-		ld ty = x*a.y + y*a.x;
+		double tx = x*a.x - y*a.y;
+		double ty = x*a.y + y*a.x;
 		x = tx; y = ty;
 		return (*this);
 	}
 	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
-	base operator=(ld a) { x=a; y=0; return (*this); }
+	base operator=(double a) { x=a; y=0; return (*this); }
 	base operator+(base a) const { return base(x+a.x, y+a.y); }
 	base operator-(base a) const { return base(x-a.x, y-a.y); }
-	ld real() { return x; }
-	ld imag() { return y; }
+	double real() { return x; }
+	double imag() { return y; }
 };
 
-//typedef complex<ld> base;
+//typedef complex<double> base;
  
 void fft(vector<base> &a, bool invert) {
 	int n = (int)a.size();

@@ -230,8 +230,14 @@ int main() {
 		FOR(q, N) {
 			char op;
 			int xl, xr, c[4];
-			scanf(" %c %d %d %d %d %d %d", &op, &xl, &xr, &c[3], &c[2], &c[1], &c[0]);
-			FOR(k, 4) c[k] = (c[k]%MOD + MOD) % MOD;
+			ll read;
+			scanf(" %c %d %d", &op, &xl, &xr);
+			REP(k, 4) {
+				ll read;
+				scanf("%lld", &read);
+				read = (read%MOD + MOD) % MOD;
+				c[k] = read;
+			}
 			if (op == 'p') {
 				st.update(xl, xr, c);
 			}

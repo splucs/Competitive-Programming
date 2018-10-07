@@ -1,7 +1,6 @@
 #include <vector>
 #include <queue>
 #include <cstring>
-#define INF 0x3f3f3f3f
 #define MAXN 1009
 using namespace std;
 

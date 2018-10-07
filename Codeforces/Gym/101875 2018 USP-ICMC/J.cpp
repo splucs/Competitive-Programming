@@ -189,6 +189,7 @@ void merge(int u, int v) {
 		refresh(u, jt);
 		ans = max(ans, cnt[v][it].fi + cnt[u][jt].fi);
 	}
+	vi aux = cnt[v];
 	/*int en = min(K/2, sv-1);
 	for(int j = en; j >= 0; j--) {
 		int it = sv-1-j;
