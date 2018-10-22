@@ -23,29 +23,16 @@ void manacher(char str[], int L[]) {
  * Longest Palindromic Substring O(n)
  */
 
-int LPS(char text[]) {
-	int n=2*strlen(text)+1;
-	char temp[n+1];
-	for(int i=0, k=0; text[i]; i++) {
-		temp[k++]='|'; temp[k++]=text[i];
+int LPS(char T[]) {
+	int n = 2*strlen(T) + 1;
+	char tmp[n+1];
+	for(int i = 0, k = 0; T[i]; i++) {
+		tmp[k++] = '|'; tmp[k++] = T[i];
 	}
-	temp[n-1]='|'; temp[n]='\0';
-	int L[n], ans=1;
-	manacher(temp, L);
+	tmp[n-1] = '|'; tmp[n] = '\0';
+	int L[n], ans = 1;
+	manacher(tmp, L);
 	for(int i=0; i<n; i++)
 		ans = max(ans, L[i]);
 	return ans;
-}
- 
-int main()
-{
-	char text[MAXN];
-	int t;
-	scanf("%d", &t);
-	while(t--) {
-		scanf(" %s", text);
-		LPS(text);
-		printf("%d %d\n", a, b);
-	}
-	return 0;
 }

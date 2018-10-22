@@ -20,7 +20,7 @@ public:
 		return rsq(j) - rsq(i - 1);
 	}
 	void update(int i, int v) {
-		for(; i < (int)ft.size(); i += (i & -i))
+		for(; i > 0 && i < (int)ft.size(); i += (i & -i))
 			ft[i] = comp(v, ft[i]);
 	}
 };

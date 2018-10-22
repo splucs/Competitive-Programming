@@ -19,12 +19,13 @@ struct base { // faster than complex<double>
 		x = tx; y = ty;
 		return (*this);
 	}
-	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
 	base operator=(double a) { x=a; y=0; return (*this); }
 	base operator+(base a) const { return base(x+a.x, y+a.y); }
+	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
 	base operator-(base a) const { return base(x-a.x, y-a.y); }
-	double real() { return x; }
-	double imag() { return y; }
+	base operator-=(base a) { x-=a.x; y-=a.y; return (*this); }
+	double& real() { return x; }
+	double& imag() { return y; }
 };
 
 /*
@@ -112,6 +113,10 @@ void sqrtConv(vector<ll> a, vector<ll> b, vector<ll> & c) {
 		c[i] %= MOD;
 	}
 }
+
+/*
+ * TEST MATRIX
+ */
 
 int main()
 {

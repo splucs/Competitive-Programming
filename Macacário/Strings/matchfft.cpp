@@ -4,10 +4,10 @@ using namespace std;
 #define MAXN 200009
 
 /*
- * FFT
+ * Fast complex
  */
 
-struct base {
+struct base { // faster than complex<double>
 	double x, y;
 	base() : x(0), y(0) {}
 	base(double a, double b=0) : x(a), y(b) {}
@@ -19,41 +19,46 @@ struct base {
 		x = tx; y = ty;
 		return (*this);
 	}
+	base operator=(double a) { x=a; y=0; return (*this); }
 	base operator+(base a) const { return base(x+a.x, y+a.y); }
+	base operator+=(base a) { x+=a.x; y+=a.y; return (*this); }
 	base operator-(base a) const { return base(x-a.x, y-a.y); }
-	double real() { return x; }
-	double imag() { return y; }
+	base operator-=(base a) { x-=a.x; y-=a.y; return (*this); }
+	double& real() { return x; }
+	double& imag() { return y; }
 };
+
+/*
+ * FFT - Fast Fourier Transform O(nlogn)
+ */
+
+//typedef complex<double> base;
  
-void fft (vector<base> & a, bool invert) {
+void fft(vector<base> &a, bool invert) {
 	int n = (int)a.size();
-	for (int i=1, j=0; i<n; ++i) {
+	for(int i = 1, j = 0; i < n; i++) {
 		int bit = n >> 1;
-		for (; j>=bit; bit>>=1)
-			j -= bit;
+		for(; j >= bit; bit >>= 1) j -= bit;
 		j += bit;
 		if (i < j) swap(a[i], a[j]);
 	}
- 
-	for (int len=2; len<=n; len<<=1) {
-		double ang = 2*M_PI/len * (invert ? -1 : 1);
+	for(int len = 2; len <= n; len <<= 1) {
+		double ang = 2*acos(-1.0)/len * (invert ? -1 : 1);
 		base wlen(cos(ang), sin(ang));
-		for (int i=0; i<n; i+=len) {
+		for(int i = 0; i < n; i += len) {
 			base w(1);
-			for (int j=0; j<len/2; ++j) {
-				base u = a[i+j],  v = a[i+j+len/2] * w;
-				a[i+j] = u + v;
-				a[i+j+len/2] = u - v;
+			for(int j = 0; j < len/2; j++) {
+				base u = a[i+j], v = a[i+j+len/2] * w;
+				a[i + j] = u + v;
+				a[i + j + len/2] = u - v;
 				w *= wlen;
 			}
 		}
 	}
-	if (invert)
-		for (int i=0; i<n; ++i)
-			a[i] /= n;
+	for (int i = 0; invert && i < n; i++) a[i] /= n;
 }
 
-void convolution(vector<base> a, vector<base> b, vector<base> & res) {
+void convolution(vector<base> a, vector<base> b, vector<base> &res) {
 	int n = 1;
 	while(n < max(a.size(), b.size())) n <<= 1;
 	n <<= 1;
@@ -64,12 +69,13 @@ void convolution(vector<base> a, vector<base> b, vector<base> & res) {
 	fft(res, true);
 }
 
-template <typename T>
-void circularconvolution(vector<T> a, vector<T> b, vector<T> & res) {
+void circularConv(vector<base> &a, vector<base> &b, vector<base> &res) {
+	//assert(a.size() == b.size());
 	int n = a.size();
-	b.insert(b.end(), b.begin(), b.end());
 	convolution(a, b, res);
-	res = vector<T>(res.begin()+n, res.begin()+(2*n));
+	for(int i = n; i < (int)res.size(); i++)
+		res[i%n] += res[i];
+	res.resize(n);
 }
 
 /*
@@ -99,7 +105,7 @@ void matchfft(const char *T, const char *P, int *match) {
 	for(int i=0; i<m; i++) Sb[reduce(P[i])][i] = 1;
 	for(int c = 0; c<ALFA; c++) {
 		reverse(Sb[c].begin(), Sb[c].end());
-		circularconvolution(Sa[c], Sb[c], M[c]);
+		circularConv(Sa[c], Sb[c], M[c]);
 	}
 	for(int i=0; i<n; i++) {
 		for(int c=0; c<ALFA; c++) {
