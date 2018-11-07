@@ -83,52 +83,29 @@ struct circle {
 		p2 = p2*(sqrt(d1*d1-r*r)/d1)+p;
 		return make_pair(p1,p2);
 	}
-	// Retorna os segmentos tangentes entre dois círculos (As extremidades dos segmentos pertencem a cada um dos círculos).
-	// O primeiro valor de cada par pertence ao círculo 'this'
-	
-	vector<pair<point, point> > getTangentSegs(circle other) 
-	{
+	vector< pair<point,point> > getTangentSegs(circle other) {
 		vector<pair<point, point> > ans;
 		double d = dist(other.c, c);
-		double diff = abs(r - other.r);
-		
-		if (diff >= d) return ans;
-		
-		double theta = acos(diff / d);
-		point dc1 = ((other.c - c).normalized()) * r;
-		point dc2 = ((other.c - c).normalized()) * other.r;
-		
-		ans.push_back({c + rotate(dc1, theta), other.c + rotate(dc2, theta)});
-		ans.push_back({c + rotate(dc1, -theta), other.c + rotate(dc2, -theta)});
-		
-		diff = r + other.r;
-		
-		if (diff >= d) return ans;
-		
-		theta = acos(diff / d);
+		double dr = abs(r - other.r), sr = r + other.r;
+		if (dr >= d) return ans;
+		double u = acos(dr / d);
+		point dc1 = ((other.c - c).normalized())*r;
+		point dc2 = ((other.c - c).normalized())*other.r;
+		ans.push_back(make_pair(c + rotate(dc1, u), other.c + rotate(dc2, u)));
+		ans.push_back(make_pair(c + rotate(dc1, -u), other.c + rotate(dc2, -u)));
+		if (sr >= d) return ans;
+		double v = acos(sr / d);
 		dc2 = ((c - other.c).normalized()) * other.r;
-		ans.push_back({c + rotate(dc1, theta), other.c + rotate(dc2, theta)});
-		ans.push_back({c + rotate(dc1, -theta), other.c + rotate(dc2, -theta)});
-		
+		ans.push_back({c + rotate(dc1, v), other.c + rotate(dc2, v)});
+		ans.push_back({c + rotate(dc1, -v), other.c + rotate(dc2, -v)});
 		return ans;
 	}
-	
-	//Retorna os pontos de interseção entre dois círculos.
-	
 	pair<point, point> getIntersectionPoints(circle other){
-		if (!intersects(other)) return {{-INF, -INF}, {-INF, -INF}};
-		
+		assert(intersects(other));
 		double d = dist(c, other.c);
-		double theta1 = acos((other.r * other.r + d * d - r * r) / (2 * other.r * d));
-		point dc1 = ((other.c - c).normalized()) * r;
-		
-		return {c + rotate(dc1, theta1), c + rotate(dc1, -theta1)};
-	}
-	
-	// Verifica se o círculo intercepta o segmento dado.
-	
-	bool intersectsSeg(point a, point b){
-		return distToLineSegment(c, a, b) <= r - EPS;
+		double u = acos((other.r*other.r + d*d - r*r) / (2*other.r*d));
+		point dc = ((other.c - c).normalized()) * r;
+		return make_pair(c + rotate(dc, u), c + rotate(dc, -u));
 	}
 };
 
