@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 209
+#define MAXN 200309
 #define MAXM 900009
 #define MAXLOGN 20
 #define ALFA 256
@@ -156,34 +156,17 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-vector<int> primes, sprimes;
-bitset<MAXN> isprime, issum;
-
 int main() {
-	isprime.set();
-	isprime[0] = isprime[1] = 0;
-	for(int i = 2; i < MAXN; i++) {
-		if (!isprime[i]) continue;
-		primes.pb(i);
-		for(int j = 2*i; j < MAXN; j += i)
-			isprime[j] = 0;
-	}
-	FOR(i, sz(primes)) FOR(j, i) {
-		if (primes[i]*primes[j] >= MAXN) continue;
-		sprimes.pb(primes[i]*primes[j]);
-	}
-	issum.reset();
-	for(int p : sprimes) for(int q : sprimes) {
-		if (p+q < MAXN) issum[p+q] = 1;
-	}
-
-	int T, N;
+	int T;
 	scanf("%d", &T);
 	FOR1(caseNo, T) {
-		scanf("%d", &N);
-		if (issum[N]) printf("YES\n");
-		else printf("NO\n");
+		int n, k, a;
+		scanf("%d %d", &n, &k);
+		FOR(i, n) {
+			scanf("%d", &a);
+			if (a > 1) k--;
+		}
+		puts(k >= 0 ? "YES" : "NO");
 	}
-	
 	return 0;
 }

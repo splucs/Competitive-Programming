@@ -9,14 +9,14 @@ using namespace std;
 int vis[MAXN], parent[MAXN];
 vector<int> adjList[MAXN];
 
-void graphCheck(int u) { // DFS for checking graph edge properties
+void dfs(int u) { // DFS for checking graph edge properties
 	vis[u] = EXPLORED;
 	for (int j = 0, v; j < (int)adjList[u].size(); j++) {
 		v = adjList[u][j];
 		if (vis[v] == UNVISITED) { // EXPLORED->UNVISITED
 			printf(" Tree Edge (%d, %d)\n", u, v);
 			parent[v] = u; // parent of this children is me
-			graphCheck(v);
+			dfs(v);
 		}
 		else if (vis[v] == EXPLORED) { // EXPLORED->EXPLORED
 			printf(" Back Edge (%d, %d) (Cycle)\n", u, v);

@@ -26,12 +26,17 @@ matrix operator *(matrix a, matrix b) {
 	//assert(a[0].size() == b.size());
 	int m = (int)b.size();
 	int p = (int)b[0].size();
-	matrix c;
-	c.resize(n);
-	for(int i=0; i<n; i++) {
-		c[i].assign(p, 0);
-		for(int j=0; j<p; j++) for(int k=0; k<m; k++)
-			c[i][j] += a[i][k]*b[k][j];
+	matrix c(n, vector<double>(p));
+	vector<double> col(m);
+	for (int j = 0; j < p; j++) {
+		for (int k = 0; k < m; k++)
+			col[k] = b[k][j];
+		for (int i = 0; i < n; i++) {
+			double s = 0;
+			for (int k = 0; k < m; k++)
+				s += a[i][k] * col[k];
+			c[i][j] = s;
+		}
 	}
 	return c;
 }

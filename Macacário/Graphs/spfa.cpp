@@ -4,9 +4,13 @@
 #include <iostream>
 using namespace std;
 #define MAXN 100009
-#define INF (1<<30)
- 
+#define INF 0x3f3f3f3f
 typedef pair<int, int> ii;
+
+/*
+ * Shortest Path Faster Algorithm (SPFA) O(nm) worst case, O(n) average
+ */
+
 vector<ii> adjList[MAXN];
 int dist[MAXN], vis[MAXN], N, M;
 bool inq[MAXN];

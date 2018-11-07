@@ -156,40 +156,30 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-int a[MAXN];
+ii a[MAXN];
 
 int main() {
-
 	int T;
 	scanf("%d", &T);
 	FOR1(caseNo, T) {
-		int n;
-		scanf("%d", &n);
-		FOR(i, n) scanf("%d", &a[i]);
+		int n, k;
+		scanf("%d %d", &n, &k);
+		FOR(i, n) scanf("%d %d", &a[i].fi, &a[i].se);
 		sort(a, a+n);
-		reverse(a, a+n);
-		int carry = 0;
-		ll ans = 1;
-		for(int i = 0, j = 0; i < n; i = j) {
-			while(j < n && a[i] == a[j]) j++;
-			int k = j-i;
-			if (carry) {
-				ans = (ans*k) % MOD;
-				k--;
-				carry = 0; 
+		multiset<int> s;
+		int ans = 0;
+		FOR(i, n) {
+			int l = a[i].fi;
+			int r = a[i].se;
+			s.insert(r);
+			if (sz(s) < k) continue;
+			while(sz(s) > k) {
+				s.erase(s.begin());
 			}
-			if (k % 2 != 0) {
-				ans = (ans*k) % MOD;
-				k--;
-				carry = 1;
-			}
-			k--;
-			while (k > 0) {
-				ans = (ans*k) % MOD;
-				k -= 2;
-			}
+			r = *s.begin();
+			ans = max(ans, r - l);
 		}
-		printf("%lld\n", ans);
+		printf("%d\n", ans);
 	}
 	return 0;
 }

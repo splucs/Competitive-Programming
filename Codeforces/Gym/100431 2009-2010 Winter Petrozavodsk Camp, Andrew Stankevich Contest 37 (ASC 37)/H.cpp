@@ -1,12 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#ifdef ONLINE_JUDGE
-	#define DEBUG false
-#endif
-#ifndef ONLINE_JUDGE
-	#define DEBUG true
-#endif
-#define debugf if(DEBUG) printf
 #define MAXN 100009
 #define MAXC 12
 #define MAXLOGN 20
@@ -24,7 +17,7 @@ typedef long long ll;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-int ceil(int a, int b) {
+ll ceil(ll a, ll b) {
 	assert(b != 0);
 	if (a%b == 0) return a/b;
 	return 1 + a/b;
@@ -33,8 +26,8 @@ int ceil(int a, int b) {
 int ans[MAXN];
 
 struct ship {
-	int type, w;
-	int t, id;
+	int type, id;
+	ll t, w;
 };
 
 bool operator < (ship a, ship b) {
@@ -43,8 +36,8 @@ bool operator < (ship a, ship b) {
 }
 
 struct crane {
-	int mask, v;
-	int t, id;
+	int mask, id;
+	ll t, v;
 };
 
 bool operator < (crane a, crane b) {
@@ -60,7 +53,7 @@ const int ARRIVAL = 1;
 
 struct event {
 	int type;
-	int t;
+	ll t;
 	crane cr;
 	ship sp;
 };
@@ -76,8 +69,7 @@ bool operator < (event a, event b) {
 	if (a.type == IDLE) return a.cr < b.cr;
 }
 
-void becomeIdle(crane cr, int t) {
-	debugf("morning of day %d, crane %d finished ", t, cr.id);
+void becomeIdle(crane cr, ll t) {
 	cr.t = t;
 	ship sp; sp.t = INF;
 	FOR(i, MAXC) {
@@ -87,13 +79,11 @@ void becomeIdle(crane cr, int t) {
 	}
 
 	if (sp.t == INF) { //I became idle, no new ships at docks
-		debugf("-> goes idle\n");
 		FOR(i, MAXC) {
 			if (cr.mask & (1<<i)) idle[i].insert(cr);
 		}
 	}
 	else { //new work to do
-		debugf("-> unloads ship %d\n", sp.id);
 		int i = sp.type;
 		docks[i].erase(sp);
 		ans[sp.id] = cr.id;
@@ -105,24 +95,21 @@ void becomeIdle(crane cr, int t) {
 	}
 }
 
-void arrive(ship sp, int t) {
-	debugf("morning of day %d, ship %d arrived ", t, sp.id);
+void arrive(ship sp, ll t) {
 	int i = sp.type;
 	if (!idle[i].empty()) { //a crane can unload me
 		crane cr = *idle[i].begin();
-		debugf("-> crane %d unloads me\n", cr.id);
 		FOR(j, MAXC) {
 			if (cr.mask & (1<<j)) idle[j].erase(cr);
 		}
 		ans[sp.id] = cr.id;
 		event ev;
 		ev.type = IDLE;
-		ev.t = cr.t = t + ceil(sp.w, cr.v) - 1;
+		ev.t = cr.t = t + ceil(sp.w, cr.v);
 		ev.cr = cr;
 		events.insert(ev);
 	}
 	else { //I go to the docks
-		debugf("-> to docks\n");
 		docks[i].insert(sp);
 	}
 }
@@ -141,7 +128,7 @@ int main() {
 		FOR1(i, n) {
 			ship sp;
 			sp.id = i;
-			scanf("%d %d %d", &sp.t, &sp.type, &sp.w);
+			scanf("%lld %d %lld", &sp.t, &sp.type, &sp.w);
 			event ev;
 			ev.type = ARRIVAL;
 			ev.sp = sp;
@@ -154,7 +141,7 @@ int main() {
 			int k, c;
 			cr.t = -1;
 			cr.mask = 0;
-			scanf("%d %d", &cr.v, &k);
+			scanf("%lld %d", &cr.v, &k);
 			while(k --> 0) {
 				scanf("%d", &c);
 				cr.mask |= (1<<c);

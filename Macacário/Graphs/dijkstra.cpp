@@ -1,42 +1,45 @@
-/*
- * Solução do problema http://www.spoj.com/submit/EZDIJKST/
- */
-#include <cstdio>
+
 #include <set>
 #include <vector>
-#include <cstring>
-#include <iostream>
 using namespace std;
 #define MAXN 100009
-#define INF (1<<30)
- 
+#define INF 0x3f3f3f3f
 typedef pair<int, int> ii;
-vector<ii> adjList[MAXN];
-int dist[MAXN], n, m;
+
+/*
+ * Dijkstra's Algorithm O(nlogn + m)
+ */
  
-int dijkstra(int s, int t)
-{
-	for(int i=1; i<=n; i++) dist[i] = INF;
-	dist[s]=0;
-	set<pair<int, int> > nodes;
-	nodes.insert(ii(0, s));
-	while(!nodes.empty()) {
-		int u = nodes.begin()->second;
-		nodes.erase(nodes.begin());
+vector<ii> adjList[MAXN];
+ 
+int dijkstra(int s, int t, int n, int dist[]) {
+	for(int i = 1; i <= n; i++) dist[i] = INF;
+	set<ii> pq;
+	dist[s] = 0;
+	pq.insert(ii(0, s));
+	while(!pq.empty()) {
+		int u = pq.begin()->second;
+		pq.erase(pq.begin());
 		for(int i=0; i<(int)adjList[u].size(); i++) {
 			int v = adjList[u][i].second;
 			int w = adjList[u][i].first;
 			if (dist[v] > dist[u] + w) {
-				if (dist[v] < INF) {
-					nodes.erase(ii(dist[v], v));
-				}
+				pq.erase(ii(dist[v], v));
 				dist[v] = dist[u] + w;
-				nodes.insert(ii(dist[v], v));
+				pq.insert(ii(dist[v], v));
 			}
 		}
 	}
 	return dist[t];
 }
+
+/*
+ * SPOJ EZDIJKST
+ */
+
+#include <cstdio>
+
+int dist[MAXN], n, m;
  
 int main() {
 	int T;
@@ -50,7 +53,7 @@ int main() {
 			adjList[u].push_back(ii(w, v));
 		}
 		scanf("%d %d", &s, &t);
-		int ans = dijkstra(s, t);
+		int ans = dijkstra(s, t, n, dist);
 		if (ans == INF) printf("NO\n");
 		else printf("%d\n", ans);
 	}

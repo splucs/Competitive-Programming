@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 2000009
+#define MAXN 200309
 #define MAXM 900009
 #define MAXLOGN 20
 #define ALFA 256
@@ -156,25 +156,72 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-ll a[MAXN];
+int n, m, k, l;
+const int POP = 1;
+const int PUSH = 2;
+
+struct event {
+	int time;
+	int type;
+};
+
+bool operator <(event a, event b) {
+	if (a.time != b.time) return a.time < b.time;
+	return a.type < b.type;
+}
+
+set<event> events;
+
+int qsize;
+int ans;
+void process(event ev) {
+	events.erase(ev);
+	if (ev.type == POP) {
+		qsize--;
+		if (qsize < 0) {
+			ans = 0;
+			events.clear();
+			return;
+		}
+		event nev = ev;
+		nev.time += l;
+		if (nev.time <= k && qsize > 0) events.insert(nev);
+	}
+	if (ev.type == PUSH) {
+		int cur = qsize*l + (l - (ev.time%l));
+		ans = min(ans, cur);
+		//printf("enter before %d, wait time = %d\n", ev.time, cur);
+		qsize++;
+	}
+	//printf("time %d, %s, qsize = %d\n", ev.time, ev.type == PUSH ? "PUSH" : "POP", qsize);
+}
 
 int main() {
 	int T;
 	scanf("%d", &T);
 	FOR1(caseNo, T) {
-		int n;
-		scanf("%d", &n);
-		a[0] = 0;
-		FOR1(i, n) {
-			scanf("%lld", &a[i]);
-			a[i] += a[i-1];
+		scanf("%d %d %d %d", &n, &m, &k, &l);
+
+		event ev;
+		ev.type = PUSH;
+		FOR(i, n) {
+			scanf("%d", &ev.time);
+			events.insert(ev);
 		}
-		ll i = 1;
-		int ans = 0;
-		while(i < n) {
-			i += a[i];
-			ans++;
+		ev.time = k;
+		events.insert(ev);
+
+		ev.type = POP;
+		ev.time = l;
+		events.insert(ev);
+
+		qsize = m;
+		ans = (m+1)*l;
+		while(!events.empty()) {
+			event ev = *events.begin();
+			process(ev);
 		}
+
 		printf("%d\n", ans);
 	}
 	return 0;

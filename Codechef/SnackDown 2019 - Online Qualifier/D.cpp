@@ -127,7 +127,7 @@
 #include <bits/stdc++.h>
 #define DEBUG false
 #define debugf if (DEBUG) printf
-#define MAXN 200309
+#define MAXN 10009
 #define MAXM 900009
 #define MAXLOGN 20
 #define ALFA 256
@@ -156,33 +156,38 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-int a[MAXN], b[MAXN];
-
-void apply(int i, int k = 1) {
-	a[i] += k;
-	a[i+1] += 2*k;
-	a[i+2] += 3*k;
-}
+int n, k;
+int x[MAXN];
 
 int main() {
 	int T;
 	scanf("%d", &T);
 	FOR1(caseNo, T) {
-		int n;
-		scanf("%d", &n);
-		FOR(i, n) scanf("%d", &a[i]);
-		FOR(i, n) scanf("%d", &b[i]);
-		int cnt = 0;
-		bool ok = true;
-		FOR(i, n) {
-			if (a[i] > b[i]) ok = false;
-			if (a[i] < b[i]) {
-				if (i+2 >= n) ok = false;
-				else apply(i, b[i]-a[i]);
-			}
+		scanf("%d %d", &n, &k);
+		if (n < k*(k+1)/2) {
+			printf("-1\n");
+			continue;
 		}
-		if (ok) printf("TAK\n");
-		else printf("NIE\n");
+
+		//compute x
+		int m = n - k*(k-1)/2;
+		int y = m/k;
+		FOR(i, k) x[i] = y+i;
+		y = m%k;
+		REP(i, k) {
+			if (y == 0) break;
+			x[i]++;
+			y--;
+		}
+
+		//compute prod
+		int ans = 1;
+		FOR(i, k) {
+			int cur = (x[i]*1ll*(x[i]-1)) % MOD;
+			ans = (ans*1ll*cur)%MOD;
+		}
+
+		printf("%d\n", ans);
 	}
 	return 0;
 }

@@ -1,6 +1,6 @@
 #include <queue>
 #include <cstring>
-#define INF (1<<30)
+#define INF 0x3f3f3f3f
 #define MAXN 103000
 #define MAXM 900000
 using namespace std;

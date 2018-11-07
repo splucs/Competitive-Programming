@@ -25,17 +25,19 @@ matrix operator +(matrix a, matrix b) {
 
 matrix operator *(matrix a, matrix b) {
 	int n = (int)a.size();
-	if (a[0].size() != b.size()) printf("fail\n");
+	//assert(a[0].size() == b.size());
 	int m = (int)b.size();
 	int p = (int)b[0].size();
-	matrix c;
-	c.resize(n);
-	for(int i=0; i<n; i++) {
-		c[i].assign(p, 0);
-		for(int j=0; j<p; j++) {
-			for(int k=0; k<m; k++) {
-				c[i][j] += a[i][k]*b[k][j];
-			}
+	matrix c(n, vector<double>(p));
+	double col[m];
+	for (int j = 0; j < p; j++) {
+		for (int k = 0; k < m; k++)
+			col[k] = b[k][j]; //cache friendly
+		for (int i = 0; i < n; i++) {
+			double s = 0;
+			for (int k = 0; k < m; k++)
+				s += a[i][k] * col[k];
+			c[i][j] = s;
 		}
 	}
 	return c;
@@ -105,5 +107,13 @@ int main() {
 	while(scanf("%d", &n) != EOF) {
 		printf("%f\n", fibo(n));
 	}
+	n = 10000;
+	double fib[10000];
+	clock_t t = clock();
+	for(int i = 0; i < 10000; i++) {
+		fib[i] = fibo(i);
+	}
+	t = clock() - t;
+	printf("time %.3f\n", t*1.0/CLOCKS_PER_SEC);
 	return 0;
 }

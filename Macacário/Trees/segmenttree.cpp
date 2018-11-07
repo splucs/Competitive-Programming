@@ -24,8 +24,8 @@ public:
 			a[i>>1] = comp(a[i>>1], a[i]);
 	}
 	void update(int i, int x) {
-		a[i+n] = x; //substitui
-		for (i += n, i >>= 1; i; i >>= 1)
+		a[i += n] = x; //substitui
+		for (i >>= 1; i; i >>= 1)
 			a[i] = comp(a[i<<1], a[1+(i<<1)]);
 	}
 	int query(int l, int r) {

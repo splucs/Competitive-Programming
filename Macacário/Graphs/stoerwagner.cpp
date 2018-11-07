@@ -3,7 +3,7 @@
 #include <cstring>
 using namespace std;
 #define MAXN 509
-#define INF (1<<30)
+#define INF 0x3f3f3f3f
 
 int n, adjMatrix[MAXN][MAXN];
 vector<int> bestCut;

@@ -156,20 +156,14 @@ typedef unsigned int uint;
 typedef vector<int> vi;
 typedef pair<int, int> ii;
 
-int a[MAXN];
-
 int main() {
-	int T;
+	int T, n;
 	scanf("%d", &T);
-	FOR1(caseNo, T) {
-		int n, k;
-		scanf("%d %d", &n, &k);
-		FOR(i, n) scanf("%d", &a[i]);
-		sort(a, a+n);
-		reverse(a, a+n);
-		int i = k-1;
-		while(i+1 < n && a[i] == a[i+1]) i++;
-		printf("%d\n", i+1);
+	FOR1(t, T) {
+		scanf("%d", &n);
+		if (n == 2010 || n == 2015 || n == 2016 || n == 2017 || n == 2019)
+			printf("HOSTED\n");
+		else printf ("NOT HOSTED\n");
 	}
 	return 0;
 }
