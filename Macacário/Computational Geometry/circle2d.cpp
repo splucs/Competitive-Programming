@@ -4,6 +4,7 @@
 #include <vector>       // std::vector
 using namespace std;
 #define EPS 1e-9
+#define INF 1e9
 
 /*
  * Point 2D
@@ -21,6 +22,12 @@ struct point {
 	}
 	point operator *(double k) const{
 		return point(x*k, y*k);
+	}
+	double norm() {
+		return hypot(x, y);
+	}
+	point normalized() {
+		return point(x,y)*(1.0/norm());
 	}
 };
 
@@ -75,6 +82,53 @@ struct circle {
 		p1 = p1*(sqrt(d1*d1-r*r)/d1)+p;
 		p2 = p2*(sqrt(d1*d1-r*r)/d1)+p;
 		return make_pair(p1,p2);
+	}
+	// Retorna os segmentos tangentes entre dois círculos (As extremidades dos segmentos pertencem a cada um dos círculos).
+	// O primeiro valor de cada par pertence ao círculo 'this'
+	
+	vector<pair<point, point> > getTangentSegs(circle other) 
+	{
+		vector<pair<point, point> > ans;
+		double d = dist(other.c, c);
+		double diff = abs(r - other.r);
+		
+		if (diff >= d) return ans;
+		
+		double theta = acos(diff / d);
+		point dc1 = ((other.c - c).normalized()) * r;
+		point dc2 = ((other.c - c).normalized()) * other.r;
+		
+		ans.push_back({c + rotate(dc1, theta), other.c + rotate(dc2, theta)});
+		ans.push_back({c + rotate(dc1, -theta), other.c + rotate(dc2, -theta)});
+		
+		diff = r + other.r;
+		
+		if (diff >= d) return ans;
+		
+		theta = acos(diff / d);
+		dc2 = ((c - other.c).normalized()) * other.r;
+		ans.push_back({c + rotate(dc1, theta), other.c + rotate(dc2, theta)});
+		ans.push_back({c + rotate(dc1, -theta), other.c + rotate(dc2, -theta)});
+		
+		return ans;
+	}
+	
+	//Retorna os pontos de interseção entre dois círculos.
+	
+	pair<point, point> getIntersectionPoints(circle other){
+		if (!intersects(other)) return {{-INF, -INF}, {-INF, -INF}};
+		
+		double d = dist(c, other.c);
+		double theta1 = acos((other.r * other.r + d * d - r * r) / (2 * other.r * d));
+		point dc1 = ((other.c - c).normalized()) * r;
+		
+		return {c + rotate(dc1, theta1), c + rotate(dc1, -theta1)};
+	}
+	
+	// Verifica se o círculo intercepta o segmento dado.
+	
+	bool intersectsSeg(point a, point b){
+		return distToLineSegment(c, a, b) <= r - EPS;
 	}
 };
 
