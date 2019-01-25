@@ -2,8 +2,6 @@
 #include <vector>
 using namespace std;
 
-#include <cassert>
-
 /*
  * Recursive Purely Functional Deque
  */
