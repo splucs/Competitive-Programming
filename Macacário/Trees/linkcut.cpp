@@ -8,20 +8,19 @@ using namespace std;
  */
 
 struct node {
-	int size, id, w;
+	int sw, id, w;
 	node *par, *ppar, *ls, *rs;
 	node() {
 		par = ppar = ls = rs = NULL; 
-		w = size = INF;
+		w = sw = INF;
 	}
 };
 
 class LinkCutTree {
 	vector<node> lct;
+	int sum(node *p) { return p ? p->sw : 0; }
 	void refresh(node* p) {
-		p->size = p->w;
-		if (p->ls) p->size += p->ls->size;
-		if (p->rs) p->size += p->rs->size;
+		p->sw = p->w + sum(p->ls) + sum(p->rs);
 	}
 	void rotateright(node* p) {
 		node *q, *r;
@@ -98,7 +97,8 @@ public:
 			refresh(&lct[i]);
 		}
 	}
-	void link(int u, int v, int w = 1) { //u becomes child of v
+	void link(int u, int v, int w = 1) {
+		//u becomes child of v
 		node *p = &lct[u], *q = &lct[v];
 		access(p); access(q);
 		p->ls = q; q->par = p; p->w = w;
@@ -120,11 +120,21 @@ public:
 	}
 	int depth(int u) {
 		access(&lct[u]);
-		return lct[u].size - lct[u].w;
+		return lct[u].sw - lct[u].w;
 	}
 	int LCA(int u, int v) {
 		access(&lct[u]);
 		return access(&lct[v])->id;
+	}
+	int dist(int u, int v) {
+		if (!IsSameTree(u, v)) return INF;
+		node* lca = &lct[LCA(u, v)];
+		int ans = 0;
+		access(&lct[u]); splay(lca);
+		ans += sum(lca->rs);
+		access(&lct[v]); splay(lca);
+		ans += sum(lca->rs);
+		return ans;
 	}
 };
 
@@ -220,11 +230,27 @@ int LCA(int u, int v) {
 	return u;
 }
 
+int dist(int u, int v) {
+	if (!IsSameSet(u, v)) return -1;
+	int lca = LCA(u, v);
+	int ans = 0;
+	while(u != lca) {
+		u = par[u];
+		ans++;
+	}
+	while(v != lca) {
+		v = par[v];
+		ans++;
+	}
+	return ans;
+}
+
 bool test(int N, int T) {
 	LinkCutTree lct(N);
 	memset(&par, -1, sizeof par);
 	for (int i = 0, u, v; i<T; i++) {
-		int cmd = rand() % 4;
+		int cmd = rand() % 5;
+		//if (cmd == 1) cmd = 0; //link only
 		if (cmd == 0) {
 			u = rand() % N;
 			v = rand() % N;
@@ -273,7 +299,25 @@ bool test(int N, int T) {
 				return false;
 			}
 		}
+		if (cmd == 4) {
+			u = rand() % N;
+			v = rand() % N;
+			if (!IsSameSet(u, v)) {
+				i--;
+				continue;
+			}
+			if (dist(u, v) != lct.dist(u, v)) {
+				printf("failed on test %d (dist(%d,%d) LCT:%d BF:%d)\n", i, u, v, lct.dist(u, v), dist(u, v));
+				return false;
+			}
+		}
 	}
+	printf("all tests passed\n");
+	return true;
+}
+
+int main() {
+	test(10000, 100000);
 }
 
 /*
@@ -307,7 +351,7 @@ int main() {
 /*
  * Codeforces 100960H
  */
-
+/*
 UndirectedLinkCutTree ulct;
 
 int main() {
@@ -337,4 +381,4 @@ int main() {
 		}
 	}
 	return 0;
-}
+}*/

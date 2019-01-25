@@ -1,12 +1,15 @@
 #include <cstdio>
 #include <stack>
-#define MAXN 100009
-#define INF  (1LL<<60)
 using namespace std;
-
 typedef long long ll;
 
-ll histogram(ll * vet, int n) {
+#define MAXN 100009
+
+/*
+ * Solution to the histogram problem in O(n)
+ */
+
+ll histogram(ll vet[], int n) {
 	stack<ll> s;
 	ll ans = 0, tp, cur;
 	int i = 0;
@@ -21,6 +24,10 @@ ll histogram(ll * vet, int n) {
 	}
 	return ans;
 }
+
+/*
+ * URI 1683
+ */
 
 ll vet[MAXN];
 

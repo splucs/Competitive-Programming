@@ -7,18 +7,16 @@
  * Sparse Table
  */
 
-int comp(int a, int b) {
-	return min(a,b);
-}
+#define comp(a, b) min((a),(b))
 
-class SparseTable{
+class SparseTable {
 private:
 	int st[MAXN][MAXLOGN];
 	int sz;
 public:
-	SparseTable(int* st, int* en) {
-		sz = int(en - st);
-		for(int i=0; i<sz; i++) st[i][0] = st[i];
+	SparseTable(int* bg, int* en) {
+		sz = int(en - bg);
+		for(int i=0; i<sz; i++) st[i][0] = bg[i];
 		for(int j = 1; 1 << j <= sz; j++)
 			for(int i=0; i + (1<<j) <= sz; i++)
 				st[i][j] = comp(st[i][j-1], st[i+(1<<(j-1))][j-1]);

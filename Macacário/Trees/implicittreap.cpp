@@ -11,7 +11,7 @@ using namespace std;
  * split separates in trees of size k and n-k
  */
 
-struct node{
+struct node {
 	int y, v, sum, size;
 	bool rev;
 	node *l, *r;

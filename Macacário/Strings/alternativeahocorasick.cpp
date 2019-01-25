@@ -1,5 +1,5 @@
-		#include <bits/stdc++.h>
-		using namespace std;
+#include <bits/stdc++.h>
+using namespace std;
 
 const int N = 10009;
 int trie[N][26], fim[N], link[N];
