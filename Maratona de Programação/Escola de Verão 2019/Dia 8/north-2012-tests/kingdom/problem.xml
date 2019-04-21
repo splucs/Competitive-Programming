@@ -1,0 +1,35 @@
+<!--================================================================-->
+<!-- ACM ICPC 2012-2013, NEERC                                      -->
+<!-- Northern Subregional Contest                                   -->
+<!-- St Petersburg, November 3, 2012                                -->
+<!--================================================================-->
+<!-- Problem K. Kingdom Subdivision                                 -->
+<!--                                                                -->
+<!-- Original idea         Andrew Stankevich                        -->
+<!-- Problem statement     Maxim Buzdalov                           -->
+<!-- Test set              Maxim Buzdalov                           -->
+<!--================================================================-->
+
+
+<problem
+    id      = "acm.neerc.2012.qf.kingdom"
+    version = "1.0"
+>
+    <judging>
+        <script type = "%icpc">
+            <testset
+                test-count   = "96"
+                input-href   = "tests/##"
+                answer-href  = "tests/##.a"
+                input-name   = "kingdom.in"
+                output-name  = "kingdom.out"
+                time-limit   = "2s"
+                memory-limit = "268435456"
+            />
+            <verifier type = "%testlib">
+                <binary executable-id = "java.check" file = "check.jar"/>
+            </verifier>
+        </script>
+    </judging>
+</problem>
+

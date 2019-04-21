@@ -140,7 +140,7 @@ int main() {
 			printf("pos %d is the last covered with size %d\n", j, s);
 			FOR(k, n) printf("%d", active[k]);
 			printf("\n");
-			//ans[j] = min(ans[j], s);
+			ans[j] = min(ans[j], s);
 		}
 
 		REP1(i, n-1) ans[i] = min(ans[i], ans[i+1]);

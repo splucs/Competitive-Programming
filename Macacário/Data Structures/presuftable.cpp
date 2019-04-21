@@ -9,13 +9,12 @@ using namespace std;
  * Friend of the Sparse Table
  */
 
-#define neutral 0
+const int neutral = 0;
 #define comp(a, b) ((a)+(b))
 
 int top[2*MAXN];
 
 class PresufTable {
-private:
 	vector< vector<int> > f;
 public:
 	PresufTable(int* st, int* en) {

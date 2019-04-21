@@ -92,7 +92,7 @@ using namespace std;
 
 typedef vector<point> polygon;
 
-double signedArea(polygon & P) {
+double signedArea(polygon &P) {
 	double result = 0.0;
 	int n = P.size();
 	for (int i = 0; i < n; i++) {
@@ -101,7 +101,7 @@ double signedArea(polygon & P) {
 	return result / 2.0;
 }
 
-int leftmostIndex(vector<point> & P) {
+int leftmostIndex(vector<point> &P) {
 	int ans = 0;
 	for(int i=1; i<(int)P.size(); i++) {
 		if (P[i] < P[ans]) ans = i;
@@ -123,7 +123,7 @@ double perimeter(polygon & P) {
 	return result;
 }
 
-double area(polygon & P) {
+double area(polygon &P) {
 	return fabs(signedArea(P));
 }
 
@@ -150,7 +150,7 @@ bool inPolygon(polygon & P, point p) {
 	return fabs(fabs(sum) - 2*acos(-1.0)) < EPS;
 }
 
-polygon cutPolygon(polygon & P, point a, point b) {
+polygon cutPolygon(polygon &P, point a, point b) {
 	vector<point> R;
 	double left1, left2;
 	int n = P.size();

@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <ctime>
-#define INF (1 << 30)
+#define INF 0x3f3f3f3f
 using namespace std;
 
 /*

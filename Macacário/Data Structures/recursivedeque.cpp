@@ -80,6 +80,30 @@ private:
 		cont* x = at(u->c, i>>1);
 		return i & 1 ? x->rs : x->ls;
 	}
+	node* merge(node* u, node* v, cont* c1, cont* c2) {
+		node* w = new node(nodes);
+		if (!u && !v) {
+			w->s[0] = c1; w->s[1] = c2;
+			return w;
+		}
+		if (!u) u = new node(nodes);
+		if (!v) v = new node(nodes);
+		cont *a[4];
+		int k = 0;
+		if (u->s[1]) a[k++] = u->s[1];
+		if (c1) a[k++] = c1;
+		if (c2) a[k++] = c2;
+		if (v->s[0]) a[k++] = u->s[0];
+		w->s[0] = u->s[0];
+		w->s[1] = v->s[1];
+		if ((k&1) && v->s[0]) pop(v, 0);
+		if ((k&1) && v->sz == 0) w->s[1] = a[--k];
+		if (k&1) a[k++] = pop(v, 0);
+		c1 = k > 0 ? new cont(a[0], a[1], conts) : NULL;
+		c2 = k > 2 ? new cont(a[2], a[3], conts) : NULL;
+		w->c = merge(u->c, v->c, c1, c2);
+		return w;
+	}
 public:
 	Deque() { root.push_back(new node(nodes)); }
 	~Deque() {
@@ -96,6 +120,10 @@ public:
 	int pop(int ver, int k) {
 		root.push_back(root[ver]);
 		pop(root.back(), k);
+		return root.size()-1;
+	}
+	int merge(int v1, int v2) {
+		root.push_back(merge(root[v1], root[v2], NULL, NULL));
 		return root.size()-1;
 	}
 	int push_back(int ver, int x) { return push(ver, x, 1); }
@@ -116,9 +144,10 @@ public:
 #include <deque>
 #include <cstdlib>
 #define RANGE 1000
+#define LIMIT 1000
 
 bool test(int ntests) {
-	//srand(time(NULL));
+	srand(time(NULL));
 	vector< deque<int> > control(ntests);
 	Deque deq;
 	for(int test = 1; test < ntests; test++) {
@@ -126,8 +155,16 @@ bool test(int ntests) {
 		int front = rand()%2;
 		int ver = rand()%test;
 		control[test] = control[ver];
-		//printf("test %d: ", test);
-		if (add || control[test].empty()) {
+		printf("test %d: ", test);
+		if (test % 4 == 0 && control[test].size() < LIMIT) {
+			int over;
+			do {
+				over = rand()%test;
+			} while(control[test].size() + control[over].size() > LIMIT);
+			deq.merge(ver, over);
+			control[test].insert(control[test].end(), control[over].begin(), control[over].end());
+		}
+		else if (add || control[test].empty()) {
 			int data = rand()%RANGE;
 			//printf("pushing %d to %s of ver %d...", data, front ? "front" : "back", ver);
 			if (front) {

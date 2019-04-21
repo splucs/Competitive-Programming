@@ -10,7 +10,6 @@
 #define comp(a, b) min((a),(b))
 
 class SparseTable {
-private:
 	int st[MAXN][MAXLOGN];
 	int sz;
 public:
