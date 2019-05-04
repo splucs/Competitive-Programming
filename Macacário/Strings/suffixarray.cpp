@@ -42,7 +42,7 @@ int inv[MAXN];
 int computeLcp(char str[], int sa[], int lcp[]) {
 	int n = strlen(str), k = 0;
 	for(int i = 0; i < n; i++) inv[sa[i]] = i;
-	for(int j = 0; j < n - 1; j++) {
+	for(int j = 0; j < n; j++) {
 		int i = inv[j];
 		if (k < 0) k = 0;
 		while(i > 0 && str[sa[i]+k] == str[sa[i-1]+k]) k++;
