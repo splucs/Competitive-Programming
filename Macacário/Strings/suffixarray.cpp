@@ -5,7 +5,9 @@
 using namespace std;
 
 /*
- * Suffix Array O(n log n) - Andrew Stankevich
+ * Suffix Array
+ * Karp-Miller-Rosenberg's Algorithm (KMR) - O(n log n)
+ * implementation adapted from Andrew Stankevich's class in Brazilian ICPC Summer School 2019
  */
 
 int tsa[MAXN], c[MAXN], tc[MAXN], head[MAXN];
