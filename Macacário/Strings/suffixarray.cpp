@@ -41,7 +41,7 @@ void suffixArray(char str[], int sa[]) {
 
 int inv[MAXN];
 
-int computeLcp(char str[], int sa[], int lcp[]) {
+void computeLcp(char str[], int sa[], int lcp[]) {
 	int n = strlen(str), k = 0;
 	for(int i = 0; i < n; i++) inv[sa[i]] = i;
 	for(int j = 0; j < n; j++) {
@@ -52,25 +52,24 @@ int computeLcp(char str[], int sa[], int lcp[]) {
 	}
 }
 
-int lowerBound(char s[], char t[], int sa[], int n, int m) {
+int bound(char s[], char t[], int sa[], int n, int m, bool upper) {
 	int hi = n, lo = -1;
 	int khi = 0, klo = 0;
 	while(hi > lo + 1) {
 		int mid = (hi + lo) / 2;
 		int i = sa[mid], k = min(klo, khi);
 		while(k < m && s[i+k] == t[k]) k++;
-		if (k == m || s[i+k] > t[k])
-			hi = mid, khi = k;
+		if (k == m && upper) lo = mid, klo = k;
+		else if (k == m && !upper) hi = mid, khi = k;
+		else if (s[i+k] > t[k]) hi = mid, khi = k;
 		else lo = mid, klo = k;
 	}
 	return hi;
 }
 
 int match(char s[], char t[], int sa[], int n, int m) {
-	int l = lowerBound(s, t, sa, n, m);
-	t[m-1]++;
-	int r = lowerBound(s, t, sa, n, m);
-	t[m-1]--;
+	int l = bound(s, t, sa, n, m, false);
+	int r = bound(s, t, sa, n, m, true);
 	return r - l;
 }
 
