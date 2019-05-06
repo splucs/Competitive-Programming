@@ -1,12 +1,11 @@
 #include <vector>
 #include <cstring>
 using namespace std;
+typedef long long ll;
 
 /*
  * Rabin Karp
  */
-
-typedef long long ll;
 
 class RabinKarp {
 	ll m;

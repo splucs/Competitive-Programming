@@ -92,7 +92,7 @@ int reduce(char c) {
 	return -1;
 }
 
-void matchfft(const char *T, const char *P, int *match) {
+void matchfft(const char T[], const char P[], int match[]) {
 	int n = strlen(T), m = strlen(P);
 	memset(match, 0, n*sizeof(int));
 	if (m > n) return;

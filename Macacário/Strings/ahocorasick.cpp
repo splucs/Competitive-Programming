@@ -1,77 +1,62 @@
-#include <cstring>
 #include <queue>
 #include <vector>
 using namespace std;
-#define ALFA 62
+#define ALFA 256
 #define MAXS 2000009
-
 typedef pair<int, int> ii;
 
-int nxt[MAXS][ALFA], fail[MAXS], cnt = 0;
-vector<ii> pats[MAXS];
+/*
+ * Aho-Corasick's Algorithm
+ */
 
-class AhoCorasick {
-private:
-	int root;
-	int suffix(int x, int c) {
-		while (x != root && nxt[x][c] == 0) x = fail[x];
-		return nxt[x][c] ? nxt[x][c] : root;
-	}
-	int newnode() {
-		int x = ++cnt;
-		fail[x] = 0; pats[x].clear();
-		for(int c = 0; c < ALFA; c++) nxt[x][c] = 0;
-		return x;
-	}
-	inline int reduce(char c) {
-		if (c >= 'a' && c <= 'z') return c - 'a';
-		if (c >= 'A' && c <= 'Z') return c - 'A' + ('z'-'a'+1);
-		if (c >= '0' && c <= '9') return c - '0' + 2*('z'-'a'+1);
-		return -1;
-	}
-public:
-	AhoCorasick() { root = newnode(); }
-	void setfails() {
-		queue<int> q;
-		int x, y;
-		q.push(root);
-		while (!q.empty()) {
-			x = q.front(); q.pop();
-			for (int c = 0; c < ALFA; c++) {
-				y = nxt[x][c];
-				if (y == 0) continue;
-				fail[y] = x == root ? x : suffix(fail[x], c);
-				pats[y].insert(pats[y].end(), 
-					pats[fail[y]].begin(), pats[fail[y]].end());
-				q.push(y);
-			}
+int go[MAXS][ALFA], link[MAXS], h[MAXS], cnt = 0;
+vector<int> pats[MAXS], adj[MAXS];
+
+int suffix(int u, char c) {
+	while (u && !go[u][c]) u = link[u];
+	return go[u][c];
+}
+
+void aho() {
+	queue<int> q;
+	q.push(0);
+	while (!q.empty()) {
+		int u = q.front(); q.pop();
+		for (int i = 0; i < (int)adj[u].size(); i++) {
+			int c = adj[u][i];
+			int v = go[u][c];
+			link[v] = u ? suffix(link[u], c) : 0;
+			pats[v].insert(pats[v].end(), pats[link[v]].begin(), pats[link[v]].end());
+			q.push(v);
 		}
 	}
-	void insert(const char* s, int id) {
-		int len = strlen(s);
-		int x = root;
-		for (int i = 0; i < len; i++) {
-			int & y = nxt[x][reduce(s[i])];
-			if (y == 0 || y == root) {
-				y = newnode();
-			}
-			x = y;
+}
+
+void insert(const char s[], int id) {
+	int u = 0;
+	for (int i = 0; s[i]; i++) {
+		int &v = go[u][s[i]];
+		if (!v) {
+			v = ++cnt;
+			adj[u].push_back(s[i]);
+			h[v] = i + 1;
 		}
-		pats[x].push_back(ii(id, len));
+		u = v;
 	}
-	vector<ii> match(const char *s) { //(id, pos)
-		int x = root;
-		vector<ii> ans;
-		for (int i = 0; s[i]; i++) {
-			x = suffix(x, reduce(s[i]));
-			for(int j = 0; j < (int)pats[x].size(); j++) {
-				ii cur = pats[x][j];
-				ans.push_back(ii(cur.first, i - cur.second + 1));
-			}
+	pats[u].push_back(id);
+}
+
+vector<ii> match(const char s[]) { //(id, pos)
+	vector<ii> ans;
+	for (int i = 0, u = 0; s[i]; i++) {
+		u = suffix(u, s[i]);
+		for(int j = 0; j < (int)pats[u].size(); j++) {
+			int id = pats[u][j];
+			ans.push_back(ii(id, i - h[u] + 1));
 		}
-		return ans;
 	}
-};
+	return ans;
+}
 
 /*
  * SPOJ SUB_PROB
@@ -83,16 +68,15 @@ public:
 char str[MAXN], in[MAXN];
 bool found[MAXN];
 int N;
-AhoCorasick aho;
 
 int main() {
 	scanf(" %s %d", str, &N);
 	for (int i = 0; i < N; i++) {
 		scanf(" %s", in);
-		aho.insert(in, i);
+		insert(in, i);
 	}
-	aho.setfails();
-	vector<ii> ans = aho.match(str);
+	aho();
+	vector<ii> ans = match(str);
 	memset(&found, false, sizeof found);
 	for (int i = 0; i < (int)ans.size(); i++) {
 		found[ans[i].first] = true;
