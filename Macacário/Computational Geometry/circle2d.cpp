@@ -72,7 +72,8 @@ struct circle {
 	double chord(double rad) { return  2*r*sin(rad/2.0); }
 	double sector(double rad) { return 0.5*rad*area()/acos(-1.0); }
 	bool intersects(circle other) {
-		return dist(c, other.c) < r + other.r;
+		double distance = dist(c, other.c);
+		return abs(r - other.r) <= distance && distance <= r + other.r;
 	}
 	bool contains(point p) { return dist(c, p) <= r + EPS; }
 	pair<point, point> getTangentPoint(point p) {
