@@ -78,6 +78,7 @@ int main() {
     int ans = 0;
     int fullMask = (1<<reducedCnt)-1;
     int root = getNode("AA");
+    // meet-in-the-middle
     for(int mask = 0; mask < (1<<reducedCnt); mask++) {
         int antiMask = fullMask^mask;
         ans = max(ans, dp[26&1][mask][root] + dp[26&1][antiMask][root]);
