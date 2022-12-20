@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define MAXN 64
-#define max(x, y) ((x) < (y) ? (y) : (x))
 
 int pressure[MAXN];
 vector<int> g[MAXN];
@@ -45,70 +44,44 @@ void readInput() {
     }
 }
 
-int dp[2][33009][MAXN][MAXN];
+int dp[2][33009][MAXN];
 
 int main() {
     readInput();
-    memset(dp, 0, sizeof dp);
 
     for (int d = 0; d <= 26; d++) {
-        for(int u = 0; u < n; u++) for(int w = 0; w < n; w++) {
+        for(int u = 0; u < n; u++) {
             for(int mask = 0; mask < (1<<reducedCnt); mask++) {
-                int &res = dp[d&1][mask][u][w];
+                int &res = dp[d&1][mask][u];
                 res = 0;
                 // base case
                 if (d == 0) {
                     continue;
                 }
-                // optimization with symmetry
-                if (w < u) {
-                    res = dp[d&1][mask][w][u];
-                    continue;
-                }
 
-                // case 1, u opens valve, w expands
+                // if current has pressure, try open;
                 if (pressure[u] > 0) {
                     int ru = reduced[u];
-                    if (!(mask & (1<<ru))) {
-                        int newRes;
-                        for (int gw : g[w]) {
-                            newRes = dp[(d+1)&1][mask|(1<<ru)][u][gw] + (d-1)*pressure[u];
-                            res = max(res, newRes);
-                        }
+                    if (mask & (1<<ru)) {
+                        res = dp[(d+1)&1][mask^(1<<ru)][u] + (d-1)*pressure[u];
                     }
                 }
 
-                // case 2, w opens valve, u expands
-                if (pressure[w] > 0) {
-                    int rw = reduced[w];
-                    if (!(mask & (1<<rw))) {
-                        int newRes;
-                        for (int gu : g[u]) {
-                            newRes = dp[(d+1)&1][mask|(1<<rw)][gu][w] + (d-1)*pressure[w];
-                            res = max(res, newRes);
-                        }
-                    }
-                }
-
-                // case 3, both open valve
-                if (pressure[u] > 0 && pressure[w] > 0 && u != w) {
-                    int ru = reduced[u];
-                    int rw = reduced[w];
-                    if (!(mask & (1<<ru)) && !(mask & (1<<rw))) {
-                        int newRes = dp[(d+1)&1][mask|(1<<ru)|(1<<rw)][u][w] + (d-1)*(pressure[u]+pressure[w]);
-                        res = max(res, newRes);
-                    }
-                }
-
-                //case 4, both expand
-                int newRes;
-                for (int gu : g[u]) for (int gw : g[w]) {
-                    newRes = dp[(d+1)&1][mask][gu][gw];
-                    res = max(res, newRes);
+                // expand
+                for (int v : g[u]) {
+                    res = max(res, dp[(d+1)&1][mask][v]);
                 }
             }
         }
     }
-    printf("%d\n", dp[26&1][0][getNode("AA")][getNode("AA")]);
+
+    int ans = 0;
+    int fullMask = (1<<reducedCnt)-1;
+    int root = getNode("AA");
+    for(int mask = 0; mask < (1<<reducedCnt); mask++) {
+        int antiMask = fullMask^mask;
+        ans = max(ans, dp[26&1][mask][root] + dp[26&1][antiMask][root]);
+    }
+    printf("%d\n", ans);
     return 0;
 }
