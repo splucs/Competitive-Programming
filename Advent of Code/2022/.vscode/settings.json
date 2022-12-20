@@ -1,5 +1,25 @@
 {
     "files.associations": {
-        "queue": "cpp"
+        "queue": "cpp",
+        "__hash_table": "cpp",
+        "__locale": "cpp",
+        "__threading_support": "cpp",
+        "__tree": "cpp",
+        "coroutine": "cpp",
+        "future": "cpp",
+        "locale": "cpp",
+        "regex": "cpp",
+        "string": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "algorithm": "cpp",
+        "*.tcc": "cpp",
+        "bitset": "cpp",
+        "condition_variable": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "string_view": "cpp",
+        "variant": "cpp",
+        "*.inc": "cpp"
     }
 }

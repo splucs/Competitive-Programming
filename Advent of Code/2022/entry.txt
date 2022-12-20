@@ -1,55 +1,27 @@
-Monkey 0:
-  Starting items: 91, 54, 70, 61, 64, 64, 60, 85
-  Operation: new = old * 13
-  Test: divisible by 2
-    If true: throw to monkey 5
-    If false: throw to monkey 2
-
-Monkey 1:
-  Starting items: 82
-  Operation: new = old + 7
-  Test: divisible by 13
-    If true: throw to monkey 4
-    If false: throw to monkey 3
-
-Monkey 2:
-  Starting items: 84, 93, 70
-  Operation: new = old + 2
-  Test: divisible by 5
-    If true: throw to monkey 5
-    If false: throw to monkey 1
-
-Monkey 3:
-  Starting items: 78, 56, 85, 93
-  Operation: new = old * 2
-  Test: divisible by 3
-    If true: throw to monkey 6
-    If false: throw to monkey 7
-
-Monkey 4:
-  Starting items: 64, 57, 81, 95, 52, 71, 58
-  Operation: new = old * old
-  Test: divisible by 11
-    If true: throw to monkey 7
-    If false: throw to monkey 3
-
-Monkey 5:
-  Starting items: 58, 71, 96, 58, 68, 90
-  Operation: new = old + 6
-  Test: divisible by 17
-    If true: throw to monkey 4
-    If false: throw to monkey 1
-
-Monkey 6:
-  Starting items: 56, 99, 89, 97, 81
-  Operation: new = old + 1
-  Test: divisible by 7
-    If true: throw to monkey 0
-    If false: throw to monkey 2
-
-Monkey 7:
-  Starting items: 68, 72
-  Operation: new = old + 8
-  Test: divisible by 19
-    If true: throw to monkey 6
-    If false: throw to monkey 0
+Sensor at x=2983166, y=2813277: closest beacon is at x=3152133, y=2932891
+Sensor at x=2507490, y=122751: closest beacon is at x=1515109, y=970092
+Sensor at x=3273116, y=2510538: closest beacon is at x=3152133, y=2932891
+Sensor at x=1429671, y=995389: closest beacon is at x=1515109, y=970092
+Sensor at x=2465994, y=2260162: closest beacon is at x=2734551, y=2960647
+Sensor at x=2926899, y=3191882: closest beacon is at x=2734551, y=2960647
+Sensor at x=1022491, y=1021177: closest beacon is at x=1515109, y=970092
+Sensor at x=1353273, y=1130973: closest beacon is at x=1515109, y=970092
+Sensor at x=1565476, y=2081049: closest beacon is at x=1597979, y=2000000
+Sensor at x=1841125, y=1893566: closest beacon is at x=1597979, y=2000000
+Sensor at x=99988, y=71317: closest beacon is at x=86583, y=-1649857
+Sensor at x=3080600, y=3984582: closest beacon is at x=3175561, y=4138060
+Sensor at x=3942770, y=3002123: closest beacon is at x=3724687, y=3294321
+Sensor at x=1572920, y=2031447: closest beacon is at x=1597979, y=2000000
+Sensor at x=218329, y=1882777: closest beacon is at x=1597979, y=2000000
+Sensor at x=1401723, y=1460526: closest beacon is at x=1515109, y=970092
+Sensor at x=2114094, y=985978: closest beacon is at x=1515109, y=970092
+Sensor at x=3358586, y=3171857: closest beacon is at x=3152133, y=2932891
+Sensor at x=1226284, y=3662922: closest beacon is at x=2514367, y=3218259
+Sensor at x=3486366, y=3717867: closest beacon is at x=3724687, y=3294321
+Sensor at x=1271873, y=831354: closest beacon is at x=1515109, y=970092
+Sensor at x=3568311, y=1566400: closest beacon is at x=3152133, y=2932891
+Sensor at x=3831960, y=3146611: closest beacon is at x=3724687, y=3294321
+Sensor at x=2505534, y=3196726: closest beacon is at x=2514367, y=3218259
+Sensor at x=2736967, y=3632098: closest beacon is at x=2514367, y=3218259
+Sensor at x=3963402, y=3944423: closest beacon is at x=3724687, y=3294321
+Sensor at x=1483115, y=2119639: closest beacon is at x=1597979, y=2000000
