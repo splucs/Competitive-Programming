@@ -210,4 +210,3 @@ public class log_sm {
         new log_sm().run();
     }
 }
-

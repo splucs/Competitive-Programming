@@ -38,4 +38,3 @@ public class Check implements Checker {
         return outcome(OK, "%d numbers", index);
     }
 }
-

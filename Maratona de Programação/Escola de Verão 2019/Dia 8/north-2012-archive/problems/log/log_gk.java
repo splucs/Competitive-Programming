@@ -334,4 +334,3 @@ public class log_gk {
         out.close();
     }
 }
-
