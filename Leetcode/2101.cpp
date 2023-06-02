@@ -20,7 +20,7 @@ public:
         // Modification of floyd-warshall
         for (int k = 0; k < n; k++) {
             for (int i = 0; i < n; i++) {
-            if (!g[i][k]) continue;
+                if (!g[i][k]) continue;
                 for (int j = 0; j < n; j++) {
                     if (!g[k][j]) continue;
                     g[i][j] = true;
