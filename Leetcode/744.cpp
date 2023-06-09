@@ -1,7 +1,7 @@
 class Solution {
 public:
     char nextGreatestLetter(vector<char>& letters, char target) {
-        // low always point to <= target, hi always point to > target
+        // lo always point to <= target, hi always point to > target
         int lo = -1, hi = letters.size();
 
         // find the point were lo + 1 == hi
