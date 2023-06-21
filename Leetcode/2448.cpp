@@ -29,7 +29,7 @@ public:
             slope = newSlope;
         }
 
-        // Calculate answer by making all points equal to opt
+        // Calculate answer by making all points equal to target
         long long ans = 0;
         for (int i = 0; i < n; i++) {
             long long d = nums[i] - target;
