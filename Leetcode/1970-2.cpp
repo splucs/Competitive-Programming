@@ -25,7 +25,6 @@ public:
             viz[i][j] = -1;
         }
         
-        stack<int> qi, qj;
         for (int j = 0; j < m; j++) {
             if (viz[0][j] == 0 && dfs(0, j)) {
                 return true;
