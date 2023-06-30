@@ -27,6 +27,9 @@ public:
             int i = cur.second.first;
             int j = cur.second.second;
             viz[i][j] = true;
+            if (i+1 == row) {
+                return d;
+            }
 
             for (int dir = 0; dir < 4; dir++) {
                 int ni = i + di[dir];
@@ -43,12 +46,7 @@ public:
                 s.insert(nxt);
             }
         }
-
-        int ans = 0;
-        for (int j = 0; j < col; j++) {
-            ans = max(ans, maxDay[row-1][j]);
-        }
-        return ans;
+        return -1;
     }
 };
 
