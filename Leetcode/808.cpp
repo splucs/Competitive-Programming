@@ -5,10 +5,8 @@ private:
     const int MAXN = 175;
 public:
     double soupServings(int n) {
-        if (n%25 != 0) {
-            n += 25 - (n%25);
-        }
-        n /= 25;
+        n = (n+24)/25;
+        if (n > 5000) return 1;
 
         // Conjecture: the answer converges and MAXN is enough precision
         if (n > MAXN) n = MAXN;
@@ -29,6 +27,7 @@ public:
                 }
 
                 // Recursion
+                ans = 0;
                 for (int k = 0; k < 4; k++) {
                     int ni = i + di[k];
                     if (ni < 0) ni = 0;
@@ -36,7 +35,7 @@ public:
                     if (nj < 0) nj = 0;
                     ans += dp[ni][nj];
                 }
-                ans /= 4.0;
+                ans *= 0.25;
             }
         }
         return dp[n][n];
