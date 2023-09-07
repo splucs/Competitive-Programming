@@ -30,7 +30,9 @@ public:
             }
         }
         first->next = after;
-        if (before != NULL) before->next = last;
+        if (before != NULL) {
+            before->next = last;
+        }
         if (left == 1) {
             return last;
         }
