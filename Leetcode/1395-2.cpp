@@ -2,7 +2,7 @@ class FenwickTree {
 private:
 	vector<int> ft;
 public:
-	FenwickTree(int n) {
+    FenwickTree(int n) {
         ft.assign(n + 1, 0);
     }
     int rsq(int i) {
