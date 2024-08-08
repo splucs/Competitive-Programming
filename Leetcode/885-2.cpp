@@ -7,11 +7,7 @@ public:
         for (int d = 1; left > 0; d++) {
             for (int dt = 0; dt < 2 && left > 0; dt++) {
                 for (int it = 0, toWalk; it < d && left > 0; it += toWalk) {
-                    if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                        left--;
-                        ans.push_back({i, j});
-                        toWalk = 1;
-                    } else if (i < 0) {
+                    if (i < 0) {
                         toWalk = di < 1 ? d-it : -i;
                     } else if (j < 0) {
                         toWalk = dj < 1 ? d-it : -j;
@@ -19,6 +15,10 @@ public:
                         toWalk = di > -1 ? d-it : i-rows+1;
                     } else if (j >= cols) {
                         toWalk = dj > -1 ? d-it : j-cols+1;
+                    } else {
+                        left--;
+                        ans.push_back({i, j});
+                        toWalk = 1;
                     }
                     i += toWalk*di;
                     j += toWalk*dj;
