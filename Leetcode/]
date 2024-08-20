@@ -1,0 +1,48 @@
+class Solution {
+private:
+    vector<int> freq;
+    vector<vector<bool>> deadEnd;
+    vector<vector<int>> ans;
+    vector<int> cur;
+
+    bool recurse(int i, int target) {
+        if (target == 0) {
+            ans.push_back(cur);
+            return false;
+        }
+        if (i == -1) {
+            return true;
+        }
+
+        if (deadEnd[i][target]) {
+            return true;
+        }
+
+        deadEnd[i][target] = true;
+        int cnt, sum;
+        for (cnt = 0, sum = target; cnt <= freq[i] && sum >= 0; cnt++) {
+            if (!recurse(min(i-1, sum), sum)) {
+                deadEnd[i][target] = false;
+            }
+            sum -= i;
+            cur.push_back(i);
+        }
+        while (cnt --> 0) {
+            cur.pop_back();
+        }
+        return deadEnd[i][target];
+    }
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        freq.assign(target+1, 0);
+        for (int cand : candidates) {
+            if (cand <= target) {
+                freq[cand]++;
+            }
+        }
+        deadEnd.assign(target+1, vector<bool>(target+1, false));
+
+        recurse(target, target);
+        return ans;
+    }
+};
